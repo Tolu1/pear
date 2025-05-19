@@ -9,4 +9,9 @@ export class AppController {
   getHello(): string {
     return this.appService.getHello();
   }
+
+  @Get('table/')
+  async getTable(): Promise<any[]> {
+    return await this.appService.getTable('playing_with_neon');
+  }
 }
