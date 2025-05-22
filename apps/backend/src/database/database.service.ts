@@ -3,12 +3,13 @@ import { ConfigService } from '@nestjs/config';
 import { neon, neonConfig } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import ws from 'ws';
+import * as schema from './database.schema';
 
 neonConfig.webSocketConstructor = ws;
 
 @Injectable()
 export class DatabaseService {
-  public readonly db;
+  public readonly db: ReturnType<typeof drizzle<typeof schema>>;
 
   constructor(private configService: ConfigService) {
     const databaseUrl = this.configService.get<string>('DATABASE_URL');
