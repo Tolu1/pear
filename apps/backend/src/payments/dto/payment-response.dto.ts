@@ -6,6 +6,10 @@ export class PaymentResponseDto {
   paymentUrl: string;
   @IsDecimal()
   amount: string;
-  currency: string;
+  currencyCode: string;
+  tokenId: string;
+  from: string;
+  tokenAmount: string;
   status: string;
+  createdAt: Date;
 }

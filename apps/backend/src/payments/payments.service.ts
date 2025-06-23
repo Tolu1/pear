@@ -6,20 +6,28 @@ import { PaymentResponseDto } from './dto/payment-response.dto';
 import { DatabaseService } from '../database/database.service';
 import { payments } from '../database/database.schema';
 import { PaymentsEventsService } from './payments-events.service';
-import { type PaymentStatus } from 'src/database/database.types';
+import { type PaymentStatus } from '../database/database.types';
 import { Observable } from 'rxjs';
+import { ExchangeRateService } from '../exchange-rate/exchange-rate.service';
 
 @Injectable()
 export class PaymentsService {
   constructor(
     private databaseService: DatabaseService,
     private readonly paymentsEventsService: PaymentsEventsService,
+    private readonly exchangeRateService: ExchangeRateService,
   ) {}
 
   async create(
     createPaymentDto: CreatePaymentDto,
   ): Promise<PaymentResponseDto> {
     const id = uuidv4();
+
+    const tokenAmount = await this.exchangeRateService.convert(
+      createPaymentDto.amount,
+      createPaymentDto.currencyCode,
+      createPaymentDto.tokenId,
+    );
 
     const [payment] = await this.databaseService.db
       .insert(payments)
@@ -28,7 +36,10 @@ export class PaymentsService {
         domain: createPaymentDto.domain,
         paymentUrl: createPaymentDto.paymentUrl,
         amount: createPaymentDto.amount,
-        currency: createPaymentDto.currency,
+        currencyCode: createPaymentDto.currencyCode,
+        tokenId: createPaymentDto.tokenId,
+        tokenAmount: tokenAmount,
+        from: createPaymentDto.from,
         status: 'created',
       })
       .returning();

@@ -1,11 +1,12 @@
+import { IsNotEmpty, IsString, IsEnum, IsDecimal, IsIn } from 'class-validator';
 import {
-  IsNotEmpty,
-  IsString,
-  IsNumber,
-  IsEnum,
-  Min,
-  IsDecimal,
-} from 'class-validator';
+  type CurrencyCode,
+  SUPPORTED_CURRENCIES_CODES,
+} from '../constants/supported-currencies.contant';
+import {
+  type TokenId,
+  SUPPORTED_TOKEN_IDS,
+} from '../../tokens/constants/supported-tokens.constant';
 
 export class CreatePaymentDto {
   @IsNotEmpty()
@@ -22,6 +23,15 @@ export class CreatePaymentDto {
 
   @IsNotEmpty()
   @IsString()
-  @IsEnum(['NGN', 'USD', 'EUR', 'GBP'])
-  currency: string;
+  @IsEnum(SUPPORTED_CURRENCIES_CODES)
+  currencyCode: CurrencyCode;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsIn(SUPPORTED_TOKEN_IDS)
+  tokenId: TokenId;
+
+  @IsNotEmpty()
+  @IsString()
+  from: `0x${string}`;
 }
