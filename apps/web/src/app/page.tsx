@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import Wave from "@/components/wave";
 import ProductShowcase from "@/components/product-showcase";
-import { Button } from "@/components/ui/button";
+import InstallButton from "@/components/install-button";
 
 export default function Page() {
   return (
@@ -30,9 +30,7 @@ export default function Page() {
         <ProductShowcase />
 
         <div className="flex w-full flex-col items-center gap-2 px-6">
-          <Button size="lg" className="w-full md:w-fit">
-            Install Free Extension
-          </Button>
+          <InstallButton />
           <p className="leading-[18px] tracking-[-0.08em] text-black/50">
             Chrome & Firefox supported
           </p>

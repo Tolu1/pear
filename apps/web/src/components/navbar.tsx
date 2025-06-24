@@ -1,6 +1,8 @@
+"use client";
 import React from "react";
 import Logo from "@/components/logo";
 import { Button } from "@/components/ui/button";
+import posthog from "posthog-js";
 
 function Navbar() {
   return (
@@ -18,7 +20,17 @@ function Navbar() {
           fill="#1A1A1A"
         />
       </svg>
-      <Button className="gap-2.5">
+      <Button
+        className="gap-2.5"
+        onClick={() =>
+          posthog.capture("install_button_clicked", {
+            source: "landing_page",
+            section: "navbar",
+            user_agent: navigator.userAgent,
+            timestamp: new Date().toISOString(),
+          })
+        }
+      >
         Install
         <svg
           xmlns="http://www.w3.org/2000/svg"

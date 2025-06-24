@@ -3,6 +3,7 @@ import { Kode_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { AppProvider } from "@/providers/app";
 import Navbar from "@/components/navbar";
 
 const astra = localFont({
@@ -63,8 +64,10 @@ export default function RootLayout({
           mono.variable,
         )}
       >
-        <Navbar />
-        {children}
+        <AppProvider>
+          <Navbar />
+          {children}
+        </AppProvider>
       </body>
     </html>
   );
