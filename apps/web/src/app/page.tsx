@@ -48,7 +48,7 @@ function Features() {
   return (
     <ul className="flex w-full flex-col items-center justify-center gap-4 font-mono md:flex-row md:gap-2.5">
       <li className="w-full max-w-[321px] md:w-fit">
-        <Badge className="h-10 w-full gap-1 rounded-[24px] border border-black bg-[#D6D58B] px-4 py-2 [&>svg]:size-6">
+        <Badge className="h-10 w-full justify-start gap-1 rounded-[24px] border border-black bg-[#D6D58B] px-4 py-2 [&>svg]:size-6">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -90,7 +90,7 @@ function Features() {
         •
       </span>
       <li className="w-full max-w-[321px] md:w-fit">
-        <Badge className="h-10 w-full gap-1 rounded-[24px] border border-black bg-[#D6D58B] px-4 py-2 [&>svg]:size-5">
+        <Badge className="h-10 w-full justify-start gap-1 rounded-[24px] border border-black bg-[#D6D58B] px-4 py-2 [&>svg]:size-5">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="20"
@@ -112,7 +112,7 @@ function Features() {
         •
       </span>
       <li className="w-full max-w-[321px] md:w-fit">
-        <Badge className="h-10 w-full gap-1 rounded-[24px] border border-black bg-[#D6D58B] px-4 py-2 [&>svg]:size-6">
+        <Badge className="h-10 w-full justify-start gap-1 rounded-[24px] border border-black bg-[#D6D58B] px-4 py-2 [&>svg]:size-6">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
