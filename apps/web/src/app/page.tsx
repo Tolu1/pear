@@ -29,11 +29,14 @@ export default function Page() {
         </div>
         <ProductShowcase />
 
-        <div className="flex w-full flex-col items-center gap-2 px-6">
-          <InstallButton />
-          <p className="leading-[18px] tracking-[-0.08em] text-black/50">
-            Chrome & Firefox supported
-          </p>
+        <div className="flex w-full flex-col items-center gap-4 px-6">
+          <HowItWorksMobile />
+          <div className="flex w-full flex-col items-center gap-2">
+            <InstallButton />
+            <p className="leading-[18px] tracking-[-0.08em] text-black/50">
+              Chrome & Firefox supported
+            </p>
+          </div>
         </div>
       </div>
       <div className="pt-24" />
@@ -132,5 +135,32 @@ function Features() {
         </Badge>
       </li>
     </ul>
+  );
+}
+
+function HowItWorksMobile() {
+  return (
+    <ol className="grid grid-cols-3 gap-4 text-center md:hidden">
+      <li className="flex flex-col items-center gap-1">
+        <div className="flex size-12 items-center justify-center rounded-[24px] border-[13px] border-[#0E140EE5] bg-white py-[9px]">
+          <span className="font-bold tracking-[-0.08em] text-[#0E140E]">1</span>
+        </div>
+        <p className="tracking-[-0.08em] whitespace-nowrap text-black/50">
+          AI intercepts checkout
+        </p>
+      </li>
+      <li className="flex flex-col items-center gap-1">
+        <div className="flex size-12 items-center justify-center rounded-[24px] border-[13px] border-[#0E140EE5] bg-white py-[9px]">
+          <span className="font-bold tracking-[-0.08em] text-[#0E140E]">2</span>
+        </div>
+        <p className="tracking-[-0.08em] text-black/50">You pay crypto</p>
+      </li>
+      <li className="flex flex-col items-center gap-1">
+        <div className="flex size-12 items-center justify-center rounded-[24px] border-[13px] border-[#0E140EE5] bg-white py-[9px]">
+          <span className="font-bold tracking-[-0.08em] text-[#0E140E]">3</span>
+        </div>
+        <p className="tracking-[-0.08em] text-black/50">Merchant is happy</p>
+      </li>
+    </ol>
   );
 }
