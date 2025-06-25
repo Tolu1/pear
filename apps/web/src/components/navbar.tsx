@@ -5,6 +5,17 @@ import { Button } from "@/components/ui/button";
 import posthog from "posthog-js";
 
 function Navbar() {
+  function handleClick() {
+    posthog.capture("install_button_clicked", {
+      source: "landing_page",
+      section: "hero",
+      user_agent: navigator.userAgent,
+      timestamp: new Date().toISOString(),
+    });
+
+    window.open("https://tally.so/r/w7O8o0", "_blank", "noopener,noreferrer");
+  }
+
   return (
     <nav className="flex items-center justify-between bg-[#D6D58B] px-6 py-2">
       <Logo />
@@ -20,17 +31,7 @@ function Navbar() {
           fill="#1A1A1A"
         />
       </svg>
-      <Button
-        className="gap-2.5"
-        onClick={() =>
-          posthog.capture("install_button_clicked", {
-            source: "landing_page",
-            section: "navbar",
-            user_agent: navigator.userAgent,
-            timestamp: new Date().toISOString(),
-          })
-        }
-      >
+      <Button className="gap-2.5" onClick={handleClick}>
         Install
         <svg
           xmlns="http://www.w3.org/2000/svg"
