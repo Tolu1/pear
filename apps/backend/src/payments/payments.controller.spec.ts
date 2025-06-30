@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PaymentsController } from './payments.controller';
 import { PaymentsService } from './payments.service';
+import { CreatePaymentDto } from './dto/create-payment.dto';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { of } from 'rxjs';
 
@@ -9,21 +10,28 @@ describe('PaymentsController', () => {
 
   const mockPayment = {
     id: 'mock-id',
-    domain: 'example.com',
+    merchantDomain: 'example.com',
     paymentUrl: 'https://example.com/payment',
-    amount: '100.00',
-    currency: 'NGN',
+    from: '0x1234567890123456789012345678901234567890',
+    fiatAmount: '100.00',
+    fiatCurrencyCode: 'ngn',
+    tokenId: 'usd-coin',
+    tokenAmount: '50.00',
+    blockchain: 'lisk',
     status: 'created',
     createdAt: new Date(),
     updatedAt: new Date(),
   };
 
   const createPaymentDto = {
-    domain: 'example.com',
+    merchantDomain: 'example.com',
     paymentUrl: 'https://example.com/payment',
-    amount: '100.00',
-    currency: 'NGN',
-  };
+    from: '0x1234567890123456789012345678901234567890',
+    fiatAmount: '100.00',
+    fiatCurrencyCode: 'ngn',
+    tokenId: 'usd-coin',
+    blockchain: 'lisk',
+  } satisfies CreatePaymentDto;
 
   const mockPaymentsService = {
     create: jest.fn().mockResolvedValue(mockPayment),

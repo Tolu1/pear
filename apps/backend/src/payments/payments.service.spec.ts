@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PaymentsService } from './payments.service';
 import { DatabaseService } from '../database/database.service';
+import { CreatePaymentDto } from './dto/create-payment.dto';
+import { ExchangeRateService } from '../exchange-rate/exchange-rate.service';
 import { PaymentsEventsService } from './payments-events.service';
 import { v4 as uuidv4 } from 'uuid';
 import { Observable } from 'rxjs';
@@ -13,10 +15,14 @@ describe('PaymentsService', () => {
   const mockReturningValue = [
     {
       id: 'mock-id',
-      domain: 'example.com',
+      merchantDomain: 'example.com',
       paymentUrl: 'https://example.com/payment',
-      amount: '100.00',
-      currency: 'NGN',
+      from: '0x1234567890123456789012345678901234567890',
+      fiatAmount: '100.00',
+      fiatCurrencyCode: 'ngn',
+      tokenId: 'usd-coin',
+      tokenAmount: '50.00',
+      blockchain: 'lisk',
       status: 'created',
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -36,6 +42,11 @@ describe('PaymentsService', () => {
     },
   };
 
+  const mockExchangeRateService = {
+    convert: jest.fn().mockResolvedValue('50.00'),
+    getRate: jest.fn().mockResolvedValue('0.50'),
+  };
+
   const mockPaymentsEventsService = {
     sendEvent: jest.fn(),
     subscribeToPaymentEvents: jest.fn().mockReturnValue(new Observable()),
@@ -47,10 +58,17 @@ describe('PaymentsService', () => {
     (uuidv4 as jest.Mock).mockReturnValue('mock-id');
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [PaymentsService, DatabaseService, PaymentsEventsService],
+      providers: [
+        PaymentsService,
+        DatabaseService,
+        ExchangeRateService,
+        PaymentsEventsService,
+      ],
     })
       .overrideProvider(DatabaseService)
       .useValue(mockDatabaseService)
+      .overrideProvider(ExchangeRateService)
+      .useValue(mockExchangeRateService)
       .overrideProvider(PaymentsEventsService)
       .useValue(mockPaymentsEventsService)
       .compile();
@@ -68,11 +86,14 @@ describe('PaymentsService', () => {
 
   it('should create a payment', async () => {
     const createPaymentDto = {
-      domain: 'example.com',
+      merchantDomain: 'example.com',
       paymentUrl: 'https://example.com/payment',
-      amount: '100.00',
-      currency: 'NGN',
-    };
+      from: '0x1234567890123456789012345678901234567890',
+      fiatAmount: '100.00',
+      fiatCurrencyCode: 'ngn',
+      tokenId: 'usd-coin',
+      blockchain: 'lisk',
+    } satisfies CreatePaymentDto;
     const payment = await service.create(createPaymentDto);
     const expectedPayment = mockReturningValue[0];
 
@@ -81,11 +102,15 @@ describe('PaymentsService', () => {
 
   it('should trigger mock payment flow', async () => {
     const createPaymentDto = {
-      domain: 'example.com',
+      merchantDomain: 'example.com',
       paymentUrl: 'https://example.com/payment',
-      amount: '100.00',
-      currency: 'NGN',
-    };
+      from: '0x1234567890123456789012345678901234567890',
+      fiatAmount: '100.00',
+      fiatCurrencyCode: 'ngn',
+      tokenId: 'usd-coin',
+      blockchain: 'lisk',
+    } satisfies CreatePaymentDto;
+
     const mockPaymentFlowSpy = jest.spyOn(service as any, 'mockPaymentFlow');
     await service.create(createPaymentDto);
 
@@ -104,11 +129,14 @@ describe('PaymentsService', () => {
 
   it('should simulate a payment flow', async () => {
     const createPaymentDto = {
-      domain: 'example.com',
+      merchantDomain: 'example.com',
       paymentUrl: 'https://example.com/payment',
-      amount: '100.00',
-      currency: 'NGN',
-    };
+      from: '0x1234567890123456789012345678901234567890',
+      fiatAmount: '100.00',
+      fiatCurrencyCode: 'ngn',
+      tokenId: 'usd-coin',
+      blockchain: 'lisk',
+    } satisfies CreatePaymentDto;
     const updateStatusSpy = jest.spyOn(service as any, 'updateStatus');
     await service.create(createPaymentDto);
 

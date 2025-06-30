@@ -2,43 +2,59 @@ import { Injectable, MessageEvent } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { eq } from 'drizzle-orm';
 import { CreatePaymentDto } from './dto/create-payment.dto';
-import { PaymentResponseDto } from './dto/payment-response.dto';
+import { Payment } from './interfaces/payment.interface';
 import { DatabaseService } from '../database/database.service';
 import { payments } from '../database/database.schema';
 import { PaymentsEventsService } from './payments-events.service';
-import { type PaymentStatus } from 'src/database/database.types';
+import { type PaymentStatus } from '../database/database.types';
 import { Observable } from 'rxjs';
+import { ExchangeRateService } from '../exchange-rate/exchange-rate.service';
 
 @Injectable()
 export class PaymentsService {
   constructor(
     private databaseService: DatabaseService,
     private readonly paymentsEventsService: PaymentsEventsService,
+    private readonly exchangeRateService: ExchangeRateService,
   ) {}
 
-  async create(
-    createPaymentDto: CreatePaymentDto,
-  ): Promise<PaymentResponseDto> {
+  async create(createPaymentDto: CreatePaymentDto): Promise<Payment> {
     const id = uuidv4();
+
+    const tokenAmount = await this.exchangeRateService.convert(
+      createPaymentDto.fiatAmount,
+      createPaymentDto.fiatCurrencyCode,
+      createPaymentDto.tokenId,
+    );
 
     const [payment] = await this.databaseService.db
       .insert(payments)
       .values({
         id,
-        domain: createPaymentDto.domain,
+        merchantDomain: createPaymentDto.merchantDomain,
         paymentUrl: createPaymentDto.paymentUrl,
-        amount: createPaymentDto.amount,
-        currency: createPaymentDto.currency,
+        from: createPaymentDto.from,
+        fiatAmount: createPaymentDto.fiatAmount,
+        fiatCurrencyCode: createPaymentDto.fiatCurrencyCode,
+        tokenId: createPaymentDto.tokenId,
+        tokenAmount: tokenAmount,
+        blockchain: createPaymentDto.blockchain,
         status: 'created',
       })
       .returning();
 
     this.mockPaymentFlow(id);
 
-    return payment;
+    return {
+      ...payment,
+      from: payment.from as `0x${string}`,
+      fiatCurrencyCode: payment.fiatCurrencyCode as Payment['fiatCurrencyCode'],
+      tokenId: payment.tokenId as Payment['tokenId'],
+      blockchain: payment.blockchain as Payment['blockchain'],
+    };
   }
 
-  async findOne(id: string): Promise<PaymentResponseDto> {
+  async findOne(id: string): Promise<Payment> {
     const [payment] = await this.databaseService.db
       .select()
       .from(payments)
@@ -48,7 +64,13 @@ export class PaymentsService {
       throw new Error('Payment not found');
     }
 
-    return payment;
+    return {
+      ...payment,
+      from: payment.from as `0x${string}`,
+      fiatCurrencyCode: payment.fiatCurrencyCode as Payment['fiatCurrencyCode'],
+      tokenId: payment.tokenId as Payment['tokenId'],
+      blockchain: payment.blockchain as Payment['blockchain'],
+    };
   }
 
   subscribeToPaymentEvents(id: string): Observable<MessageEvent> {
