@@ -93,6 +93,7 @@ describe('PaymentsService', () => {
       fiatCurrencyCode: 'ngn',
       tokenId: 'usd-coin',
       blockchain: 'lisk',
+      cookies: ['cookie1=value1', 'cookie2=value2'],
     } satisfies CreatePaymentDto;
     const payment = await service.create(createPaymentDto);
     const expectedPayment = mockReturningValue[0];
@@ -109,6 +110,7 @@ describe('PaymentsService', () => {
       fiatCurrencyCode: 'ngn',
       tokenId: 'usd-coin',
       blockchain: 'lisk',
+      cookies: ['cookie1=value1', 'cookie2=value2'],
     } satisfies CreatePaymentDto;
 
     const mockPaymentFlowSpy = jest.spyOn(service as any, 'mockPaymentFlow');
@@ -136,6 +138,7 @@ describe('PaymentsService', () => {
       fiatCurrencyCode: 'ngn',
       tokenId: 'usd-coin',
       blockchain: 'lisk',
+      cookies: ['cookie1=value1', 'cookie2=value2'],
     } satisfies CreatePaymentDto;
     const updateStatusSpy = jest.spyOn(service as any, 'updateStatus');
     await service.create(createPaymentDto);

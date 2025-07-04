@@ -5,6 +5,7 @@ import { PaymentsModule } from './payments/payments.module';
 import { ExchangeRateService } from './exchange-rate/exchange-rate.service';
 import { BlockchainModule } from './blockchain/blockchain.module';
 import { TokensModule } from './tokens/tokens.module';
+import { AdaptersModule } from './adapters/adapters.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { TokensModule } from './tokens/tokens.module';
     PaymentsModule,
     BlockchainModule,
     TokensModule,
+    AdaptersModule,
   ],
   providers: [ExchangeRateService],
 })

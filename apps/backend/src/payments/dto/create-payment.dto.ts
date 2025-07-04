@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString, IsEnum, IsDecimal, IsIn } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsNumberString,
+  IsIn,
+  IsArray,
+} from 'class-validator';
 import {
   type CurrencyCode,
   SUPPORTED_CURRENCIES_CODES,
@@ -24,12 +30,12 @@ export class CreatePaymentDto {
   from: `0x${string}`;
 
   @IsNotEmpty()
-  @IsDecimal()
+  @IsNumberString()
   fiatAmount: string;
 
   @IsNotEmpty()
   @IsString()
-  @IsEnum(SUPPORTED_CURRENCIES_CODES)
+  @IsIn(SUPPORTED_CURRENCIES_CODES)
   fiatCurrencyCode: CurrencyCode;
 
   @IsNotEmpty()
@@ -41,4 +47,8 @@ export class CreatePaymentDto {
   @IsString()
   @IsIn(SUPPORTED_BLOCKCHAINS)
   blockchain: Blockchain;
+
+  @IsArray()
+  @IsString({ each: true })
+  cookies: string[];
 }

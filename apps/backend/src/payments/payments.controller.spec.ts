@@ -31,6 +31,7 @@ describe('PaymentsController', () => {
     fiatCurrencyCode: 'ngn',
     tokenId: 'usd-coin',
     blockchain: 'lisk',
+    cookies: ['cookie1=value1', 'cookie2=value2'],
   } satisfies CreatePaymentDto;
 
   const mockPaymentsService = {

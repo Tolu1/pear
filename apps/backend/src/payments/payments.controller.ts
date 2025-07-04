@@ -36,6 +36,15 @@ export class PaymentsController {
     }
   }
 
+  @Get(':id/status')
+  async getPaymentStatus(@Param('id') id: string) {
+    const payment = await this.paymentsService.findOne(id);
+    return {
+      id: payment.id,
+      status: payment.status,
+    };
+  }
+
   @Sse(':id/events')
   subscribeToPaymentEvents(@Param('id') id: string) {
     return this.paymentsService.subscribeToPaymentEvents(id);
