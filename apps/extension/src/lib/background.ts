@@ -33,3 +33,7 @@ chrome.runtime.onMessage.addListener(
     return false;
   }
 );
+
+chrome.action.onClicked.addListener((tab) => {
+  chrome.sidePanel.open({ tabId: tab.id, windowId: tab.windowId }, () => {});
+});
