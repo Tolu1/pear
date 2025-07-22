@@ -1,0 +1,56 @@
+function isCheckoutPage() {
+  const patterns = [
+    "checkout",
+    "payment",
+    "cart",
+    "order",
+    "purchase",
+    "pay",
+    "billing",
+  ];
+  const currentUrl = location.href.toLowerCase();
+
+  const isCheckoutUrl = patterns.some((pattern) =>
+    currentUrl.includes(pattern)
+  );
+
+  if (isCheckoutUrl) {
+    chrome.runtime.sendMessage({ type: "CHECKOUT_DETECTED" }, (response) => {
+      console.log("Checkout detected:", response);
+    });
+  }
+}
+
+isCheckoutPage();
+
+chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
+  if (message.type === "CLICK_CHECKOUT_BUTTON") {
+    console.log("🛒 Looking for checkout button...");
+
+    // Look for the specific checkout button
+    const checkoutButton = document.querySelector(
+      'a[href="/checkout/summary/"]'
+    ) as HTMLElement;
+
+    if (checkoutButton) {
+      console.log("✅ Found checkout button:", checkoutButton);
+      console.log("Button text:", checkoutButton.textContent);
+      console.log("Button href:", checkoutButton.getAttribute("href"));
+
+      // Click the button
+      try {
+        checkoutButton.click();
+        console.log("🖱️ Clicked checkout button successfully!");
+        sendResponse({ success: true, message: "Checkout button clicked" });
+      } catch (error: any) {
+        console.error("❌ Error clicking button:", error);
+        sendResponse({ success: false, error: error.message });
+      }
+    } else {
+      console.log("❌ Checkout button not found");
+      sendResponse({ success: false, error: "Checkout button not found" });
+    }
+  }
+
+  return true;
+});

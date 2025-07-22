@@ -29,6 +29,10 @@ export default defineConfig({
         sidepanel: path.resolve(__dirname, "index.html"),
         content: path.resolve(__dirname, "src/lib/content.ts"),
         background: path.resolve(__dirname, "src/lib/background.ts"),
+        // jumia: path.resolve(
+        //   __dirname,
+        //   "src/lib/payment-processor/adapters/jumia.ts"
+        // ),
       },
       output: {
         entryFileNames: "[name].js",

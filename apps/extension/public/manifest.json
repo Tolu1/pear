@@ -3,7 +3,7 @@
   "name": "Pear",
   "version": "0.0.1",
   "description": "Buy anything online using crypto",
-  "permissions": ["tabs", "sidePanel"],
+  "permissions": ["tabs", "sidePanel", "scripting", "debugger"],
   "host_permissions": ["<all_urls>"],
   "action": {
     "default_icon": {

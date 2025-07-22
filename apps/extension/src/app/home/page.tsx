@@ -7,6 +7,7 @@ function Page() {
   const { disconnect } = useDisconnect();
   const [checkoutState, setCheckoutState] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [testing, setTesting] = useState(false);
 
   useEffect(() => {
     if (chrome?.runtime) {
@@ -30,6 +31,63 @@ function Page() {
   const formattedAddress = address
     ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}`
     : "";
+
+  // const handlePayWithCrypto = async () => {
+  //   setTesting(true);
+  //   console.log("Button: Starting automation...");
+
+  //   try {
+  //     const [tab] = await chrome.tabs.query({
+  //       active: true,
+  //       currentWindow: true,
+  //     });
+  //     console.log("Button: Found tab:", tab);
+
+  //     if (!tab.id) {
+  //       throw new Error("No active tab ID found");
+  //     }
+
+  //     console.log("Button: Sending message to content script...");
+  //     const response = await chrome.tabs.sendMessage(tab.id, {
+  //       type: "RUN_JUMIA_AUTOMATION",
+  //     });
+
+  //     console.log("Button: Received response:", response);
+
+  //     if (response?.success) {
+  //       console.log("Automation completed successfully!");
+  //       alert("Automation completed!");
+  //     } else {
+  //       throw new Error(response?.error || "Automation failed");
+  //     }
+  //   } catch (error) {
+  //     console.error("Test automation failed:", error);
+  //   } finally {
+  //     setTesting(false);
+  //   }
+  // };
+
+  const handlePayWithCrypto = async () => {
+    setTesting(true);
+    console.log("Testing debugger automation...");
+
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: "TEST_JUMIA_AUTOMATION",
+      });
+
+      if (response.success) {
+        console.log("Debugger test completed successfully!");
+        // alert("Debugger test completed! Check if text was typed.");
+      } else {
+        throw new Error(response.error || "Debugger test failed");
+      }
+    } catch (error) {
+      console.error("Debugger test failed:", error);
+    } finally {
+      setTesting(false);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full p-4">
@@ -59,7 +117,13 @@ function Page() {
               We've detected you're on a checkout page. Ready to pay with
               crypto?
             </p>
-            <Button className="mt-4 w-full">Pay with Crypto</Button>
+            <Button
+              className="mt-4 w-full"
+              onClick={handlePayWithCrypto}
+              disabled={testing}
+            >
+              {testing ? "Testing Automation..." : "Pay with Crypto (Test)"}
+            </Button>
           </div>
         </div>
       ) : (

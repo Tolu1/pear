@@ -1,0 +1,85 @@
+export interface MessageResponse {
+  success?: boolean;
+  data?: any | null;
+  error?: string;
+}
+
+export interface CheckoutDetectedMessage {
+  type: "CHECKOUT_DETECTED";
+}
+
+export interface GetCheckoutStateMessage {
+  type: "GET_CHECKOUT_STATE";
+}
+
+export interface TestBackgroundClickMessage {
+  type: "TEST_BACKGROUND_CLICK";
+}
+
+export type ChromeMessage =
+  | CheckoutDetectedMessage
+  | GetCheckoutStateMessage
+  | TestBackgroundClickMessage;
+
+let checkoutState = false;
+
+chrome.runtime.onMessage.addListener(
+  (message: ChromeMessage, _, sendResponse) => {
+    if (message.type === "CHECKOUT_DETECTED") {
+      chrome.action.setBadgeText({ text: "✓" });
+      chrome.action.setBadgeBackgroundColor({ color: "#4CAF50" });
+      checkoutState = true;
+
+      sendResponse({ success: true });
+    }
+
+    if (message.type === "GET_CHECKOUT_STATE") {
+      sendResponse({ data: { checkoutState } });
+    }
+
+    if (message.type === "TEST_BACKGROUND_CLICK") {
+      testBackgroundClick();
+      sendResponse({ success: true });
+    }
+
+    return false;
+  }
+);
+
+// const testBackgroundClick = async () => {
+//   const [activeTab] = await chrome.tabs.query({
+//     active: true,
+//     currentWindow: true,
+//   });
+//   const tab = await chrome.tabs.create({
+//     url: activeTab.url,
+//     active: false,
+//   });
+
+//   setTimeout(() => {
+//     chrome.tabs.sendMessage(tab.id!, { type: "CLICK_CHECKOUT_BUTTON" });
+//   }, 2000);
+// };
+
+// // Add message handler
+// chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
+//   if (message.type === "TEST_BACKGROUND_CLICK") {
+//     testBackgroundClick();
+//     sendResponse({ success: true });
+//   }
+//   // ... your existing handlers
+// });
+
+// chrome.webRequest.onSendHeaders.addListener(
+//   (details) => {
+//     if (details.url.includes("https://www.konga.com/cart/overview")) {
+//       console.log("Captured headers:", details.requestHeaders);
+
+//       chrome.storage.local.set({
+//         latestRequestHeaders: details.requestHeaders,
+//       });
+//     }
+//   },
+//   { urls: ["*://*.konga.com/*"] },
+//   ["requestHeaders"]
+// );
