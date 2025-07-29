@@ -1,24 +1,31 @@
-function isCheckoutPage() {
-  const patterns = [
-    "checkout",
-    "payment",
-    "cart",
-    "order",
-    "purchase",
-    "pay",
-    "billing",
-  ];
-  const currentUrl = location.href.toLowerCase();
+let urlHistory: string[] = [];
 
-  const isCheckoutUrl = patterns.some((pattern) =>
-    currentUrl.includes(pattern)
-  );
-
-  if (isCheckoutUrl) {
-    chrome.runtime.sendMessage({ type: "CHECKOUT_DETECTED" }, (response) => {
-      console.log("Checkout detected:", response);
-    });
+const onChange = () => {
+  const currentUrl = window.location.href;
+  urlHistory.push(currentUrl);
+  if (urlHistory.length > 10) {
+    urlHistory.shift();
   }
-}
 
-isCheckoutPage();
+  chrome.runtime
+    .sendMessage({
+      type: "PAGE_CHANGED",
+      context: {
+        url: window.location.href,
+        history: [...urlHistory],
+      },
+    })
+    .catch(() => {});
+};
+
+onChange();
+
+let currentUrl = window.location.href;
+new MutationObserver(() => {
+  if (currentUrl !== window.location.href) {
+    currentUrl = window.location.href;
+    onChange();
+  }
+}).observe(document.body, { childList: true, subtree: true });
+
+window.addEventListener("popstate", onChange);

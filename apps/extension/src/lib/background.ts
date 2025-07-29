@@ -1,39 +1,44 @@
-export interface MessageResponse {
-  success?: boolean;
-  data?: any | null;
-  error?: string;
-}
+import { Detector } from "@/lib/core/detector";
+import type { DetectionContext } from "@/lib/types";
 
-export interface CheckoutDetectedMessage {
-  type: "CHECKOUT_DETECTED";
-}
+type PageChangedMessage = {
+  type: "PAGE_CHANGED";
+  context: DetectionContext;
+};
 
-export interface GetCheckoutStateMessage {
-  type: "GET_CHECKOUT_STATE";
-}
+type RuntimeMessage = PageChangedMessage;
 
-export type ChromeMessage = CheckoutDetectedMessage | GetCheckoutStateMessage;
-
-let checkoutState = false;
+const detector = new Detector();
 
 chrome.runtime.onMessage.addListener(
-  (message: ChromeMessage, _, sendResponse) => {
-    if (message.type === "CHECKOUT_DETECTED") {
-      chrome.action.setBadgeText({ text: "✓" });
-      chrome.action.setBadgeBackgroundColor({ color: "#4CAF50" });
-      checkoutState = true;
+  async (message: RuntimeMessage, _, sendResponse) => {
+    if (message.type === "PAGE_CHANGED") {
+      console.log("🔥 Background received PAGE_CHANGED");
 
-      sendResponse({ success: true });
+      const screenshot = await chrome.tabs.captureVisibleTab();
+      const context = {
+        ...message.context,
+        screenshot,
+      };
+
+      const previousResult = detector.getLatestResult();
+      const newResult = detector.detect(context);
+
+      if (JSON.stringify(previousResult) !== JSON.stringify(newResult)) {
+        chrome.runtime
+          .sendMessage({
+            type: "DETECTION_CHANGED",
+            detectionResult: newResult,
+          })
+          .catch(() => {});
+      }
     }
 
-    if (message.type === "GET_CHECKOUT_STATE") {
-      sendResponse({ data: { checkoutState } });
-    }
-
+    sendResponse({ success: true });
     return false;
   }
 );
 
 chrome.action.onClicked.addListener((tab) => {
-  chrome.sidePanel.open({ tabId: tab.id, windowId: tab.windowId }, () => {});
+  chrome.sidePanel.open({ tabId: tab.id, windowId: tab.windowId });
 });
