@@ -6,6 +6,7 @@ import { ExchangeRateService } from './exchange-rate/exchange-rate.service';
 import { BlockchainModule } from './blockchain/blockchain.module';
 import { TokensModule } from './tokens/tokens.module';
 import { AdaptersModule } from './adapters/adapters.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { AdaptersModule } from './adapters/adapters.module';
     BlockchainModule,
     TokensModule,
     AdaptersModule,
+    AiModule,
   ],
   providers: [ExchangeRateService],
 })
