@@ -4,9 +4,10 @@ import {
   createRouter,
 } from "@tanstack/react-router";
 import Index from "@/app/page";
-import ConnectWallet from "@/app/connect-wallet/page";
-import Home from "@/app/home/page";
 import RootLayout from "@/app/layout";
+import ConnectWallet from "@/app/connect-wallet/page";
+import AppLayout from "@/app/(app)/layout";
+import Home from "@/app/(app)/home/page";
 
 declare module "@tanstack/react-router" {
   interface Register {
@@ -40,8 +41,14 @@ const ConnectWalletRoute = createRoute({
   component: () => <ConnectWallet />,
 });
 
-const HomeRoute = createRoute({
+const appLayoutRoute = createRoute({
   getParentRoute: () => rootLayoutRoute,
+  id: "app-layout",
+  component: () => <AppLayout />,
+});
+
+const HomeRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
   path: "/home",
   component: () => <Home />,
 });
@@ -51,7 +58,7 @@ const routeTree = rootRoute.addChildren([
     IndexHtmlRoute,
     RootIndexRoute,
     ConnectWalletRoute,
-    HomeRoute,
+    appLayoutRoute.addChildren([HomeRoute]),
   ]),
 ]);
 

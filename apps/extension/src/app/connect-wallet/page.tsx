@@ -6,7 +6,7 @@ function ConnectPage() {
 
   const handleConnect = () => {
     const metaMaskConnector = connectors.find((c) =>
-      c.name.toLowerCase().includes("metamask")
+      c.name.toLowerCase().includes("metamask"),
     );
 
     if (metaMaskConnector) {
@@ -17,19 +17,19 @@ function ConnectPage() {
   };
 
   return (
-    <div className="flex flex-col h-full items-center justify-center">
-      <div className="flex flex-col h-[500px] w-full px-6 items-center justify-between">
-        <h1 className="text-[52px] leading-[60px] text-center tracking-[-0.08em] font-[#0E140E] font-bold">
+    <div className="flex h-full flex-col items-center justify-center">
+      <div className="flex h-[500px] w-full flex-col items-center justify-between px-6">
+        <h1 className="text-center font-[#0E140E] text-[52px] leading-[60px] font-bold tracking-[-0.08em]">
           Pear
         </h1>
         <PearImage />
         <div className="flex flex-col gap-4">
-          <p className="text-center text-[#0E140E]/80 text-[12px]">
+          <p className="text-center text-[12px] text-[#0E140E]/80">
             Securely link your wallet to shop online with your crypto. No
             switching between apps. No converting to cash first. Just pay
             directly from what you already own.
           </p>
-          <Button onClick={handleConnect} size="lg" className="w-full max-w-xs">
+          <Button onClick={handleConnect} size="lg" className="w-full">
             Connect with MetaMask
           </Button>
         </div>
@@ -62,8 +62,8 @@ function PearImage(props: React.ComponentProps<"svg">) {
         fill="#BE910B"
       />
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M77.0273 7.03258C73.6431 8.04783 69.2437 7.03258 67.2132 6.01733C66.5364 12.1088 67.2132 21.9229 67.8901 24.9687C68.5669 19.2156 70.1669 17.1804 72.371 14.2955C73.7464 12.4952 75.3369 10.4134 77.0273 7.03258Z"
         fill="black"
       />
@@ -72,8 +72,8 @@ function PearImage(props: React.ComponentProps<"svg">) {
         fill="black"
       />
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M69.2978 244.636C71.8614 245.412 74.4236 246.188 77.0154 246.729C71.2498 245.525 68.565 243.586 68.565 243.586L59.6079 242.178C62.8806 242.693 66.0903 243.664 69.2978 244.636ZM23.6932 114.217C22.949 119.302 20.3899 123.933 17.0831 127.867C20.385 123.939 22.9501 119.295 23.6932 114.217ZM29.1116 102.733C31.4627 99.8917 33.1675 96.5533 34.2659 93.0331C33.1638 96.5654 31.4707 99.882 29.1116 102.733ZM124.065 95.021C114.113 73.081 104.01 60.665 89.2084 54.8428C108.498 64.5635 125.081 105.174 114.59 122.094C114.59 122.094 117.974 113.634 135.567 113.634C131.481 108.481 127.503 102.598 124.065 95.021Z"
         fill="#504519"
       />
@@ -82,14 +82,14 @@ function PearImage(props: React.ComponentProps<"svg">) {
         fill="#504519"
       />
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M163.998 176.579C163.998 235.802 101.73 247.308 88.1932 247.647C83.6433 247.761 79.9345 247.339 77.0154 246.729C71.2498 245.525 68.565 243.586 68.565 243.586C96.9834 225.398 105.699 195.603 104.153 168.257C104.25 155.701 101.136 145.086 95.6384 131.57C102.745 101.451 97.3304 71.3319 89.2084 54.8428C108.498 64.5635 125.081 105.174 114.59 122.094C139.632 130.893 153.086 134.954 153.086 134.954C159.454 144.401 163.998 156.253 163.998 176.579Z"
         fill="#504519"
       />
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M69.2978 244.636C71.8614 245.412 74.4236 246.188 77.0154 246.729C71.183 245.511 65.494 243.103 59.6079 242.178C62.8806 242.693 66.0903 243.664 69.2978 244.636ZM23.6932 114.217C22.949 119.302 20.3899 123.933 17.0831 127.867C20.385 123.939 22.9501 119.295 23.6932 114.217ZM29.1116 102.733C31.4627 99.8917 33.1675 96.5533 34.2659 93.0331C33.1638 96.5654 31.4707 99.882 29.1116 102.733Z"
         fill="#BE910B"
       />
@@ -106,8 +106,8 @@ function PearImage(props: React.ComponentProps<"svg">) {
         fill="#2F4439"
       />
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M0.882478 108.681C1.69886 106.956 2.4727 105.271 3.20833 103.625C2.61688 105.425 1.85597 107.119 0.882478 108.681Z"
         fill="#737F4B"
       />

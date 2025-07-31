@@ -10,6 +10,30 @@
   font-weight: bold;
 }
 
+@font-face {
+  font-family: "Kode Mono";
+  src: url("./assets/fonts/KodeMono-Regular.ttf");
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "Kode Mono";
+  src: url("./assets/fonts/KodeMono-Medium.ttf");
+  font-weight: medium;
+}
+
+@font-face {
+  font-family: "Kode Mono";
+  src: url("./assets/fonts/KodeMono-SemiBold.ttf");
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: "Kode Mono";
+  src: url("./assets/fonts/KodeMono-Bold.ttf");
+  font-weight: bold;
+}
+
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -50,6 +74,7 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --font-astra: Astra, "sans-serif";
+  --font-mono: Kode Mono, "monospace";
 }
 
 :root {
