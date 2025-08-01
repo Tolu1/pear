@@ -20,7 +20,7 @@ $ pnpm add @boundaryml/baml
 
 import type { Image, Audio, Pdf, Video } from "@boundaryml/baml"
 import type { Checked, Check } from "./types"
-import type {  Detection,  PaymentData } from "./types"
+import type {  AutomationAction,  AutomationPlan,  Coordinates,  Detection,  PaymentData } from "./types"
 import type * as types from "./types"
 
 /******************************************************************************
@@ -36,6 +36,23 @@ export interface StreamState<T> {
 }
 
 export namespace partial_types {
+    export interface AutomationAction {
+      type?: "click" | "type" | "scroll" | "wait" | "navigate" | "complete" | null
+      target?: string | null
+      content?: string | null
+      coordinates?: Coordinates | null
+      reasoning?: string | null
+    }
+    export interface AutomationPlan {
+      reasoning?: string | null
+      actions: AutomationAction[]
+      isComplete?: boolean | null
+      nextStep?: string | null
+    }
+    export interface Coordinates {
+      x?: number | null
+      y?: number | null
+    }
     export interface Detection {
       type?: "regular_page" | "almost_payment_page" | "payment_page" | null
       paymentData?: PaymentData | null

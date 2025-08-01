@@ -47,6 +47,29 @@ export function all_succeeded<CheckName extends string>(checks: Record<CheckName
 export function get_checks<CheckName extends string>(checks: Record<CheckName, Check>): Check[] {
     return Object.values(checks)
 }
+export interface AutomationAction {
+  type: "click" | "type" | "scroll" | "wait" | "navigate" | "complete"
+  target?: string | null
+  content?: string | null
+  coordinates?: Coordinates | null
+  reasoning: string
+  
+}
+
+export interface AutomationPlan {
+  reasoning: string
+  actions: AutomationAction[]
+  isComplete: boolean
+  nextStep?: string | null
+  
+}
+
+export interface Coordinates {
+  x: number
+  y: number
+  
+}
+
 export interface Detection {
   type: "regular_page" | "almost_payment_page" | "payment_page"
   paymentData: PaymentData

@@ -27,6 +27,12 @@ export { FieldType, EnumBuilder, ClassBuilder }
 export default class TypeBuilder {
     private tb: _TypeBuilder;
     
+    AutomationAction: ClassViewer<'AutomationAction', "type" | "target" | "content" | "coordinates" | "reasoning">;
+    
+    AutomationPlan: ClassViewer<'AutomationPlan', "reasoning" | "actions" | "isComplete" | "nextStep">;
+    
+    Coordinates: ClassViewer<'Coordinates', "x" | "y">;
+    
     Detection: ClassViewer<'Detection', "type" | "paymentData">;
     
     PaymentData: ClassViewer<'PaymentData', "price" | "merchantName" | "paymentUrl">;
@@ -36,13 +42,25 @@ export default class TypeBuilder {
     constructor() {
         this.tb = new _TypeBuilder({
           classes: new Set([
-            "Detection","PaymentData",
+            "AutomationAction","AutomationPlan","Coordinates","Detection","PaymentData",
           ]),
           enums: new Set([
             
           ]),
           runtime: DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_RUNTIME
         });
+        
+        this.AutomationAction = this.tb.classViewer("AutomationAction", [
+          "type","target","content","coordinates","reasoning",
+        ]);
+        
+        this.AutomationPlan = this.tb.classViewer("AutomationPlan", [
+          "reasoning","actions","isComplete","nextStep",
+        ]);
+        
+        this.Coordinates = this.tb.classViewer("Coordinates", [
+          "x","y",
+        ]);
         
         this.Detection = this.tb.classViewer("Detection", [
           "type","paymentData",

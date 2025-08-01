@@ -23,7 +23,7 @@ import { toBamlError, BamlStream, type HTTPRequest } from "@boundaryml/baml"
 import type { Checked, Check, RecursivePartialNull as MovedRecursivePartialNull } from "./types"
 import type { partial_types } from "./partial_types"
 import type * as types from "./types"
-import type {Detection, PaymentData} from "./types"
+import type {AutomationAction, AutomationPlan, Coordinates, Detection, PaymentData} from "./types"
 import type TypeBuilder from "./type_builder"
 import { AsyncHttpRequest, AsyncHttpStreamRequest } from "./async_request"
 import { LlmResponseParser, LlmStreamParser } from "./parser"
@@ -87,6 +87,34 @@ export class BamlAsyncClient {
   }
 
   
+  async ContinueAutomation(
+      goal: string,previousAction: string,previousResult: string,currentUrl: string,currentScreenshot: Image,conversationHistory: string,
+      __baml_options__?: BamlCallOptions
+  ): Promise<types.AutomationPlan> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      const raw = await this.runtime.callFunction(
+        "ContinueAutomation",
+        {
+          "goal": goal,"previousAction": previousAction,"previousResult": previousResult,"currentUrl": currentUrl,"currentScreenshot": currentScreenshot,"conversationHistory": conversationHistory
+        },
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return raw.parsed(false) as types.AutomationPlan
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
   async Detect(
       url: string,screenshot: Image,
       __baml_options__?: BamlCallOptions
@@ -115,6 +143,34 @@ export class BamlAsyncClient {
     }
   }
   
+  async PlanAutomation(
+      goal: string,url: string,screenshot: Image,conversationHistory?: string | null,
+      __baml_options__?: BamlCallOptions
+  ): Promise<types.AutomationPlan> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      const raw = await this.runtime.callFunction(
+        "PlanAutomation",
+        {
+          "goal": goal,"url": url,"screenshot": screenshot,"conversationHistory": conversationHistory?? null
+        },
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return raw.parsed(false) as types.AutomationPlan
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
 }
 
 class BamlStreamClient {
@@ -128,6 +184,40 @@ class BamlStreamClient {
     this.bamlOptions = bamlOptions || {}
   }
 
+  
+  ContinueAutomation(
+      goal: string,previousAction: string,previousResult: string,currentUrl: string,currentScreenshot: Image,conversationHistory: string,
+      __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry, collector?: Collector | Collector[], env?: Record<string, string | undefined> }
+  ): BamlStream<partial_types.AutomationPlan, types.AutomationPlan> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      const raw = this.runtime.streamFunction(
+        "ContinueAutomation",
+        {
+          "goal": goal,"previousAction": previousAction,"previousResult": previousResult,"currentUrl": currentUrl,"currentScreenshot": currentScreenshot,"conversationHistory": conversationHistory
+        },
+        undefined,
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return new BamlStream<partial_types.AutomationPlan, types.AutomationPlan>(
+        raw,
+        (a): partial_types.AutomationPlan => a,
+        (a): types.AutomationPlan => a,
+        this.ctxManager.cloneContext(),
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
   
   Detect(
       url: string,screenshot: Image,
@@ -156,6 +246,40 @@ class BamlStreamClient {
         raw,
         (a): partial_types.Detection => a,
         (a): types.Detection => a,
+        this.ctxManager.cloneContext(),
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  PlanAutomation(
+      goal: string,url: string,screenshot: Image,conversationHistory?: string | null,
+      __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry, collector?: Collector | Collector[], env?: Record<string, string | undefined> }
+  ): BamlStream<partial_types.AutomationPlan, types.AutomationPlan> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      const raw = this.runtime.streamFunction(
+        "PlanAutomation",
+        {
+          "goal": goal,"url": url,"screenshot": screenshot,"conversationHistory": conversationHistory ?? null
+        },
+        undefined,
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return new BamlStream<partial_types.AutomationPlan, types.AutomationPlan>(
+        raw,
+        (a): partial_types.AutomationPlan => a,
+        (a): types.AutomationPlan => a,
         this.ctxManager.cloneContext(),
       )
     } catch (error) {

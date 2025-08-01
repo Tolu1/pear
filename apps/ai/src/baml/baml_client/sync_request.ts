@@ -22,7 +22,7 @@ import type { BamlRuntime, BamlCtxManager, ClientRegistry, Image, Audio, Pdf, Vi
 import { toBamlError, HTTPRequest } from "@boundaryml/baml"
 import type { Checked, Check } from "./types"
 import type * as types from "./types"
-import type {Detection, PaymentData} from "./types"
+import type {AutomationAction, AutomationPlan, Coordinates, Detection, PaymentData} from "./types"
 import type TypeBuilder from "./type_builder"
 
 type BamlCallOptions = {
@@ -34,6 +34,31 @@ type BamlCallOptions = {
 export class HttpRequest {
   constructor(private runtime: BamlRuntime, private ctxManager: BamlCtxManager) {}
 
+  
+  ContinueAutomation(
+      goal: string,previousAction: string,previousResult: string,currentUrl: string,currentScreenshot: Image,conversationHistory: string,
+      __baml_options__?: BamlCallOptions
+  ): HTTPRequest {
+    try {
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      return this.runtime.buildRequestSync(
+        "ContinueAutomation",
+        {
+          "goal": goal,"previousAction": previousAction,"previousResult": previousResult,"currentUrl": currentUrl,"currentScreenshot": currentScreenshot,"conversationHistory": conversationHistory
+        },
+        this.ctxManager.cloneContext(),
+        __baml_options__?.tb?.__tb(),
+        __baml_options__?.clientRegistry,
+        false,
+        env,
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
   
   Detect(
       url: string,screenshot: Image,
@@ -60,11 +85,61 @@ export class HttpRequest {
     }
   }
   
+  PlanAutomation(
+      goal: string,url: string,screenshot: Image,conversationHistory?: string | null,
+      __baml_options__?: BamlCallOptions
+  ): HTTPRequest {
+    try {
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      return this.runtime.buildRequestSync(
+        "PlanAutomation",
+        {
+          "goal": goal,"url": url,"screenshot": screenshot,"conversationHistory": conversationHistory?? null
+        },
+        this.ctxManager.cloneContext(),
+        __baml_options__?.tb?.__tb(),
+        __baml_options__?.clientRegistry,
+        false,
+        env,
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
 }
 
 export class HttpStreamRequest {
   constructor(private runtime: BamlRuntime, private ctxManager: BamlCtxManager) {}
 
+  
+  ContinueAutomation(
+      goal: string,previousAction: string,previousResult: string,currentUrl: string,currentScreenshot: Image,conversationHistory: string,
+      __baml_options__?: BamlCallOptions
+  ): HTTPRequest {
+    try {
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      return this.runtime.buildRequestSync(
+        "ContinueAutomation",
+        {
+          "goal": goal,"previousAction": previousAction,"previousResult": previousResult,"currentUrl": currentUrl,"currentScreenshot": currentScreenshot,"conversationHistory": conversationHistory
+        },
+        this.ctxManager.cloneContext(),
+        __baml_options__?.tb?.__tb(),
+        __baml_options__?.clientRegistry,
+        true,
+        env,
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
   
   Detect(
       url: string,screenshot: Image,
@@ -79,6 +154,31 @@ export class HttpStreamRequest {
         "Detect",
         {
           "url": url,"screenshot": screenshot
+        },
+        this.ctxManager.cloneContext(),
+        __baml_options__?.tb?.__tb(),
+        __baml_options__?.clientRegistry,
+        true,
+        env,
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  PlanAutomation(
+      goal: string,url: string,screenshot: Image,conversationHistory?: string | null,
+      __baml_options__?: BamlCallOptions
+  ): HTTPRequest {
+    try {
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      return this.runtime.buildRequestSync(
+        "PlanAutomation",
+        {
+          "goal": goal,"url": url,"screenshot": screenshot,"conversationHistory": conversationHistory?? null
         },
         this.ctxManager.cloneContext(),
         __baml_options__?.tb?.__tb(),
