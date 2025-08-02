@@ -8,7 +8,7 @@ class Detection {
 }
 
 class PaymentData {
-  price string @description("Price with currency symbol and code in caps: '$2.99 USD', '₦5000 NGN'")
+  price string @description("Price with currency symbol and code in caps, if the decimal or cents part is 0 then remove it: '$2.99 USD', '₦5000 NGN'")
   merchantDomain string @description("Root domain: 'jumia.com.ng', 'chocolate.com'")
   paymentUrl string
 }

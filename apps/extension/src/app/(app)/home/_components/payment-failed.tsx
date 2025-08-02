@@ -1,4 +1,8 @@
+import { usePayment } from "@/hooks/use-payment";
+
 function PaymentFailed() {
+  const { error } = usePayment();
+
   return (
     <div className="flex h-full flex-col justify-center gap-2.5">
       <div className="flex flex-col items-center gap-2.5">
@@ -65,8 +69,8 @@ function PaymentFailed() {
             </h3>
           </div>
           <p className="w-[196px] text-center">
-            Connection lost during payment. Your funds are safe, you just need
-            to retry
+            {error ||
+              "Payment could not be completed. Your funds are safe, you just need to retry"}
           </p>
         </div>
         <div className="flex flex-col gap-2 rounded-[16px] bg-white/72 p-2.5 text-xs tracking-[-0.04em] text-[#0E140E]/70">

@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { getActiveTab } from "@/lib/utils";
 
 export type PaymentStep =
   | "idle"
@@ -41,6 +42,7 @@ interface PaymentStore {
   payment: PaymentData | null;
   isDetecting: boolean;
   isProcessing: boolean;
+  error: string | null;
   detect: () => void;
   pay: () => Promise<void>;
   reset: () => void;
@@ -51,48 +53,58 @@ export const usePayment = create<PaymentStore>((set) => ({
   payment: null,
   isDetecting: false,
   isProcessing: false,
+  error: null,
 
   detect: async () => {
     set({ isDetecting: true });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
     try {
-      chrome.tabs.captureVisibleTab(async (dataUrl) => {
-        if (dataUrl) {
-          const base64 = dataUrl.split(",")[1];
+      const tab = await getActiveTab();
+      const dataUrl = await chrome.tabs.captureVisibleTab();
+      const base64 = dataUrl.split(",")[1];
 
-          try {
-            const response = await fetch("http://localhost:3000/detection", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                url: window.location.href, // or however you get the current URL
-                screenshot: base64, // or dataUrl if your API expects the full data URL
-              }),
-            });
-
-            const detection: Detection = await response.json();
-            console.log(detection);
-
-            if (detection.type === "almost_payment_page") {
-              set({ step: "almost-detected", isDetecting: false });
-            } else if (detection.type === "payment_page") {
-              set({
-                payment: detection.paymentData,
-                step: "detected",
-                isDetecting: false,
-              });
-            } else {
-              set({ isDetecting: false });
-            }
-          } catch (error) {
-            console.error("Detection error:", error);
-            set({ isDetecting: false });
-          }
-        }
+      console.log("starting api request");
+      const response = await fetch("http://localhost:3000/detection", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          url: tab.url,
+          screenshot: base64,
+        }),
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
+      console.log("finished api request");
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const detection: Detection = await response.json();
+      console.log(detection);
+
+      if (detection.type === "almost_payment_page") {
+        set({ step: "almost-detected", isDetecting: false });
+      } else if (detection.type === "payment_page") {
+        set({
+          step: "detected",
+          payment: detection.paymentData,
+          isDetecting: false,
+        });
+      } else {
+        set({ isDetecting: false });
+      }
     } catch (error: any) {
-      console.log(error.message);
+      clearTimeout(timeoutId);
+      console.log(error);
+      let errorMessage = error.message;
+      if (error.name === "AbortError") {
+        errorMessage = "We're having trouble analyzing this page";
+      }
+      set({ step: "failed", isDetecting: false, error: errorMessage });
     }
   },
 
@@ -106,7 +118,10 @@ export const usePayment = create<PaymentStore>((set) => ({
     set({ step: "success", isProcessing: false });
 
     await new Promise((resolve) => setTimeout(resolve, 2000));
-    set({ step: "failed" });
+    set({
+      step: "failed",
+      error: "Payment processing failed. Please try again.",
+    });
   },
 
   reset: () => {
@@ -115,6 +130,7 @@ export const usePayment = create<PaymentStore>((set) => ({
       payment: null,
       isProcessing: false,
       isDetecting: false,
+      error: null,
     });
   },
 }));
