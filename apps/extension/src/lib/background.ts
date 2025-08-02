@@ -4,34 +4,22 @@ export interface MessageResponse {
   error?: string;
 }
 
-export interface CheckoutDetectedMessage {
-  type: "CHECKOUT_DETECTED";
+export interface ShowBadgeMessage {
+  type: "SHOW_BADGE";
 }
 
-export interface GetCheckoutStateMessage {
-  type: "GET_CHECKOUT_STATE";
-}
-
-export type ChromeMessage = CheckoutDetectedMessage | GetCheckoutStateMessage;
-
-let checkoutState = false;
+export type ChromeMessage = ShowBadgeMessage;
 
 chrome.runtime.onMessage.addListener(
   (message: ChromeMessage, _, sendResponse) => {
-    if (message.type === "CHECKOUT_DETECTED") {
+    if (message.type === "SHOW_BADGE") {
       chrome.action.setBadgeText({ text: "✓" });
       chrome.action.setBadgeBackgroundColor({ color: "#4CAF50" });
-      checkoutState = true;
-
       sendResponse({ success: true });
     }
 
-    if (message.type === "GET_CHECKOUT_STATE") {
-      sendResponse({ data: { checkoutState } });
-    }
-
     return false;
-  }
+  },
 );
 
 chrome.action.onClicked.addListener((tab) => {

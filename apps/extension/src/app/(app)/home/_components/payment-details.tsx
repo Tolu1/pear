@@ -1,4 +1,10 @@
+import { usePayment } from "@/hooks/use-payment";
+
 function PaymentDetails() {
+  const { payment } = usePayment();
+
+  if (!payment) return null;
+
   return (
     <div className="flex flex-col gap-[6.2px] pt-[6.2px]">
       <div className="flex h-[50px] items-center gap-2.5 rounded-[16px] bg-[#FFFFFF]/72 p-2.5">
@@ -47,7 +53,7 @@ function PaymentDetails() {
             Payment Amount
           </p>
           <h3 className="font-mono leading-[20px] font-semibold tracking-[-0.06em] text-[#0E140E]">
-            $74 USD
+            {payment.price}
           </h3>
         </div>
       </div>
@@ -82,7 +88,7 @@ function PaymentDetails() {
             Making payment on
           </p>
           <h3 className="leading-[18px] font-semibold tracking-[-0.06em] text-[#0E140E]">
-            bellroy.com
+            {payment.merchantDomain}
           </h3>
         </div>
       </div>

@@ -1,15 +1,15 @@
 class Detection {
   type "regular_page" | "almost_payment_page" | "payment_page" @description(#"
-    regular_page: No payment/checkout detected
-    almost_payment_page: One step away from payment page
-    payment_page: Final payment form page
+  regular_page: No payment/checkout detected  
+  almost_payment_page: Requires action to reach payment form
+  payment_page: Ready to enter payment details
   "#)
   paymentData PaymentData
 }
 
 class PaymentData {
-  price string @description("Price with currency: '$2.99', '₦5000'")
-  merchantName string @description("Root domain: 'jumia.com.ng', 'chocolate.com'")
+  price string @description("Price with currency symbol and code in caps: '$2.99 USD', '₦5000 NGN'")
+  merchantDomain string @description("Root domain: 'jumia.com.ng', 'chocolate.com'")
   paymentUrl string
 }
 

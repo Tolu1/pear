@@ -1,5 +1,5 @@
-function isCheckoutPage() {
-  const patterns = [
+class URLDetector {
+  private patterns = [
     "checkout",
     "payment",
     "cart",
@@ -8,17 +8,15 @@ function isCheckoutPage() {
     "pay",
     "billing",
   ];
-  const currentUrl = location.href.toLowerCase();
 
-  const isCheckoutUrl = patterns.some((pattern) =>
-    currentUrl.includes(pattern)
-  );
-
-  if (isCheckoutUrl) {
-    chrome.runtime.sendMessage({ type: "CHECKOUT_DETECTED" }, (response) => {
-      console.log("Checkout detected:", response);
-    });
+  detect(): boolean {
+    const currentUrl = location.href.toLowerCase();
+    return this.patterns.some((pattern) => currentUrl.includes(pattern));
   }
 }
 
-isCheckoutPage();
+const urlDetector = new URLDetector();
+
+if (urlDetector.detect()) {
+  chrome.runtime.sendMessage({ type: "SHOW_BADGE" });
+}

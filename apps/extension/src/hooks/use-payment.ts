@@ -9,6 +9,17 @@ export type PaymentStep =
   | "success"
   | "failed";
 
+export interface Detection {
+  type: "regular_page" | "almost_payment_page" | "payment_page";
+  paymentData: PaymentData;
+}
+
+export interface PaymentData {
+  price: string;
+  merchantDomain: string;
+  paymentUrl: string;
+}
+
 export interface Payment {
   amount: number;
   currency: string;
@@ -27,7 +38,7 @@ export interface Payment {
 
 interface PaymentStore {
   step: PaymentStep;
-  payment: Payment | null;
+  payment: PaymentData | null;
   isDetecting: boolean;
   isProcessing: boolean;
   detect: () => void;
@@ -35,30 +46,53 @@ interface PaymentStore {
   reset: () => void;
 }
 
-export const usePayment = create<PaymentStore>((set, get) => ({
+export const usePayment = create<PaymentStore>((set) => ({
   step: "idle",
   payment: null,
   isDetecting: false,
   isProcessing: false,
 
   detect: async () => {
-    const { step } = get();
     set({ isDetecting: true });
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    if (step === "idle") {
-      set({ step: "almost-detected", isDetecting: false });
-    } else if (step === "almost-detected") {
-      const mockPayment: Payment = {
-        amount: 74,
-        currency: "USD",
-        merchant: "bellroy.com",
-        conversion: { rate: 0.54, from: "LSK", to: "USD", total: 142 },
-        fees: { network: 0.041, pear: 0.076 },
-      };
+    try {
+      chrome.tabs.captureVisibleTab(async (dataUrl) => {
+        if (dataUrl) {
+          const base64 = dataUrl.split(",")[1];
 
-      set({ payment: mockPayment, step: "detected", isDetecting: false });
-    } else {
-      set({ isDetecting: false });
+          try {
+            const response = await fetch("http://localhost:3000/detection", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                url: window.location.href, // or however you get the current URL
+                screenshot: base64, // or dataUrl if your API expects the full data URL
+              }),
+            });
+
+            const detection: Detection = await response.json();
+            console.log(detection);
+
+            if (detection.type === "almost_payment_page") {
+              set({ step: "almost-detected", isDetecting: false });
+            } else if (detection.type === "payment_page") {
+              set({
+                payment: detection.paymentData,
+                step: "detected",
+                isDetecting: false,
+              });
+            } else {
+              set({ isDetecting: false });
+            }
+          } catch (error) {
+            console.error("Detection error:", error);
+            set({ isDetecting: false });
+          }
+        }
+      });
+    } catch (error: any) {
+      console.log(error.message);
     }
   },
 

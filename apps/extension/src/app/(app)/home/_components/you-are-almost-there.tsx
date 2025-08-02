@@ -1,17 +1,4 @@
-import { useEffect } from "react";
-import { usePayment } from "@/hooks/use-payment";
-
 function YouAreAlmostThere() {
-  const { detect } = usePayment();
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      detect();
-    }, 3000);
-
-    return () => clearTimeout(timeout);
-  }, [detect]);
-
   return (
     <div className="flex flex-col items-center gap-2 pt-6">
       <svg

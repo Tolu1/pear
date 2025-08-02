@@ -78,7 +78,7 @@ export interface Detection {
 
 export interface PaymentData {
   price: string
-  merchantName: string
+  merchantDomain: string
   paymentUrl: string
   
 }
