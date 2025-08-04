@@ -48,11 +48,14 @@ export function get_checks<CheckName extends string>(checks: Record<CheckName, C
     return Object.values(checks)
 }
 export interface AutomationAction {
-  type: "click" | "type" | "scroll" | "wait" | "navigate" | "complete"
+  type: "click" | "type" | "scroll" | "wait" | "navigate" | "complete" | "user_action_required"
   target?: string | null
   content?: string | null
   coordinates?: Coordinates | null
   reasoning: string
+  visualReasoning: string
+  domReasoning: string
+  userMessage?: string | null
   
 }
 

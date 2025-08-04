@@ -3,10 +3,12 @@ import { usePayment } from "@/hooks/use-payment";
 import GoToPaymentPage from "./_components/go-to-payment-page";
 import YouAreAlmostThere from "./_components/you-are-almost-there";
 import PaymentDetails from "./_components/payment-details";
+import Checking from "./_components/checking";
 import ConfirmingWallet from "./_components/confirming-wallet";
 import Processing from "./_components/processing";
 import PaymentCompleted from "./_components/payment-completed";
 import PaymentFailed from "./_components/payment-failed";
+import UserWarning from "./_components/user-warning";
 import RefreshAndPayButtons from "./_components/refresh-and-pay-buttons";
 import ContactSupportButton from "./_components/contact-support-button";
 import ViewTransactionButton from "./_components/view-transaction-button";
@@ -24,6 +26,10 @@ function Page() {
         return <YouAreAlmostThere />;
       case "detected":
         return <PaymentDetails />;
+      case "warning":
+        return <UserWarning />;
+      case "checking":
+        return <Checking />;
       case "confirming":
         return <ConfirmingWallet />;
       case "processing":
@@ -43,6 +49,8 @@ function Page() {
         return <RefreshAndPayButtons />;
       case "detected":
         return <RefreshAndPayButtons />;
+      case "warning":
+        return <TryAgainButton />;
       case "confirming":
         return <ContactSupportButton />;
       case "processing":

@@ -36,7 +36,7 @@ export class AsyncHttpRequest {
 
   
   async ContinueAutomation(
-      goal: string,previousAction: string,previousResult: string,currentUrl: string,currentScreenshot: Image,conversationHistory: string,
+      goal: string,previousAction: string,previousResult: string,currentUrl: string,currentScreenshot: Image,domContent?: string | null,conversationHistory: string,
       __baml_options__?: BamlCallOptions
   ): Promise<HTTPRequest> {
     try {
@@ -47,7 +47,7 @@ export class AsyncHttpRequest {
       return await this.runtime.buildRequest(
         "ContinueAutomation",
         {
-          "goal": goal,"previousAction": previousAction,"previousResult": previousResult,"currentUrl": currentUrl,"currentScreenshot": currentScreenshot,"conversationHistory": conversationHistory
+          "goal": goal,"previousAction": previousAction,"previousResult": previousResult,"currentUrl": currentUrl,"currentScreenshot": currentScreenshot,"domContent": domContent?? null,"conversationHistory": conversationHistory
         },
         this.ctxManager.cloneContext(),
         __baml_options__?.tb?.__tb(),
@@ -86,7 +86,7 @@ export class AsyncHttpRequest {
   }
   
   async PlanAutomation(
-      goal: string,url: string,screenshot: Image,conversationHistory?: string | null,
+      goal: string,url: string,screenshot: Image,domContent?: string | null,conversationHistory?: string | null,
       __baml_options__?: BamlCallOptions
   ): Promise<HTTPRequest> {
     try {
@@ -97,7 +97,7 @@ export class AsyncHttpRequest {
       return await this.runtime.buildRequest(
         "PlanAutomation",
         {
-          "goal": goal,"url": url,"screenshot": screenshot,"conversationHistory": conversationHistory?? null
+          "goal": goal,"url": url,"screenshot": screenshot,"domContent": domContent?? null,"conversationHistory": conversationHistory?? null
         },
         this.ctxManager.cloneContext(),
         __baml_options__?.tb?.__tb(),
@@ -117,7 +117,7 @@ export class AsyncHttpStreamRequest {
 
   
   async ContinueAutomation(
-      goal: string,previousAction: string,previousResult: string,currentUrl: string,currentScreenshot: Image,conversationHistory: string,
+      goal: string,previousAction: string,previousResult: string,currentUrl: string,currentScreenshot: Image,domContent?: string | null,conversationHistory: string,
       __baml_options__?: BamlCallOptions
   ): Promise<HTTPRequest> {
     try {
@@ -128,7 +128,7 @@ export class AsyncHttpStreamRequest {
       return await this.runtime.buildRequest(
         "ContinueAutomation",
         {
-          "goal": goal,"previousAction": previousAction,"previousResult": previousResult,"currentUrl": currentUrl,"currentScreenshot": currentScreenshot,"conversationHistory": conversationHistory
+          "goal": goal,"previousAction": previousAction,"previousResult": previousResult,"currentUrl": currentUrl,"currentScreenshot": currentScreenshot,"domContent": domContent?? null,"conversationHistory": conversationHistory
         },
         this.ctxManager.cloneContext(),
         __baml_options__?.tb?.__tb(),
@@ -167,7 +167,7 @@ export class AsyncHttpStreamRequest {
   }
   
   async PlanAutomation(
-      goal: string,url: string,screenshot: Image,conversationHistory?: string | null,
+      goal: string,url: string,screenshot: Image,domContent?: string | null,conversationHistory?: string | null,
       __baml_options__?: BamlCallOptions
   ): Promise<HTTPRequest> {
     try {
@@ -178,7 +178,7 @@ export class AsyncHttpStreamRequest {
       return await this.runtime.buildRequest(
         "PlanAutomation",
         {
-          "goal": goal,"url": url,"screenshot": screenshot,"conversationHistory": conversationHistory?? null
+          "goal": goal,"url": url,"screenshot": screenshot,"domContent": domContent?? null,"conversationHistory": conversationHistory?? null
         },
         this.ctxManager.cloneContext(),
         __baml_options__?.tb?.__tb(),

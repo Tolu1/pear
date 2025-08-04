@@ -19,6 +19,8 @@ export class BamlController {
       request.goal,
       request.url,
       request.screenshot,
+      request.viewport,
+      request.domContent,
     );
   }
 
@@ -30,6 +32,8 @@ export class BamlController {
       request.actionResult,
       request.currentUrl,
       request.currentScreenshot,
+      request.viewport,
+      request.domContent,
     );
   }
 }

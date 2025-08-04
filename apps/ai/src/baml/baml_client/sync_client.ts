@@ -90,7 +90,7 @@ export class BamlSyncClient {
 
   
   ContinueAutomation(
-      goal: string,previousAction: string,previousResult: string,currentUrl: string,currentScreenshot: Image,conversationHistory: string,
+      goal: string,previousAction: string,previousResult: string,currentUrl: string,currentScreenshot: Image,domContent?: string | null,conversationHistory: string,
       __baml_options__?: BamlCallOptions
   ): types.AutomationPlan {
     try {
@@ -103,7 +103,7 @@ export class BamlSyncClient {
       const raw = this.runtime.callFunctionSync(
         "ContinueAutomation",
         {
-          "goal": goal,"previousAction": previousAction,"previousResult": previousResult,"currentUrl": currentUrl,"currentScreenshot": currentScreenshot,"conversationHistory": conversationHistory
+          "goal": goal,"previousAction": previousAction,"previousResult": previousResult,"currentUrl": currentUrl,"currentScreenshot": currentScreenshot,"domContent": domContent?? null,"conversationHistory": conversationHistory
         },
         this.ctxManager.cloneContext(),
         options.tb?.__tb(),
@@ -146,7 +146,7 @@ export class BamlSyncClient {
   }
   
   PlanAutomation(
-      goal: string,url: string,screenshot: Image,conversationHistory?: string | null,
+      goal: string,url: string,screenshot: Image,domContent?: string | null,conversationHistory?: string | null,
       __baml_options__?: BamlCallOptions
   ): types.AutomationPlan {
     try {
@@ -159,7 +159,7 @@ export class BamlSyncClient {
       const raw = this.runtime.callFunctionSync(
         "PlanAutomation",
         {
-          "goal": goal,"url": url,"screenshot": screenshot,"conversationHistory": conversationHistory?? null
+          "goal": goal,"url": url,"screenshot": screenshot,"domContent": domContent?? null,"conversationHistory": conversationHistory?? null
         },
         this.ctxManager.cloneContext(),
         options.tb?.__tb(),

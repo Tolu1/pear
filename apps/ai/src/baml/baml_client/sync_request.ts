@@ -36,7 +36,7 @@ export class HttpRequest {
 
   
   ContinueAutomation(
-      goal: string,previousAction: string,previousResult: string,currentUrl: string,currentScreenshot: Image,conversationHistory: string,
+      goal: string,previousAction: string,previousResult: string,currentUrl: string,currentScreenshot: Image,domContent?: string | null,conversationHistory: string,
       __baml_options__?: BamlCallOptions
   ): HTTPRequest {
     try {
@@ -47,7 +47,7 @@ export class HttpRequest {
       return this.runtime.buildRequestSync(
         "ContinueAutomation",
         {
-          "goal": goal,"previousAction": previousAction,"previousResult": previousResult,"currentUrl": currentUrl,"currentScreenshot": currentScreenshot,"conversationHistory": conversationHistory
+          "goal": goal,"previousAction": previousAction,"previousResult": previousResult,"currentUrl": currentUrl,"currentScreenshot": currentScreenshot,"domContent": domContent?? null,"conversationHistory": conversationHistory
         },
         this.ctxManager.cloneContext(),
         __baml_options__?.tb?.__tb(),
@@ -86,7 +86,7 @@ export class HttpRequest {
   }
   
   PlanAutomation(
-      goal: string,url: string,screenshot: Image,conversationHistory?: string | null,
+      goal: string,url: string,screenshot: Image,domContent?: string | null,conversationHistory?: string | null,
       __baml_options__?: BamlCallOptions
   ): HTTPRequest {
     try {
@@ -97,7 +97,7 @@ export class HttpRequest {
       return this.runtime.buildRequestSync(
         "PlanAutomation",
         {
-          "goal": goal,"url": url,"screenshot": screenshot,"conversationHistory": conversationHistory?? null
+          "goal": goal,"url": url,"screenshot": screenshot,"domContent": domContent?? null,"conversationHistory": conversationHistory?? null
         },
         this.ctxManager.cloneContext(),
         __baml_options__?.tb?.__tb(),
@@ -117,7 +117,7 @@ export class HttpStreamRequest {
 
   
   ContinueAutomation(
-      goal: string,previousAction: string,previousResult: string,currentUrl: string,currentScreenshot: Image,conversationHistory: string,
+      goal: string,previousAction: string,previousResult: string,currentUrl: string,currentScreenshot: Image,domContent?: string | null,conversationHistory: string,
       __baml_options__?: BamlCallOptions
   ): HTTPRequest {
     try {
@@ -128,7 +128,7 @@ export class HttpStreamRequest {
       return this.runtime.buildRequestSync(
         "ContinueAutomation",
         {
-          "goal": goal,"previousAction": previousAction,"previousResult": previousResult,"currentUrl": currentUrl,"currentScreenshot": currentScreenshot,"conversationHistory": conversationHistory
+          "goal": goal,"previousAction": previousAction,"previousResult": previousResult,"currentUrl": currentUrl,"currentScreenshot": currentScreenshot,"domContent": domContent?? null,"conversationHistory": conversationHistory
         },
         this.ctxManager.cloneContext(),
         __baml_options__?.tb?.__tb(),
@@ -167,7 +167,7 @@ export class HttpStreamRequest {
   }
   
   PlanAutomation(
-      goal: string,url: string,screenshot: Image,conversationHistory?: string | null,
+      goal: string,url: string,screenshot: Image,domContent?: string | null,conversationHistory?: string | null,
       __baml_options__?: BamlCallOptions
   ): HTTPRequest {
     try {
@@ -178,7 +178,7 @@ export class HttpStreamRequest {
       return this.runtime.buildRequestSync(
         "PlanAutomation",
         {
-          "goal": goal,"url": url,"screenshot": screenshot,"conversationHistory": conversationHistory?? null
+          "goal": goal,"url": url,"screenshot": screenshot,"domContent": domContent?? null,"conversationHistory": conversationHistory?? null
         },
         this.ctxManager.cloneContext(),
         __baml_options__?.tb?.__tb(),

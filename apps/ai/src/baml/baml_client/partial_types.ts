@@ -37,11 +37,14 @@ export interface StreamState<T> {
 
 export namespace partial_types {
     export interface AutomationAction {
-      type?: "click" | "type" | "scroll" | "wait" | "navigate" | "complete" | null
+      type?: "click" | "type" | "scroll" | "wait" | "navigate" | "complete" | "user_action_required" | null
       target?: string | null
       content?: string | null
       coordinates?: Coordinates | null
       reasoning?: string | null
+      visualReasoning?: string | null
+      domReasoning?: string | null
+      userMessage?: string | null
     }
     export interface AutomationPlan {
       reasoning?: string | null

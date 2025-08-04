@@ -27,7 +27,7 @@ export { FieldType, EnumBuilder, ClassBuilder }
 export default class TypeBuilder {
     private tb: _TypeBuilder;
     
-    AutomationAction: ClassViewer<'AutomationAction', "type" | "target" | "content" | "coordinates" | "reasoning">;
+    AutomationAction: ClassViewer<'AutomationAction', "type" | "target" | "content" | "coordinates" | "reasoning" | "visualReasoning" | "domReasoning" | "userMessage">;
     
     AutomationPlan: ClassViewer<'AutomationPlan', "reasoning" | "actions" | "isComplete" | "nextStep">;
     
@@ -51,7 +51,7 @@ export default class TypeBuilder {
         });
         
         this.AutomationAction = this.tb.classViewer("AutomationAction", [
-          "type","target","content","coordinates","reasoning",
+          "type","target","content","coordinates","reasoning","visualReasoning","domReasoning","userMessage",
         ]);
         
         this.AutomationPlan = this.tb.classViewer("AutomationPlan", [
