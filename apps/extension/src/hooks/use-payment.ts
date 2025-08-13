@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import { getActiveTab, getViewportInfo, getDOMContent } from "@/lib/utils";
+import { signMessage } from "wagmi/actions";
+import { config } from "@/providers/web3";
 
 export type PaymentStep =
   | "idle"
@@ -212,7 +214,15 @@ export const usePayment = create<PaymentStore>((set, get) => ({
           } else {
             set({ step: "confirming" });
 
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+            try {
+              await signMessage(config, {
+                message:
+                  "This is a test payment signature. You can choose to reject this without any consequences",
+              });
+            } catch (error) {
+              console.error("Error signing message:", error);
+            }
+
             set({ step: "processing" });
 
             if (tab.id) {

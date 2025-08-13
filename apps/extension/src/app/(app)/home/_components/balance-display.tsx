@@ -17,7 +17,7 @@ function BalanceDisplay() {
           </svg>
         </div>
         <h2 className="text-[24px] leading-[31px] font-semibold tracking-[-0.06em]">
-          LSK
+          ETH
         </h2>
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -36,7 +36,7 @@ function BalanceDisplay() {
       </div>
       <p className="text-[10px] leading-[13px] font-medium tracking-[-0.06em] opacity-[0.68]">
         Balance:
-        <span className="font-bold"> 203.78 </span>• Tap to change
+        <span className="font-bold"> 1.7803 </span>• Tap to change
       </p>
     </div>
   );

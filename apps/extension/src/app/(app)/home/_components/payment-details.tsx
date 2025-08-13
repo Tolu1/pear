@@ -95,20 +95,20 @@ function PaymentDetails() {
       <div className="flex h-[106px] flex-col justify-between rounded-[16px] bg-[#FFFFFF]/72 p-2.5 text-xs tracking-[-0.04em] text-[#0E140E]/70">
         <div className="flex h-[15px] justify-between">
           <p>Conversion Rate:</p>
-          <p className="font-mono tracking-normal">1 LSK = $0.34 USD</p>
+          <p className="font-mono tracking-normal">1 ETH = $3,727.27 EUR</p>
         </div>
         <div className="flex h-[15px] justify-between">
           <p>Network Fee:</p>
-          <p className="font-mono tracking-normal">~ $0.041 USD</p>
+          <p className="font-mono tracking-normal">~ $0.341 EUR</p>
         </div>
         <div className="flex h-[15px] justify-between">
           <p>Pear Fee:</p>
-          <p className="font-mono tracking-normal">~ $0.076 USD</p>
+          <p className="font-mono tracking-normal">~ $0.076 EUR</p>
         </div>
         <div className="h-[1px] bg-[#D6D58B]" />
         <div className="flex h-[15px] justify-between font-bold">
           <p>You&rsquo;ll pay</p>
-          <p className="font-mono tracking-normal">182 LSK</p>
+          <p className="font-mono tracking-normal">0.00805 ETH</p>
         </div>
       </div>
       <p className="text-center text-[10px] leading-[11px] tracking-[-0.06em] text-[#0E140E]/68">

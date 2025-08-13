@@ -1,4 +1,10 @@
+import { usePayment } from "@/hooks/use-payment";
+
 function PaymentCompleted() {
+  const { payment } = usePayment();
+
+  if (!payment) return null;
+
   return (
     <div className="flex h-full flex-col justify-center gap-2.5">
       <div className="flex flex-col items-center gap-2.5">
@@ -61,12 +67,12 @@ function PaymentCompleted() {
       <div className="flex flex-col gap-2 rounded-[16px] bg-white/72 p-2.5 text-xs tracking-[-0.04em] text-[#0E140E]/70">
         <div className="flex h-[15px] justify-between font-bold">
           <p>Total Paid</p>
-          <p className="font-mono tracking-normal">182.62 LSK</p>
+          <p className="font-mono tracking-normal">0.00805 ETH</p>
         </div>
         <div className="h-[1px] bg-[#D6D58B]" />
         <div className="flex h-[15px] justify-between">
-          <p>NGN Value</p>
-          <p className="font-mono tracking-normal">~ ₦53,127 NGN</p>
+          <p>EUR Value</p>
+          <p className="font-mono tracking-normal">~ {payment.price}</p>
         </div>
       </div>
     </div>
