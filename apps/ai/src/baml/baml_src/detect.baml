@@ -4,7 +4,7 @@ class Detection {
   almost_payment_page: Requires action to reach payment form
   payment_page: Ready to enter payment details
   "#)
-  paymentData PaymentData
+  paymentData PaymentData?
 }
 
 class PaymentData {

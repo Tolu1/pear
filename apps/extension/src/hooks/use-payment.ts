@@ -1,5 +1,12 @@
 import { create } from "zustand";
-import { getActiveTab, getViewportInfo, getDOMContent } from "@/lib/utils";
+import {
+  getActiveTab,
+  getViewportInfo,
+  getDOMContent,
+  getScreenshot,
+  // benchmarkToggleSpeed,
+  recordToggleTest,
+} from "@/lib/utils";
 import { signMessage } from "wagmi/actions";
 import { config } from "@/providers/web3";
 
@@ -97,9 +104,11 @@ export const usePayment = create<PaymentStore>((set, get) => ({
 
     try {
       const tab = await getActiveTab();
-      const dataUrl = await chrome.tabs.captureVisibleTab();
-      const base64 = dataUrl.split(",")[1];
-      console.log("Screenshot being sent:", dataUrl);
+      // await benchmarkToggleSpeed();
+      await recordToggleTest();
+      throw new Error("Benchmarking screenshot approach");
+      const base64 = await getScreenshot();
+      console.log("Screenshot being sent:", `data:image/jpeg;base64,${base64}`);
 
       const response = await fetch("http://localhost:3000/detection", {
         method: "POST",
@@ -148,13 +157,21 @@ export const usePayment = create<PaymentStore>((set, get) => ({
 
   startAutomation: async (goal: string) => {
     set({ step: "checking", error: null });
+    const tab = await getActiveTab();
+    if (!tab.id) throw new Error("No active tab found");
+
+    await chrome.tabs.sendMessage(tab.id, {
+      type: "SHOW_PROCESSING_OVERLAY",
+    });
+    // await chrome.runtime.sendMessage({ type: "SHOW_PROCESSING_OVERLAY" });
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000);
 
     try {
       const tab = await getActiveTab();
-      const dataUrl = await chrome.tabs.captureVisibleTab();
-      const base64 = dataUrl.split(",")[1];
+      const base64 = await getScreenshot();
+      console.log("Screenshot being sent:", `data:image/jpeg;base64,${base64}`);
+      throw new Error("Testing screenshot error");
       const viewport = await getViewportInfo();
       const domContent = await getDOMContent();
 
@@ -211,6 +228,9 @@ export const usePayment = create<PaymentStore>((set, get) => ({
               currentPlan: null,
               automationSessionId: null,
             });
+            await chrome.runtime.sendMessage({
+              type: "HIDE_PROCESSING_OVERLAY",
+            });
           } else {
             set({ step: "confirming" });
 
@@ -224,9 +244,12 @@ export const usePayment = create<PaymentStore>((set, get) => ({
             }
 
             set({ step: "processing" });
+            // await chrome.runtime.sendMessage({
+            //   type: "SHOW_PROCESSING_OVERLAY",
+            // });
 
             if (tab.id) {
-              await attachDebugger(tab.id);
+              // await attachDebugger(tab.id);
               set({ debuggerTabId: tab.id });
             }
             get().executeNextAction();
@@ -247,6 +270,7 @@ export const usePayment = create<PaymentStore>((set, get) => ({
         automationSessionId: null,
         currentPlan: null,
       });
+      await chrome.runtime.sendMessage({ type: "HIDE_PROCESSING_OVERLAY" });
     }
   },
 
@@ -272,6 +296,7 @@ export const usePayment = create<PaymentStore>((set, get) => ({
         automationSessionId: null,
         debuggerTabId: null,
       });
+      await chrome.runtime.sendMessage({ type: "HIDE_PROCESSING_OVERLAY" });
       return;
     }
 
@@ -289,8 +314,7 @@ export const usePayment = create<PaymentStore>((set, get) => ({
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Continue automation
-      const dataUrl = await chrome.tabs.captureVisibleTab();
-      const base64 = dataUrl.split(",")[1];
+      const base64 = await getScreenshot();
       const viewport = await getViewportInfo();
       const domContent = await getDOMContent();
 
@@ -351,6 +375,9 @@ export const usePayment = create<PaymentStore>((set, get) => ({
                 debuggerTabId: null,
                 error: null,
               });
+              await chrome.runtime.sendMessage({
+                type: "HIDE_PROCESSING_OVERLAY",
+              });
             } else {
               set({ currentPlan: result.plan });
               // Continue with next action
@@ -380,6 +407,7 @@ export const usePayment = create<PaymentStore>((set, get) => ({
             automationSessionId: null,
             debuggerTabId: null,
           });
+          await chrome.runtime.sendMessage({ type: "HIDE_PROCESSING_OVERLAY" });
         }
       }
     } catch (error: any) {
@@ -395,6 +423,7 @@ export const usePayment = create<PaymentStore>((set, get) => ({
         automationSessionId: null,
         debuggerTabId: null,
       });
+      await chrome.runtime.sendMessage({ type: "HIDE_PROCESSING_OVERLAY" });
     }
   },
 
@@ -409,10 +438,11 @@ export const usePayment = create<PaymentStore>((set, get) => ({
         error:
           "We couldn't detect a payment form on this page. Please make sure you're on a checkout page and try again.",
       });
+      await chrome.runtime.sendMessage({ type: "HIDE_PROCESSING_OVERLAY" });
     }
   },
 
-  reset: () => {
+  reset: async () => {
     const { debuggerTabId } = get();
 
     // Detach debugger if attached
@@ -430,55 +460,60 @@ export const usePayment = create<PaymentStore>((set, get) => ({
       userWarning: null,
       debuggerTabId: null,
     });
+    await chrome.runtime.sendMessage({ type: "HIDE_PROCESSING_OVERLAY" });
   },
 }));
 
 // Attach debugger once per automation session
-async function attachDebugger(tabId: number): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const debuggee = { tabId };
+// async function attachDebugger(tabId: number): Promise<void> {
+//   return new Promise((resolve, reject) => {
+//     const debuggee = { tabId };
 
-    chrome.debugger.attach(debuggee, "1.0", () => {
-      if (chrome.runtime.lastError) {
-        reject(chrome.runtime.lastError);
-      } else {
-        // Enable required domains
-        chrome.debugger.sendCommand(debuggee, "DOM.enable", {}, () => {
-          if (chrome.runtime.lastError) {
-            reject(chrome.runtime.lastError);
-          } else {
-            chrome.debugger.sendCommand(debuggee, "Runtime.enable", {}, () => {
-              if (chrome.runtime.lastError) {
-                reject(chrome.runtime.lastError);
-              } else {
-                resolve();
-              }
-            });
-          }
-        });
-      }
-    });
-  });
-}
+//     chrome.debugger.attach(debuggee, "1.0", () => {
+//       if (chrome.runtime.lastError) {
+//         reject(chrome.runtime.lastError);
+//       } else {
+//         // Enable required domains
+//         chrome.debugger.sendCommand(debuggee, "DOM.enable", {}, () => {
+//           if (chrome.runtime.lastError) {
+//             reject(chrome.runtime.lastError);
+//           } else {
+//             chrome.debugger.sendCommand(debuggee, "Runtime.enable", {}, () => {
+//               if (chrome.runtime.lastError) {
+//                 reject(chrome.runtime.lastError);
+//               } else {
+//                 resolve();
+//               }
+//             });
+//           }
+//         });
+//       }
+//     });
+//   });
+// }
 
 // Execute action using already attached debugger
 async function executeAction(
   action: AutomationAction,
   tabId: number,
 ): Promise<void> {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     const debuggee = { tabId };
 
     switch (action.type) {
       case "click":
         if (action.coordinates) {
+          const compensated = await chrome.tabs.sendMessage(tabId, {
+            type: "COMPENSATE_COORDINATES",
+            coordinates: { x: action.coordinates.x, y: action.coordinates.y },
+          });
           chrome.debugger.sendCommand(
             debuggee,
             "Input.dispatchMouseEvent",
             {
               type: "mousePressed",
-              x: action.coordinates.x,
-              y: action.coordinates.y,
+              x: compensated.compensatedCoordinates.x,
+              y: compensated.compensatedCoordinates.y,
               button: "left",
               clickCount: 1,
             },

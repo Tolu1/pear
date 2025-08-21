@@ -75,7 +75,7 @@ export interface Coordinates {
 
 export interface Detection {
   type: "regular_page" | "almost_payment_page" | "payment_page"
-  paymentData: PaymentData
+  paymentData?: PaymentData | null
   
 }
 
