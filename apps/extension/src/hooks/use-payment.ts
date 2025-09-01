@@ -91,6 +91,22 @@ export const usePayment = create<PaymentStore>((set, get) => ({
   debuggerTabId: null,
 
   detect: async () => {
+    // testing mascot
+    // const tab = await getActiveTab();
+
+    // if (!tab.id) {
+    //   throw new Error("No active tab found");
+    // }
+    // await attachDebugger(tab.id);
+
+    // chrome.tabs.sendMessage(tab.id, {
+    //   type: "SHOW_MASCOT",
+    //   coordinates: { x: 369, y: 671 },
+    // });
+
+    // // Add form shimmer
+    // await addFormShimmer(tab.id, { x: 369, y: 671 });
+    // throw new Error("Testing mascot.");
     set({ isDetecting: true, error: null });
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000);
@@ -99,7 +115,6 @@ export const usePayment = create<PaymentStore>((set, get) => ({
       const tab = await getActiveTab();
       const dataUrl = await chrome.tabs.captureVisibleTab();
       const base64 = dataUrl.split(",")[1];
-      console.log("Screenshot being sent:", dataUrl);
 
       const response = await fetch("http://localhost:3000/detection", {
         method: "POST",
@@ -184,15 +199,6 @@ export const usePayment = create<PaymentStore>((set, get) => ({
       }
 
       const result = await response.json();
-
-      console.log("Automation started:", result);
-
-      if (result.debugScreenshot) {
-        console.log(
-          "Processed screenshot from start automation:",
-          `data:image/jpeg;base64,${result.debugScreenshot}`,
-        );
-      }
 
       if (result.success) {
         set({
@@ -282,6 +288,23 @@ export const usePayment = create<PaymentStore>((set, get) => ({
         throw new Error("No active tab found");
       }
 
+      // ADD THIS: Show mascot at the beginning of action
+      if (nextAction.coordinates) {
+        console.log("Next action coordinates:", nextAction.coordinates);
+        console.log("viewport:", await getViewportInfo());
+
+        chrome.tabs.sendMessage(tab.id, {
+          type: "UPDATE_MASCOT_POSITION",
+          coordinates: nextAction.coordinates,
+        });
+
+        // Add form shimmer
+        await addFormShimmer(tab.id, nextAction.coordinates);
+
+        // Wait for visual effect
+        // await new Promise((resolve) => setTimeout(resolve, 1500));
+      }
+
       // Use the already attached debugger
       await executeAction(nextAction, tab.id);
 
@@ -331,15 +354,14 @@ export const usePayment = create<PaymentStore>((set, get) => ({
 
           const result = await response.json();
 
-          if (result.debugScreenshot) {
-            console.log(
-              "Processed screenshot from continue automation:",
-              `data:image/jpeg;base64,${result.debugScreenshot}`,
-            );
-          }
-
           if (result.success) {
             if (result.isComplete) {
+              // ADD THIS: Hide mascot on success
+              if (debuggerTabId && nextAction.coordinates) {
+                chrome.tabs.sendMessage(debuggerTabId, { type: "HIDE_MASCOT" });
+                await removeFormShimmer(debuggerTabId, nextAction.coordinates);
+              }
+
               // Detach debugger when automation is complete
               if (debuggerTabId) {
                 chrome.debugger.detach({ tabId: debuggerTabId });
@@ -368,6 +390,12 @@ export const usePayment = create<PaymentStore>((set, get) => ({
             errorMessage = "Payment processing is taking longer than expected";
           }
 
+          // ADD THIS: Hide mascot on error
+          if (debuggerTabId && nextAction.coordinates) {
+            chrome.tabs.sendMessage(debuggerTabId, { type: "HIDE_MASCOT" });
+            await removeFormShimmer(debuggerTabId, nextAction.coordinates);
+          }
+
           // Detach debugger on error
           if (debuggerTabId) {
             chrome.debugger.detach({ tabId: debuggerTabId });
@@ -383,6 +411,12 @@ export const usePayment = create<PaymentStore>((set, get) => ({
         }
       }
     } catch (error: any) {
+      // ADD THIS: Hide mascot on error
+      if (debuggerTabId && nextAction.coordinates) {
+        chrome.tabs.sendMessage(debuggerTabId, { type: "HIDE_MASCOT" });
+        await removeFormShimmer(debuggerTabId, nextAction.coordinates);
+      }
+
       // Detach debugger on error
       if (debuggerTabId) {
         chrome.debugger.detach({ tabId: debuggerTabId });
@@ -561,5 +595,44 @@ async function executeAction(
       default:
         resolve();
     }
+  });
+}
+
+async function addFormShimmer(
+  tabId: number,
+  coordinates: { x: number; y: number },
+) {
+  await chrome.debugger.sendCommand({ tabId }, "Runtime.evaluate", {
+    expression: `
+      const element = document.elementFromPoint(${coordinates.x}, ${coordinates.y});
+      const form = element.closest('form') || element.closest('[class*="form"]') || element;
+      
+      form.style.background = 'linear-gradient(90deg, rgba(52, 152, 219, 0.1) 0%, rgba(52, 152, 219, 0.3) 50%, rgba(52, 152, 219, 0.1) 100%)';
+      form.style.backgroundSize = '200% 100%';
+      form.style.animation = 'shimmer 1.5s ease-in-out infinite';
+      form.style.outline = '3px solid #3498db';
+      
+      if (!document.getElementById('pear-shimmer-styles')) {
+        const style = document.createElement('style');
+        style.id = 'pear-shimmer-styles';
+        style.textContent = '@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }';
+        document.head.appendChild(style);
+      }
+    `,
+  });
+}
+
+async function removeFormShimmer(
+  tabId: number,
+  coordinates: { x: number; y: number },
+) {
+  await chrome.debugger.sendCommand({ tabId }, "Runtime.evaluate", {
+    expression: `
+      const element = document.elementFromPoint(${coordinates.x}, ${coordinates.y});
+      const form = element.closest('form') || element.closest('[class*="form"]') || element;
+      form.style.background = '';
+      form.style.animation = '';
+      form.style.outline = '';
+    `,
   });
 }
