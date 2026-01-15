@@ -1,0 +1,18 @@
+packages:
+  - apps/*
+  - packages/*
+
+ignoredBuiltDependencies:
+  - '@scarf/scarf'
+  - core-js
+  - core-js-pure
+
+onlyBuiltDependencies:
+  - '@nestjs/core'
+  - '@swc/core'
+  - bufferutil
+  - esbuild
+  - keccak
+  - protobufjs
+  - sharp
+  - utf-8-validate
