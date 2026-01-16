@@ -101,17 +101,20 @@ export const usePayment = create<PaymentStore>((set, get) => ({
       const base64 = dataUrl.split(",")[1];
       console.log("Screenshot being sent:", dataUrl);
 
-      const response = await fetch("http://localhost:3000/detection", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${import.meta.env.VITE_AI_API_URL}/detection`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            url: tab.url,
+            screenshot: base64,
+          }),
+          signal: controller.signal,
         },
-        body: JSON.stringify({
-          url: tab.url,
-          screenshot: base64,
-        }),
-        signal: controller.signal,
-      });
+      );
       clearTimeout(timeoutId);
 
       if (!response.ok) {
@@ -158,20 +161,23 @@ export const usePayment = create<PaymentStore>((set, get) => ({
       const viewport = await getViewportInfo();
       const domContent = await getDOMContent();
 
-      const response = await fetch("http://localhost:3000/automation/start", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${import.meta.env.VITE_AI_API_URL}/automation/start`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            goal,
+            url: tab.url,
+            screenshot: base64,
+            viewport,
+            domContent,
+          }),
+          signal: controller.signal,
         },
-        body: JSON.stringify({
-          goal,
-          url: tab.url,
-          screenshot: base64,
-          viewport,
-          domContent,
-        }),
-        signal: controller.signal,
-      });
+      );
       clearTimeout(timeoutId);
 
       if (!response.ok) {
@@ -300,7 +306,7 @@ export const usePayment = create<PaymentStore>((set, get) => ({
 
         try {
           const response = await fetch(
-            "http://localhost:3000/automation/continue",
+            `${import.meta.env.VITE_AI_API_URL}/automation/continue`,
             {
               method: "POST",
               headers: {
