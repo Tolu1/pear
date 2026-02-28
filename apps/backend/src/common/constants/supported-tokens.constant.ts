@@ -33,6 +33,24 @@ export const SUPPORTED_TOKENS = {
       paymentAddress: process.env.PAYMENT_ADDRESS_LSK! as `0x${string}`,
     },
   },
+  base: {
+    'usd-coin': {
+      name: 'USDC',
+      symbol: 'USDC',
+      coingeckoId: 'usd-coin',
+      contractAddress: '0x...',
+      paymentAddress: process.env.PAYMENT_ADDRESS_EVM! as `0x${string}`,
+    },
+  },
+  baseSepolia: {
+    'usd-coin': {
+      name: 'USDC',
+      symbol: 'USDC',
+      coingeckoId: 'usd-coin',
+      contractAddress: '0x...',
+      paymentAddress: process.env.PAYMENT_ADDRESS_EVM! as `0x${string}`,
+    },
+  },
 } as const;
 
 export type Blockchain = keyof typeof SUPPORTED_TOKENS;
