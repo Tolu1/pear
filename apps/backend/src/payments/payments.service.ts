@@ -1,6 +1,6 @@
 import { Injectable, MessageEvent } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { Payment } from './interfaces/payment.interface';
 import { DatabaseService } from '../database/database.service';
@@ -9,8 +9,7 @@ import { PaymentsEventsService } from './payments-events.service';
 import { type PaymentStatus } from '../database/database.types';
 import { Observable } from 'rxjs';
 import { ExchangeRateService } from '../exchange-rate/exchange-rate.service';
-import { AdaptersService } from '../adapters/adapters.service';
-import { BlockchainService } from '../blockchain/blockchain.service';
+import { type Erc20Transfer } from './interfaces/erc20-transfer.interface';
 
 @Injectable()
 export class PaymentsService {
@@ -18,8 +17,6 @@ export class PaymentsService {
     private databaseService: DatabaseService,
     private readonly paymentsEventsService: PaymentsEventsService,
     private readonly exchangeRateService: ExchangeRateService,
-    private readonly adaptersService: AdaptersService,
-    private readonly blockchainService: BlockchainService,
   ) {}
 
   async create(createPaymentDto: CreatePaymentDto): Promise<Payment> {
@@ -47,7 +44,7 @@ export class PaymentsService {
       })
       .returning();
 
-    this.processPayment(payment as Payment, createPaymentDto.cookies);
+    this.processPayment(payment as Payment);
 
     return {
       ...payment,
@@ -81,37 +78,25 @@ export class PaymentsService {
     return this.paymentsEventsService.subscribeToPaymentEvents(id);
   }
 
-  private async processPayment(
-    payment: Payment,
-    cookies: string[],
-  ): Promise<void> {
-    try {
-      await this.updateStatus(payment.id, 'awaiting_crypto_payment');
-      const transactionData = await this.blockchainService.watchForPayment({
-        payment,
-      });
-      console.log(`Crypto payment detected: ${transactionData.hash}`);
+  async handleCryptoConfirmed(transfer: Erc20Transfer): Promise<void> {
+    const [payment] = await this.databaseService.db
+      .select()
+      .from(payments)
+      .where(
+        and(
+          eq(payments.from, transfer.from),
+          eq(payments.blockchain, transfer.blockchain),
+          eq(payments.status, 'awaiting_crypto_payment'),
+        ),
+      );
 
-      await this.updateStatus(payment.id, 'processing_fiat_payment');
-      const adapter = this.adaptersService.getAdapter(payment.merchantDomain);
-      if (adapter) {
-        const result = await adapter.pay(payment, cookies);
+    if (!payment) return;
 
-        if (result.success) {
-          await this.updateStatus(payment.id, 'completed');
-          console.log(`Payment completed successfully for ${payment.id}`);
-        } else {
-          await this.updateStatus(payment.id, 'failed');
-          console.error(`Merchant payment failed: ${result.errorMessage}`);
-        }
-      } else {
-        await this.updateStatus(payment.id, 'failed');
-        console.log(`No adapter found for ${payment.merchantDomain}`);
-      }
-    } catch (error) {
-      await this.updateStatus(payment.id, 'failed');
-      console.error('Error processing payment:', error);
-    }
+    await this.updateStatus(payment.id, 'processing_fiat_payment');
+  }
+
+  private async processPayment(payment: Payment): Promise<void> {
+    await this.updateStatus(payment.id, 'awaiting_crypto_payment');
   }
 
   private async updateStatus(id: string, status: PaymentStatus): Promise<void> {
