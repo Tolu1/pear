@@ -1,7 +1,8 @@
-import { payments, paymentStatusEnum } from './database.schema';
+import { paymentIntents, paymentIntentStatusEnum } from './database.schema';
 
-export type Payment = typeof payments.$inferSelect;
+export type PaymentIntent = typeof paymentIntents.$inferSelect;
 
-export type NewPayment = typeof payments.$inferInsert;
+export type NewPaymentIntent = typeof paymentIntents.$inferInsert;
 
-export type PaymentStatus = (typeof paymentStatusEnum.enumValues)[number];
+export type PaymentIntentStatus =
+  (typeof paymentIntentStatusEnum.enumValues)[number];
