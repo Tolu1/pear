@@ -1,19 +1,19 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { DatabaseModule } from './database/database.module';
-import { PaymentsModule } from './payments/payments.module';
+import { DrizzleModule } from './database/drizzle.module';
 import { TokensModule } from './tokens/tokens.module';
-import { AdaptersModule } from './adapters/adapters.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
+import { QuotesModule } from './quotes/quotes.module';
+import { PaymentIntentsModule } from './payment-intents/payment-intents.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    DatabaseModule,
-    PaymentsModule,
+    DrizzleModule,
     TokensModule,
-    AdaptersModule,
     WebhooksModule,
+    QuotesModule,
+    PaymentIntentsModule,
   ],
 })
 export class AppModule {}

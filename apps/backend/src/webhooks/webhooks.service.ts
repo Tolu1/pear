@@ -2,8 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { keccak256, toBytes } from 'viem';
 import { type MoralisWebhook } from './interfaces/moralis-webhook.interface';
-import { PaymentsService } from '../payments/payments.service';
-import { type Erc20Transfer } from '../payments/interfaces/erc20-transfer.interface';
+import { PaymentIntentsService } from '../payment-intents/payment-intents.service';
+import { type Erc20Transfer } from '../payment-intents/interfaces/erc20-transfer.interface';
 import { type Blockchain } from '../common/constants/supported-tokens.constant';
 
 const CHAIN_ID_MAP: Record<string, Blockchain> = {
@@ -16,7 +16,7 @@ export class WebhooksService {
   private readonly logger = new Logger(WebhooksService.name);
 
   constructor(
-    private readonly paymentsService: PaymentsService,
+    private readonly paymentIntentsService: PaymentIntentsService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -33,7 +33,7 @@ export class WebhooksService {
     if (!blockchain) return;
 
     for (const transfer of body.erc20Transfers) {
-      const domainTransfer: Erc20Transfer = {
+      const erc20Transfer: Erc20Transfer = {
         from: transfer.from as `0x${string}`,
         to: transfer.to as `0x${string}`,
         value: transfer.value,
@@ -42,12 +42,13 @@ export class WebhooksService {
         blockchain,
       };
 
-      await this.paymentsService.handleCryptoConfirmed(domainTransfer);
+      await this.paymentIntentsService.handleCryptoConfirmed(erc20Transfer);
     }
   }
 
   private verifySignature(rawBody: Buffer, signature: string): boolean {
-    const secret = this.configService.get<string>('MORALIS_STREAM_SECRET') ?? '';
+    const secret =
+      this.configService.get<string>('MORALIS_STREAM_SECRET') ?? '';
     const computed = keccak256(toBytes(rawBody.toString() + secret));
     if (computed !== signature) {
       this.logger.warn('Invalid Moralis webhook signature');

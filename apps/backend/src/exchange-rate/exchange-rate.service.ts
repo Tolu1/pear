@@ -4,6 +4,7 @@ import { coins } from './coins';
 import type { CurrencyCode } from 'src/common/constants/supported-currencies.contant';
 import type { TokenId } from 'src/common/constants/supported-tokens.constant';
 import Decimal from 'decimal.js';
+import { type CoinGeckoApiResponse } from './interfaces/coingecko-api-response.interface';
 
 type SupportedFiat = CurrencyCode;
 type SupportedCrypto = TokenId;
@@ -46,8 +47,8 @@ export class ExchangeRateService {
       );
     }
 
-    const data = await response.json();
-    const price = data?.market_data?.current_price?.[from];
+    const data = (await response.json()) as CoinGeckoApiResponse;
+    const price = data.market_data.current_price[from];
 
     if (!price) {
       throw new Error(`Price not available for ${to} in ${from}`);

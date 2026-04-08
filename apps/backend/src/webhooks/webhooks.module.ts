@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { WebhooksController } from './webhooks.controller';
 import { WebhooksService } from './webhooks.service';
-import { PaymentsModule } from '../payments/payments.module';
+import { PaymentIntentsModule } from '../payment-intents/payment-intents.module';
 
 @Module({
-  imports: [PaymentsModule],
+  imports: [PaymentIntentsModule],
   controllers: [WebhooksController],
   providers: [WebhooksService],
 })

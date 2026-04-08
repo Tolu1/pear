@@ -15,8 +15,20 @@ export const paymentIntentStatusEnum = pgEnum('payment_intent_status', [
   'expired',
 ]);
 
+export const quotes = pgTable('quotes', {
+  id: varchar({ length: 50 }).primaryKey(),
+  amount: decimal({ precision: 18, scale: 4 }).notNull(),
+  currency: varchar({ length: 3 }).notNull(),
+  cryptoAmount: decimal({ precision: 30, scale: 18 }).notNull(),
+  tokenId: varchar({ length: 20 }).notNull(),
+  blockchain: varchar({ length: 20 }).notNull(),
+  expiresAt: timestamp().notNull(),
+  createdAt: timestamp().defaultNow().notNull(),
+});
+
 export const paymentIntents = pgTable('payment_intents', {
   id: varchar({ length: 50 }).primaryKey(),
+  quoteId: varchar({ length: 50 }).notNull(),
   status: paymentIntentStatusEnum().notNull().default('requires_transfer'),
   amount: decimal({ precision: 18, scale: 4 }).notNull(),
   currency: varchar({ length: 3 }).notNull(),

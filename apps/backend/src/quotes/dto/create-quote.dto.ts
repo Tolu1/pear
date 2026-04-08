@@ -1,10 +1,4 @@
-import {
-  IsNotEmpty,
-  IsString,
-  IsNumberString,
-  IsIn,
-  IsArray,
-} from 'class-validator';
+import { IsNotEmpty, IsNumberString, IsString, IsIn } from 'class-validator';
 import {
   type CurrencyCode,
   SUPPORTED_CURRENCIES_CODES,
@@ -16,27 +10,15 @@ import {
   SUPPORTED_BLOCKCHAINS,
 } from '../../common/constants/supported-tokens.constant';
 
-export class CreatePaymentDto {
-  @IsNotEmpty()
-  @IsString()
-  merchantDomain: string;
-
-  @IsNotEmpty()
-  @IsString()
-  paymentUrl: string;
-
-  @IsNotEmpty()
-  @IsString()
-  from: `0x${string}`;
-
+export class CreateQuoteDto {
   @IsNotEmpty()
   @IsNumberString()
-  fiatAmount: string;
+  amount: string;
 
   @IsNotEmpty()
   @IsString()
   @IsIn(SUPPORTED_CURRENCIES_CODES)
-  fiatCurrencyCode: CurrencyCode;
+  currency: CurrencyCode;
 
   @IsNotEmpty()
   @IsString()
@@ -47,8 +29,4 @@ export class CreatePaymentDto {
   @IsString()
   @IsIn(SUPPORTED_BLOCKCHAINS)
   blockchain: Blockchain;
-
-  @IsArray()
-  @IsString({ each: true })
-  cookies: string[];
 }

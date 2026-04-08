@@ -29,10 +29,10 @@ describe('ExchangeRateService', () => {
 
   it('should convert fiat to crypto', async () => {
     const rate = '0.37';
-    jest.spyOn(service, 'getRate').mockResolvedValue(rate);
+    const getRateSpy = jest.spyOn(service, 'getRate').mockResolvedValue(rate);
 
     const result = await service.convert('1000', 'usd', 'lisk');
-    expect(service.getRate).toHaveBeenCalledWith('usd', 'lisk');
+    expect(getRateSpy).toHaveBeenCalledWith('usd', 'lisk');
     expect(parseFloat(result)).toBeCloseTo(2702.7, 2);
   });
 
@@ -47,8 +47,8 @@ describe('ExchangeRateService', () => {
 
     global.fetch = jest.fn().mockResolvedValueOnce({
       ok: true,
-      json: async () => mockResponse,
-    } as Response);
+      json: () => Promise.resolve(mockResponse),
+    } as unknown as Response);
 
     const result = await service.getRate('usd', 'lisk');
 
@@ -57,6 +57,7 @@ describe('ExchangeRateService', () => {
       expect.stringContaining('https://api.coingecko.com/api/v3/coins/lisk'),
       expect.objectContaining({
         method: 'GET',
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         headers: expect.objectContaining({
           accept: 'application/json',
           'x-cg-demo-api-key': 'mock-coingecko-api-key',
@@ -69,16 +70,15 @@ describe('ExchangeRateService', () => {
     const mockResponse = {
       market_data: {
         current_price: {
-          eur: 0.35, // Has EUR but missing USD
-          // usd: undefined - missing the currency we're asking for
+          eur: 0.35,
         },
       },
     };
 
     global.fetch = jest.fn().mockResolvedValueOnce({
       ok: true,
-      json: async () => mockResponse,
-    } as Response);
+      json: () => Promise.resolve(mockResponse),
+    } as unknown as Response);
 
     await expect(service.getRate('usd', 'lisk')).rejects.toThrow(
       'Price not available for lisk in usd',

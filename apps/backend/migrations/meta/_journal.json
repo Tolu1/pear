@@ -15,6 +15,13 @@
       "when": 1775566311371,
       "tag": "0001_skinny_pretty_boy",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1775645803076,
+      "tag": "0002_sleepy_archangel",
+      "breakpoints": true
     }
   ]
 }
