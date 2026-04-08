@@ -22,4 +22,9 @@ export class PaymentIntentsController {
     const intent = await this.paymentIntentsService.findOne(id);
     return { id: intent.id, status: intent.status };
   }
+
+  @Get(':id/card')
+  getCard(@Param('id') id: string) {
+    return this.paymentIntentsService.getCard(id);
+  }
 }

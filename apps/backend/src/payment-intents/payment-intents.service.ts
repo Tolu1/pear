@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -7,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { CreatePaymentIntentDto } from './dto/create-payment-intent.dto';
 import { PaymentIntentsRepository } from './payment-intents.repository';
 import { QuotesService } from '../quotes/quotes.service';
+import { VirtualCardService } from '../virtual-card/virtual-card.service';
 import {
   SUPPORTED_TOKENS,
   type Blockchain,
@@ -21,6 +23,7 @@ export class PaymentIntentsService {
   constructor(
     private readonly paymentIntentsRepository: PaymentIntentsRepository,
     private readonly quotesService: QuotesService,
+    private readonly virtualCardService: VirtualCardService,
   ) {}
 
   async create(dto: CreatePaymentIntentDto) {
@@ -67,6 +70,16 @@ export class PaymentIntentsService {
     const intent = await this.paymentIntentsRepository.findOne(id);
     if (!intent) throw new NotFoundException('Payment intent not found');
     return intent;
+  }
+
+  async getCard(id: string) {
+    const intent = await this.findOne(id);
+
+    if (intent.status !== 'processing') {
+      throw new ForbiddenException('Card details not available');
+    }
+
+    return this.virtualCardService.issueCard();
   }
 
   async handleCryptoConfirmed(transfer: Erc20Transfer): Promise<void> {

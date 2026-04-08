@@ -5,6 +5,7 @@ import { TokensModule } from './tokens/tokens.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
 import { QuotesModule } from './quotes/quotes.module';
 import { PaymentIntentsModule } from './payment-intents/payment-intents.module';
+import { VirtualCardModule } from './virtual-card/virtual-card.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { PaymentIntentsModule } from './payment-intents/payment-intents.module';
     WebhooksModule,
     QuotesModule,
     PaymentIntentsModule,
+    VirtualCardModule,
   ],
 })
 export class AppModule {}
