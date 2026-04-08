@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { PaymentIntentsService } from './payment-intents.service';
 import { CreatePaymentIntentDto } from './dto/create-payment-intent.dto';
 @Controller('payment-intents')
@@ -26,5 +34,11 @@ export class PaymentIntentsController {
   @Get(':id/card')
   getCard(@Param('id') id: string) {
     return this.paymentIntentsService.getCard(id);
+  }
+
+  @Post(':id/complete')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  complete(@Param('id') id: string) {
+    return this.paymentIntentsService.complete(id);
   }
 }

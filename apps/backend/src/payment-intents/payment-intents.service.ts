@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -91,5 +92,15 @@ export class PaymentIntentsService {
     if (!intent) return;
 
     await this.paymentIntentsRepository.updateStatus(intent.id, 'processing');
+  }
+
+  async complete(id: string): Promise<void> {
+    const intent = await this.findOne(id);
+
+    if (intent.status !== 'processing') {
+      throw new ConflictException('Payment intent is not in processing state');
+    }
+
+    await this.paymentIntentsRepository.updateStatus(id, 'succeeded');
   }
 }
