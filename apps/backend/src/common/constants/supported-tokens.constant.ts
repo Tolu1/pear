@@ -1,67 +1,57 @@
 import 'dotenv/config';
 
-export const SUPPORTED_TOKENS = {
-  lisk: {
-    'usd-coin': {
-      name: 'USDC',
-      symbol: 'USDC',
-      coingeckoId: 'usd-coin',
-      contractAddress: '0x...',
-      paymentAddress: process.env.PAYMENT_ADDRESS_USDC! as `0x${string}`,
-    },
-    lisk: {
-      name: 'Lisk',
-      symbol: 'LSK',
-      coingeckoId: 'lisk',
-      contractAddress: '0x...',
-      paymentAddress: process.env.PAYMENT_ADDRESS_LSK! as `0x${string}`,
-    },
-  },
-  liskSepolia: {
-    'usd-coin': {
-      name: 'USDC',
-      symbol: 'USDC',
-      coingeckoId: 'usd-coin',
-      contractAddress: '0x...',
-      paymentAddress: process.env.PAYMENT_ADDRESS_USDC! as `0x${string}`,
-    },
-    lisk: {
-      name: 'Lisk',
-      symbol: 'LSK',
-      coingeckoId: 'lisk',
-      contractAddress: '0x...',
-      paymentAddress: process.env.PAYMENT_ADDRESS_LSK! as `0x${string}`,
-    },
-  },
-  base: {
-    'usd-coin': {
-      name: 'USDC',
-      symbol: 'USDC',
-      coingeckoId: 'usd-coin',
-      contractAddress: '0x...',
-      paymentAddress: process.env.PAYMENT_ADDRESS_EVM! as `0x${string}`,
-    },
-  },
-  baseSepolia: {
-    'usd-coin': {
-      name: 'USDC',
-      symbol: 'USDC',
-      coingeckoId: 'usd-coin',
-      contractAddress: '0x...',
-      paymentAddress: process.env.PAYMENT_ADDRESS_EVM! as `0x${string}`,
-    },
-  },
-} as const;
+export type Blockchain = 'lisk' | 'base' | 'baseSepolia';
+export type TokenId = 'usd-coin';
 
-export type Blockchain = keyof typeof SUPPORTED_TOKENS;
-export type TokenId = {
-  [K in keyof typeof SUPPORTED_TOKENS]: keyof (typeof SUPPORTED_TOKENS)[K];
-}[keyof typeof SUPPORTED_TOKENS];
+export type NetworkConfig = {
+  contractAddress: `0x${string}`;
+  paymentAddress: `0x${string}`;
+};
 
-export const SUPPORTED_BLOCKCHAINS = Object.keys(
+type TokenConfig = {
+  name: string;
+  symbol: string;
+  coingeckoId: string;
+  networks: Partial<Record<Blockchain, NetworkConfig>>;
+};
+
+export const SUPPORTED_TOKENS: Record<TokenId, TokenConfig> = {
+  'usd-coin': {
+    name: 'USDC',
+    symbol: 'USDC',
+    coingeckoId: 'usd-coin',
+    networks: {
+      lisk: {
+        contractAddress: '0xf242275d3a6527d877f2c927a82d9b057609cc71',
+        paymentAddress: process.env.PAYMENT_ADDRESS_LISK! as `0x${string}`,
+      },
+      base: {
+        contractAddress: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
+        paymentAddress: process.env.PAYMENT_ADDRESS_SAFE! as `0x${string}`,
+      },
+      baseSepolia: {
+        contractAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+        paymentAddress: process.env.PAYMENT_ADDRESS_SAFE! as `0x${string}`,
+      },
+    },
+  },
+};
+
+export function getTokenNetworkConfig(
+  tokenId: TokenId,
+  blockchain: Blockchain,
+): NetworkConfig | undefined {
+  return SUPPORTED_TOKENS[tokenId].networks[blockchain];
+}
+
+export const SUPPORTED_TOKEN_IDS: TokenId[] = Object.keys(
   SUPPORTED_TOKENS,
-) as Blockchain[];
-
-export const SUPPORTED_TOKEN_IDS = Object.values(SUPPORTED_TOKENS).flatMap(
-  (blockchain) => Object.keys(blockchain),
 ) as TokenId[];
+
+export const SUPPORTED_BLOCKCHAINS: Blockchain[] = [
+  ...new Set(
+    Object.values(SUPPORTED_TOKENS).flatMap(
+      (token) => Object.keys(token.networks) as Blockchain[],
+    ),
+  ),
+];

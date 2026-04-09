@@ -9,6 +9,7 @@ export interface PaymentIntent {
   cryptoAmount: string;
   tokenId: string;
   blockchain: string;
+  contractAddress: string;
   paymentAddress: string;
   fromAddress: string;
   merchantDomain: string;

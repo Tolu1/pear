@@ -31,8 +31,8 @@ describe('ExchangeRateService', () => {
     const rate = '0.37';
     const getRateSpy = jest.spyOn(service, 'getRate').mockResolvedValue(rate);
 
-    const result = await service.convert('1000', 'usd', 'lisk');
-    expect(getRateSpy).toHaveBeenCalledWith('usd', 'lisk');
+    const result = await service.convert('1000', 'usd', 'usd-coin');
+    expect(getRateSpy).toHaveBeenCalledWith('usd', 'usd-coin');
     expect(parseFloat(result)).toBeCloseTo(2702.7, 2);
   });
 
@@ -50,11 +50,13 @@ describe('ExchangeRateService', () => {
       json: () => Promise.resolve(mockResponse),
     } as unknown as Response);
 
-    const result = await service.getRate('usd', 'lisk');
+    const result = await service.getRate('usd', 'usd-coin');
 
     expect(result).toBe('0.37');
     expect(fetch).toHaveBeenCalledWith(
-      expect.stringContaining('https://api.coingecko.com/api/v3/coins/lisk'),
+      expect.stringContaining(
+        'https://api.coingecko.com/api/v3/coins/usd-coin',
+      ),
       expect.objectContaining({
         method: 'GET',
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -80,7 +82,7 @@ describe('ExchangeRateService', () => {
       json: () => Promise.resolve(mockResponse),
     } as unknown as Response);
 
-    await expect(service.getRate('usd', 'lisk')).rejects.toThrow(
+    await expect(service.getRate('usd', 'usd-coin')).rejects.toThrow(
       'Price not available for lisk in usd',
     );
   });
@@ -98,7 +100,7 @@ describe('ExchangeRateService', () => {
       statusText: 'Not Found',
     } as Response);
 
-    await expect(service.getRate('usd', 'lisk')).rejects.toThrow(
+    await expect(service.getRate('usd', 'usd-coin')).rejects.toThrow(
       'CoinGecko API returned 404: Not Found',
     );
   });

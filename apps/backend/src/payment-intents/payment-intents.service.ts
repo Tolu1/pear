@@ -10,7 +10,7 @@ import { PaymentIntentMapper } from './payment-intent.mapper';
 import { QuotesService } from '../quotes/quotes.service';
 import { VirtualCardService } from '../virtual-card/virtual-card.service';
 import {
-  SUPPORTED_TOKENS,
+  getTokenNetworkConfig,
   type Blockchain,
   type TokenId,
 } from '../common/constants/supported-tokens.constant';
@@ -40,9 +40,7 @@ export class PaymentIntentsService {
 
     const blockchain = quote.blockchain as Blockchain;
     const tokenId = quote.tokenId as TokenId;
-    const blockchainTokens = SUPPORTED_TOKENS[blockchain];
-    const tokenConfig =
-      blockchainTokens[tokenId as keyof typeof blockchainTokens];
+    const tokenConfig = getTokenNetworkConfig(tokenId, blockchain);
 
     if (!tokenConfig) {
       throw new BadRequestException(
