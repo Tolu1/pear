@@ -61,7 +61,8 @@ export namespace partial_types {
       paymentData?: PaymentData | null
     }
     export interface PaymentData {
-      price?: string | null
+      amount?: string | null
+      currency?: string | null
       merchantDomain?: string | null
       paymentUrl?: string | null
     }

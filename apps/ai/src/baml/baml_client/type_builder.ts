@@ -35,7 +35,7 @@ export default class TypeBuilder {
     
     Detection: ClassViewer<'Detection', "type" | "paymentData">;
     
-    PaymentData: ClassViewer<'PaymentData', "price" | "merchantDomain" | "paymentUrl">;
+    PaymentData: ClassViewer<'PaymentData', "amount" | "currency" | "merchantDomain" | "paymentUrl">;
     
     
 
@@ -67,7 +67,7 @@ export default class TypeBuilder {
         ]);
         
         this.PaymentData = this.tb.classViewer("PaymentData", [
-          "price","merchantDomain","paymentUrl",
+          "amount","currency","merchantDomain","paymentUrl",
         ]);
         
         
