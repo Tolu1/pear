@@ -1,13 +1,12 @@
 import {
   BadRequestException,
-  ConflictException,
   ForbiddenException,
   Injectable,
-  NotFoundException,
 } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { CreatePaymentIntentDto } from './dto/create-payment-intent.dto';
 import { PaymentIntentsRepository } from './payment-intents.repository';
+import { PaymentIntentMapper } from './payment-intent.mapper';
 import { QuotesService } from '../quotes/quotes.service';
 import { VirtualCardService } from '../virtual-card/virtual-card.service';
 import {
@@ -16,6 +15,11 @@ import {
   type TokenId,
 } from '../common/constants/supported-tokens.constant';
 import { type Erc20Transfer } from './interfaces/erc20-transfer.interface';
+import { PaymentIntentStatus } from './enums/payment-intent-status.enum';
+import { PaymentIntent } from './interfaces/payment-intent.interface';
+import { QuoteExpiredException } from './exceptions/quote-expired.exception';
+import { PaymentIntentConflictException } from './exceptions/payment-intent-conflict.exception';
+import { VirtualCard } from '../virtual-card/interfaces/virtual-card.interface';
 
 const PAYMENT_INTENT_TTL_MINUTES = 30;
 
@@ -27,11 +31,11 @@ export class PaymentIntentsService {
     private readonly virtualCardService: VirtualCardService,
   ) {}
 
-  async create(dto: CreatePaymentIntentDto) {
+  async create(dto: CreatePaymentIntentDto): Promise<PaymentIntent> {
     const quote = await this.quotesService.findOne(dto.quoteId);
 
     if (new Date() > quote.expiresAt) {
-      throw new BadRequestException('Quote has expired');
+      throw new QuoteExpiredException();
     }
 
     const blockchain = quote.blockchain as Blockchain;
@@ -50,7 +54,7 @@ export class PaymentIntentsService {
       Date.now() + PAYMENT_INTENT_TTL_MINUTES * 60 * 1000,
     );
 
-    return this.paymentIntentsRepository.create({
+    const intent = await this.paymentIntentsRepository.create({
       id: `pi_${uuidv4()}`,
       quoteId: quote.id,
       amount: quote.amount,
@@ -63,20 +67,21 @@ export class PaymentIntentsService {
       merchantDomain: dto.merchantDomain,
       metadata: dto.metadata ?? null,
       expiresAt,
-      status: 'requires_transfer',
+      status: PaymentIntentStatus.REQUIRES_TRANSFER,
     });
+
+    return PaymentIntentMapper.toDomain(intent);
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<PaymentIntent> {
     const intent = await this.paymentIntentsRepository.findOne(id);
-    if (!intent) throw new NotFoundException('Payment intent not found');
-    return intent;
+    return PaymentIntentMapper.toDomain(intent);
   }
 
-  async getCard(id: string) {
+  async getCard(id: string): Promise<VirtualCard> {
     const intent = await this.findOne(id);
 
-    if (intent.status !== 'processing') {
+    if (intent.status !== PaymentIntentStatus.PROCESSING) {
       throw new ForbiddenException('Card details not available');
     }
 
@@ -91,16 +96,22 @@ export class PaymentIntentsService {
 
     if (!intent) return;
 
-    await this.paymentIntentsRepository.updateStatus(intent.id, 'processing');
+    await this.paymentIntentsRepository.updateStatus(
+      intent.id,
+      PaymentIntentStatus.PROCESSING,
+    );
   }
 
   async complete(id: string): Promise<void> {
     const intent = await this.findOne(id);
 
-    if (intent.status !== 'processing') {
-      throw new ConflictException('Payment intent is not in processing state');
+    if (intent.status !== PaymentIntentStatus.PROCESSING) {
+      throw new PaymentIntentConflictException();
     }
 
-    await this.paymentIntentsRepository.updateStatus(id, 'succeeded');
+    await this.paymentIntentsRepository.updateStatus(
+      id,
+      PaymentIntentStatus.SUCCEEDED,
+    );
   }
 }

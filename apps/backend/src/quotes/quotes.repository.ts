@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
-import { DrizzleService } from '../database/drizzle.service';
-import { quotes } from '../database/database.schema';
-import { type NewQuote } from '../database/database.types';
+import { DatabaseService } from '../database/database.service';
+import { quotes } from './quotes.schema';
+import { QuoteNotFoundException } from './exceptions/quote-not-found.exception';
 
 @Injectable()
 export class QuotesRepository {
-  constructor(private readonly drizzleService: DrizzleService) {}
+  constructor(private readonly databaseService: DatabaseService) {}
 
-  async create(data: NewQuote) {
-    const [quote] = await this.drizzleService.db
+  async create(data: typeof quotes.$inferInsert) {
+    const [quote] = await this.databaseService.db
       .insert(quotes)
       .values(data)
       .returning();
@@ -17,10 +17,11 @@ export class QuotesRepository {
   }
 
   async findOne(id: string) {
-    const [quote] = await this.drizzleService.db
+    const [quote] = await this.databaseService.db
       .select()
       .from(quotes)
       .where(eq(quotes.id, id));
-    return quote ?? null;
+    if (!quote) throw new QuoteNotFoundException();
+    return quote;
   }
 }

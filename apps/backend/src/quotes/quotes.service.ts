@@ -1,8 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateQuoteDto } from './dto/create-quote.dto';
 import { QuotesRepository } from './quotes.repository';
+import { QuoteMapper } from './quote.mapper';
 import { ExchangeRateService } from '../exchange-rate/exchange-rate.service';
+import { Quote } from './interfaces/quote.interface';
 
 const QUOTE_TTL_MINUTES = 15;
 
@@ -13,7 +15,7 @@ export class QuotesService {
     private readonly exchangeRateService: ExchangeRateService,
   ) {}
 
-  async create(dto: CreateQuoteDto) {
+  async create(dto: CreateQuoteDto): Promise<Quote> {
     const cryptoAmount = await this.exchangeRateService.convert(
       dto.amount,
       dto.currency,
@@ -22,7 +24,7 @@ export class QuotesService {
 
     const expiresAt = new Date(Date.now() + QUOTE_TTL_MINUTES * 60 * 1000);
 
-    return this.quotesRepository.create({
+    const quote = await this.quotesRepository.create({
       id: `qt_${uuidv4()}`,
       amount: dto.amount,
       currency: dto.currency,
@@ -31,11 +33,12 @@ export class QuotesService {
       blockchain: dto.blockchain,
       expiresAt,
     });
+
+    return QuoteMapper.toDomain(quote);
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<Quote> {
     const quote = await this.quotesRepository.findOne(id);
-    if (!quote) throw new NotFoundException('Quote not found');
-    return quote;
+    return QuoteMapper.toDomain(quote);
   }
 }

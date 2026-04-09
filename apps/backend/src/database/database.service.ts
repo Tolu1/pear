@@ -8,7 +8,7 @@ import * as schema from './database.schema';
 neonConfig.webSocketConstructor = ws;
 
 @Injectable()
-export class DrizzleService {
+export class DatabaseService {
   public readonly db: ReturnType<typeof drizzle<typeof schema>>;
 
   constructor(private readonly configService: ConfigService) {
@@ -17,6 +17,6 @@ export class DrizzleService {
       throw new Error('DATABASE_URL is not defined');
     }
     const sql = neon(databaseUrl);
-    this.db = drizzle({ client: sql, casing: 'snake_case' });
+    this.db = drizzle({ client: sql, schema, casing: 'snake_case' });
   }
 }
