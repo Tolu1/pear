@@ -31,8 +31,8 @@ describe('ExchangeRateService', () => {
     const rate = '0.37';
     const getRateSpy = jest.spyOn(service, 'getRate').mockResolvedValue(rate);
 
-    const result = await service.convert('1000', 'usd', 'usd-coin');
-    expect(getRateSpy).toHaveBeenCalledWith('usd', 'usd-coin');
+    const result = await service.convert('1000', 'USD', 'usd-coin');
+    expect(getRateSpy).toHaveBeenCalledWith('USD', 'usd-coin');
     expect(parseFloat(result)).toBeCloseTo(2702.7, 2);
   });
 
@@ -50,7 +50,7 @@ describe('ExchangeRateService', () => {
       json: () => Promise.resolve(mockResponse),
     } as unknown as Response);
 
-    const result = await service.getRate('usd', 'usd-coin');
+    const result = await service.getRate('USD', 'usd-coin');
 
     expect(result).toBe('0.37');
     expect(fetch).toHaveBeenCalledWith(
@@ -82,14 +82,14 @@ describe('ExchangeRateService', () => {
       json: () => Promise.resolve(mockResponse),
     } as unknown as Response);
 
-    await expect(service.getRate('usd', 'usd-coin')).rejects.toThrow(
+    await expect(service.getRate('USD', 'usd-coin')).rejects.toThrow(
       'Price not available for lisk in usd',
     );
   });
 
   it('should throw an error for unsupported token', async () => {
     await expect(
-      service.getRate('usd', 'fake-token' as TokenId),
+      service.getRate('USD', 'fake-token' as TokenId),
     ).rejects.toThrow('Unsupported crypto: fake-token');
   });
 
@@ -100,7 +100,7 @@ describe('ExchangeRateService', () => {
       statusText: 'Not Found',
     } as Response);
 
-    await expect(service.getRate('usd', 'usd-coin')).rejects.toThrow(
+    await expect(service.getRate('USD', 'usd-coin')).rejects.toThrow(
       'CoinGecko API returned 404: Not Found',
     );
   });

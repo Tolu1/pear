@@ -48,7 +48,7 @@ export class ExchangeRateService {
     }
 
     const data = (await response.json()) as CoinGeckoApiResponse;
-    const price = data.market_data.current_price[from];
+    const price = data.market_data.current_price[from.toLowerCase()];
 
     if (!price) {
       throw new Error(`Price not available for ${to} in ${from}`);
