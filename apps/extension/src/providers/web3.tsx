@@ -1,6 +1,6 @@
 import { setupMetaMaskProvider } from "@/lib/metamask";
 import { http, createConfig } from "wagmi";
-import { lisk, liskSepolia } from "wagmi/chains";
+import { lisk, base, baseSepolia } from "wagmi/chains";
 import { injected } from "wagmi/connectors";
 import { WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -11,11 +11,12 @@ if (isExtensionEnvironment()) {
 }
 
 export const config = createConfig({
-  chains: [lisk, liskSepolia],
+  chains: [lisk, base, baseSepolia],
   connectors: [injected()],
   transports: {
     [lisk.id]: http(),
-    [liskSepolia.id]: http(),
+    [base.id]: http(),
+    [baseSepolia.id]: http(),
   },
 });
 
