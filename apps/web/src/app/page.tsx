@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import Wave from "@/components/wave";
 import ProductShowcase from "@/components/product-showcase";
 import InstallButton from "@/components/install-button";
+import Link from "next/link";
 
 export default function Page() {
   return (
@@ -34,7 +35,13 @@ export default function Page() {
           <div className="flex w-full flex-col items-center gap-2">
             <InstallButton />
             <p className="leading-[18px] tracking-[-0.08em] text-black/50">
-              Chrome & Firefox supported
+              Chrome & Firefox supported ·{" "}
+              <Link
+                href="/privacy"
+                className="transition-colors hover:text-black/60"
+              >
+                Privacy
+              </Link>
             </p>
           </div>
         </div>
