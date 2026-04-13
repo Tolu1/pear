@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
   "name": "Pear",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Buy anything online using crypto",
-  "permissions": ["tabs", "sidePanel"],
-  "host_permissions": ["<all_urls>"],
+  "permissions": ["tabs", "activeTab", "sidePanel", "debugger", "scripting"],
+  "host_permissions": ["*://stripe-payments-demo.appspot.com/*", "*://ai.pearextension.com/*"],
   "action": {
     "default_icon": {
       "16": "icon.png"
@@ -15,7 +15,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
+      "matches": ["*://stripe-payments-demo.appspot.com/*"],
       "js": ["content.js"],
       "run_at": "document_idle"
     }

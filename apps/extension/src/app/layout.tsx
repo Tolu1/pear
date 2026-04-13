@@ -16,7 +16,7 @@ function ProtectedLayout() {
   }, [isConnected, navigate]);
 
   return (
-    <div className="flex flex-col h-full w-full">
+    <div className="font-astra flex h-dvh w-full flex-col">
       <Outlet />
     </div>
   );
