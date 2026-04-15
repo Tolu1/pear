@@ -143,11 +143,7 @@ function ProductShowcaseMobile() {
     <div className="flex flex-col gap-6">
       <ExtensionApp />
       <div className="flex flex-col items-center gap-4">
-        <FeatureBadge
-          logo={<TemuLogo />}
-          text="Buying on"
-          website="jumia.com"
-        />
+        <FeatureBadge logo={<TemuLogo />} text="Buying on" website="temu.com" />
         <FeatureBadge
           logo={<PaystackLogo />}
           text="Paying with"
