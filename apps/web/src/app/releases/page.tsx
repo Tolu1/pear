@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import Wave from "@/components/wave";
 import ReleaseDownloadButton from "@/components/release-download-button";
 import StoreLinkButton from "@/components/store-link-button";
+import { VideoDialog } from "@/components/ui/video-dialog";
 
 export const metadata: Metadata = {
   title: "Pear | Releases",
@@ -141,16 +142,13 @@ export default function Page() {
             </div>
 
             <div className="flex flex-col gap-6 lg:self-center">
-              <div className="flex aspect-video w-full items-center justify-center rounded-[24px] border border-dashed border-black/30 bg-[#0E140E]/[0.03]">
-                <div className="flex flex-col items-center gap-3 px-6 text-center">
-                  <span className="font-mono text-[11px] leading-[12px] font-semibold tracking-[-0.04em] text-black/50 uppercase">
-                    Coming soon
-                  </span>
-                  <p className="max-w-[320px] text-[16px] leading-[22px] tracking-[-0.04em] text-black/50">
-                    In the meantime, install the beta and try it out.
-                  </p>
-                </div>
-              </div>
+              <VideoDialog
+                animationStyle="from-center"
+                videoSrc="https://www.youtube.com/embed/iPmaQMEWK1E"
+                thumbnailSrc="https://img.youtube.com/vi/iPmaQMEWK1E/maxresdefault.jpg"
+                thumbnailAlt="How to manually install Pear (Beta)"
+                className="overflow-hidden rounded-[24px] border border-black/20"
+              />
             </div>
           </section>
 
