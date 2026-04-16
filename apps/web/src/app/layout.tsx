@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { AppProvider } from "@/providers/app";
+import AnnouncementBar from "@/components/announcement-bar";
 import Navbar from "@/components/navbar";
 
 const astra = localFont({
@@ -65,6 +66,7 @@ export default function RootLayout({
         )}
       >
         <AppProvider>
+          <AnnouncementBar />
           <Navbar />
           {children}
         </AppProvider>
