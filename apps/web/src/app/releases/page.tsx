@@ -3,6 +3,8 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import Wave from "@/components/wave";
 import ReleaseDownloadButton from "@/components/release-download-button";
+import StoreLinkButton from "@/components/store-link-button";
+import { VideoDialog } from "@/components/ui/video-dialog";
 
 export const metadata: Metadata = {
   title: "Pear | Releases",
@@ -10,11 +12,7 @@ export const metadata: Metadata = {
     "Download Pear. Stable on the Chrome Web Store and a public beta channel for early access to new features.",
 };
 
-const CHROME_STORE_URL =
-  "https://chromewebstore.google.com/detail/pear/jihaoncggojanjkopoebkihgmebhjdcj";
-
 const BETA_VERSION = "0.1.0-beta";
-const BETA_ZIP_PATH = `/downloads/pear-extension-v${BETA_VERSION}.zip`;
 const STABLE_VERSION = "0.0.2-alpha";
 
 export default function Page() {
@@ -65,56 +63,11 @@ export default function Page() {
                 </p>
               </div>
               <div className="mt-auto flex flex-col items-start gap-3 md:flex-row md:items-center md:gap-4">
-                <a
-                  href={CHROME_STORE_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex h-[36px] w-full items-center justify-center gap-2 rounded-[8px] border border-black bg-[#FFE566] px-5 font-bold tracking-[-0.08em] text-black shadow-[3px_3px_0_0_#0E140E] transition-all hover:translate-x-[1px] hover:translate-y-[1px] hover:bg-[#FFE566]/90 hover:shadow-[2px_2px_0_0_#0E140E] active:translate-x-[3px] active:translate-y-[3px] active:shadow-[0_0_0_0_#0E140E] md:w-fit"
-                >
-                  Open store
-                  <svg
-                    width="10"
-                    height="10"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M3 9L9 3M9 3H4M9 3V8"
-                      stroke="#0E140E"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </a>
+                <StoreLinkButton />
                 <span className="font-mono text-[11px] leading-[12px] tracking-[-0.04em] text-black/40">
                   Chrome · Edge · Brave
                 </span>
               </div>
-              {/* <a
-                href={CHROME_STORE_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex h-[44px] w-full items-center justify-center gap-2 rounded-[8px] border border-black bg-[#FFE566] px-8 font-bold tracking-[-0.08em] text-black shadow-[3px_3px_0_0_#0E140E] transition-all hover:translate-x-[1px] hover:translate-y-[1px] hover:bg-[#FFE566]/90 hover:shadow-[2px_2px_0_0_#0E140E] active:translate-x-[3px] active:translate-y-[3px] active:shadow-[0_0_0_0_#0E140E] md:w-fit"
-              >
-                Open in Chrome Web Store
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 12 12"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M3 9L9 3M9 3H4M9 3V8"
-                    stroke="#0E140E"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </a> */}
             </article>
 
             <article className="flex flex-1 flex-col gap-4 rounded-[20px] border border-black/20 bg-[#FFFBE8] p-5">
@@ -142,28 +95,7 @@ export default function Page() {
                 </p>
               </div>
               <div className="mt-auto flex flex-col items-start gap-3 md:flex-row md:items-center md:gap-4">
-                <a
-                  href={BETA_ZIP_PATH}
-                  download
-                  className="inline-flex h-[36px] w-full items-center justify-center gap-2 rounded-[8px] border border-black bg-[#FFE566] px-5 font-bold tracking-[-0.08em] text-black shadow-[3px_3px_0_0_#0E140E] transition-all hover:translate-x-[1px] hover:translate-y-[1px] hover:bg-[#FFE566]/90 hover:shadow-[2px_2px_0_0_#0E140E] active:translate-x-[3px] active:translate-y-[3px] active:shadow-[0_0_0_0_#0E140E] md:w-fit"
-                >
-                  Download .zip
-                  <svg
-                    width="10"
-                    height="10"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M6 2V8.5M6 8.5L3 5.5M6 8.5L9 5.5M2.5 10H9.5"
-                      stroke="#0E140E"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </a>
+                <ReleaseDownloadButton />
                 <span className="font-mono text-[11px] leading-[12px] tracking-[-0.04em] text-black/40">
                   .zip · Unpacked extension
                 </span>
@@ -210,16 +142,13 @@ export default function Page() {
             </div>
 
             <div className="flex flex-col gap-6 lg:self-center">
-              <div className="flex aspect-video w-full items-center justify-center rounded-[24px] border border-dashed border-black/30 bg-[#0E140E]/[0.03]">
-                <div className="flex flex-col items-center gap-3 px-6 text-center">
-                  <span className="font-mono text-[11px] leading-[12px] font-semibold tracking-[-0.04em] text-black/50 uppercase">
-                    Coming soon
-                  </span>
-                  <p className="max-w-[320px] text-[16px] leading-[22px] tracking-[-0.04em] text-black/50">
-                    In the meantime, install the beta and try it out.
-                  </p>
-                </div>
-              </div>
+              <VideoDialog
+                animationStyle="from-center"
+                videoSrc="https://www.youtube.com/embed/iPmaQMEWK1E"
+                thumbnailSrc="https://img.youtube.com/vi/iPmaQMEWK1E/maxresdefault.jpg"
+                thumbnailAlt="How to manually install Pear (Beta)"
+                className="overflow-hidden rounded-[24px] border border-black/20"
+              />
             </div>
           </section>
 
