@@ -23,15 +23,13 @@ function AnnouncementBar() {
 
   return (
     <div className="flex w-full items-center justify-center gap-3 bg-[#0E140E] px-4 py-2 text-center">
-      <a
-        href={CHROME_STORE_URL}
-        target="_blank"
-        rel="noopener noreferrer"
+      <Link
+        href="/releases"
         onClick={handleStoreClick}
         className="font-mono text-[12px] leading-[14px] font-medium tracking-[-0.04em] text-[#FFF8D4] transition-opacity hover:opacity-80 md:text-[13px]"
       >
         Now live on the Chrome Web Store
-      </a>
+      </Link>
       <span
         aria-hidden
         className="text-[12px] leading-[14px] tracking-[-0.04em] text-[#FFF8D4]/40"
