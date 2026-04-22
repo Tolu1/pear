@@ -3,7 +3,17 @@ import React from "react";
 import Link from "next/link";
 import posthog from "posthog-js";
 
+const CHROME_STORE_URL =
+  "https://chromewebstore.google.com/detail/pear/jihaoncggojanjkopoebkihgmebhjdcj";
+
 function AnnouncementBar() {
+  function handleStoreClick() {
+    posthog.capture("announcement_bar_clicked", {
+      target: "chrome_store",
+      timestamp: new Date().toISOString(),
+    });
+  }
+
   function handleClick() {
     posthog.capture("announcement_bar_clicked", {
       target: "releases",
@@ -13,13 +23,15 @@ function AnnouncementBar() {
 
   return (
     <div className="flex w-full items-center justify-center gap-3 bg-[#0E140E] px-4 py-2 text-center">
-      <Link
-        href="/releases"
-        onClick={handleClick}
+      <a
+        href={CHROME_STORE_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={handleStoreClick}
         className="font-mono text-[12px] leading-[14px] font-medium tracking-[-0.04em] text-[#FFF8D4] transition-opacity hover:opacity-80 md:text-[13px]"
       >
         Now live on the Chrome Web Store
-      </Link>
+      </a>
       <span
         aria-hidden
         className="text-[12px] leading-[14px] tracking-[-0.04em] text-[#FFF8D4]/40"

@@ -23,7 +23,7 @@ function StoreLinkButton() {
       onClick={handleClick}
       className="inline-flex h-[36px] w-full items-center justify-center gap-2 rounded-[8px] border border-black bg-[#FFE566] px-5 font-bold tracking-[-0.08em] text-black shadow-[3px_3px_0_0_#0E140E] transition-all hover:translate-x-[1px] hover:translate-y-[1px] hover:bg-[#FFE566]/90 hover:shadow-[2px_2px_0_0_#0E140E] active:translate-x-[3px] active:translate-y-[3px] active:shadow-[0_0_0_0_#0E140E] md:w-fit"
     >
-      Open store
+      Install Extension
       <svg
         width="10"
         height="10"
