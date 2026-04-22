@@ -35,7 +35,7 @@ export default function Page() {
           <div className="flex w-full flex-col items-center gap-2">
             <InstallButton />
             <p className="leading-[18px] tracking-[-0.08em] text-black/50">
-              Chrome & Firefox supported ·{" "}
+              Chrome supported ·{" "}
               <Link
                 href="/privacy"
                 className="transition-colors hover:text-black/60"

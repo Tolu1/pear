@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import Link from "next/link";
 import Logo from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import posthog from "posthog-js";
@@ -12,8 +13,6 @@ function Navbar() {
       user_agent: navigator.userAgent,
       timestamp: new Date().toISOString(),
     });
-
-    window.open("https://tally.so/r/w7O8o0", "_blank", "noopener,noreferrer");
   }
 
   return (
@@ -94,22 +93,24 @@ function Navbar() {
         </a>
       </div>
 
-      <Button className="gap-2.5" onClick={handleClick}>
-        Install
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="6"
-          height="10"
-          viewBox="0 0 6 10"
-          fill="none"
-        >
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M0.292893 0.292893C0.683417 -0.0976311 1.31658 -0.0976311 1.70711 0.292893L5.70711 4.29289C6.09763 4.68342 6.09763 5.31658 5.70711 5.70711L1.70711 9.70711C1.31658 10.0976 0.683417 10.0976 0.292893 9.70711C-0.0976311 9.31658 -0.0976311 8.68342 0.292893 8.29289L3.58579 5L0.292893 1.70711C-0.0976311 1.31658 -0.0976311 0.683417 0.292893 0.292893Z"
-            fill="#0E140E"
-          />
-        </svg>
+      <Button asChild className="gap-2.5">
+        <Link href="/releases" onClick={handleClick}>
+          Install
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="6"
+            height="10"
+            viewBox="0 0 6 10"
+            fill="none"
+          >
+            <path
+              fillRule="evenodd"
+              clipRule="evenodd"
+              d="M0.292893 0.292893C0.683417 -0.0976311 1.31658 -0.0976311 1.70711 0.292893L5.70711 4.29289C6.09763 4.68342 6.09763 5.31658 5.70711 5.70711L1.70711 9.70711C1.31658 10.0976 0.683417 10.0976 0.292893 9.70711C-0.0976311 9.31658 -0.0976311 8.68342 0.292893 8.29289L3.58579 5L0.292893 1.70711C-0.0976311 1.31658 -0.0976311 0.683417 0.292893 0.292893Z"
+              fill="#0E140E"
+            />
+          </svg>
+        </Link>
       </Button>
     </nav>
   );
