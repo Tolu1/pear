@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import posthog from "posthog-js";
 
@@ -11,13 +12,13 @@ function InstallButton() {
       user_agent: navigator.userAgent,
       timestamp: new Date().toISOString(),
     });
-
-    window.open("https://tally.so/r/w7O8o0", "_blank", "noopener,noreferrer");
   }
 
   return (
-    <Button size="lg" className="w-full md:w-fit" onClick={handleClick}>
-      Install Free Extension
+    <Button asChild size="lg" className="w-full md:w-fit">
+      <Link href="/releases" onClick={handleClick}>
+        Install Free Extension
+      </Link>
     </Button>
   );
 }
