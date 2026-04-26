@@ -1,17 +1,25 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { getActiveTab } from "@/lib/browser/get-active-tab";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+export function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export function isExtensionEnvironment() {
   return Boolean(window.chrome?.runtime?.id);
 }
 
-export async function getActiveTab() {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  return tab;
+export function getCurrencySymbol(currencyCode: string) {
+  return (
+    new Intl.NumberFormat("en", { style: "currency", currency: currencyCode })
+      .formatToParts(0)
+      .find((p) => p.type === "currency")?.value ?? currencyCode
+  );
 }
 
 export async function getViewportInfo() {

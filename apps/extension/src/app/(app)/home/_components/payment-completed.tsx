@@ -1,9 +1,18 @@
-import { usePayment } from "@/hooks/use-payment";
+import { formatUnits } from "viem";
+import { useDetectedPaymentStore } from "@/stores/detected-payment.store";
+import { usePaymentIntentStore } from "@/stores/payment-intent.store";
+import { getCurrencySymbol } from "@/lib/utils";
+
+const USDC_DECIMALS = 6;
 
 function PaymentCompleted() {
-  const { payment } = usePayment();
+  const { payment } = useDetectedPaymentStore();
+  const { intent } = usePaymentIntentStore();
 
-  if (!payment) return null;
+  if (!payment || !intent) return null;
+
+  const currencySymbol = getCurrencySymbol(payment.currencyCode);
+  const cryptoAmount = formatUnits(intent.cryptoAmount, USDC_DECIMALS);
 
   return (
     <div className="flex h-full flex-col justify-center gap-2.5">
@@ -67,12 +76,15 @@ function PaymentCompleted() {
       <div className="flex flex-col gap-2 rounded-[16px] bg-white/72 p-2.5 text-xs tracking-[-0.04em] text-[#0E140E]/70">
         <div className="flex h-[15px] justify-between font-bold">
           <p>Total Paid</p>
-          <p className="font-mono tracking-normal">0.00805 ETH</p>
+          <p className="font-mono tracking-normal">{cryptoAmount} USDC</p>
         </div>
         <div className="h-[1px] bg-[#D6D58B]" />
         <div className="flex h-[15px] justify-between">
-          <p>EUR Value</p>
-          <p className="font-mono tracking-normal">~ {payment.price}</p>
+          <p>{payment.currencyCode} Value</p>
+          <p className="font-mono tracking-normal">
+            ~ {currencySymbol}
+            {payment.amount}
+          </p>
         </div>
       </div>
     </div>

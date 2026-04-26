@@ -1,5 +1,5 @@
 import { Outlet, useNavigate } from "@tanstack/react-router";
-import { Web3Provider } from "@/providers/web3";
+import { WagmiProvider } from "@/providers/wagmi-provider";
 import { useAccount } from "wagmi";
 import { useEffect } from "react";
 
@@ -24,9 +24,9 @@ function ProtectedLayout() {
 
 function Layout() {
   return (
-    <Web3Provider>
+    <WagmiProvider>
       <ProtectedLayout />
-    </Web3Provider>
+    </WagmiProvider>
   );
 }
 

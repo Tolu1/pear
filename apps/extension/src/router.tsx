@@ -8,6 +8,7 @@ import RootLayout from "@/app/layout";
 import ConnectWallet from "@/app/connect-wallet/page";
 import AppLayout from "@/app/(app)/layout";
 import Home from "@/app/(app)/home/page";
+import { RouteErrorBoundary } from "@/components/route-error-boundary";
 
 declare module "@tanstack/react-router" {
   interface Register {
@@ -64,4 +65,5 @@ const routeTree = rootRoute.addChildren([
 
 export const Router = createRouter({
   routeTree,
+  defaultErrorComponent: RouteErrorBoundary,
 });
