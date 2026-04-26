@@ -6,7 +6,8 @@
   "permissions": ["tabs", "activeTab", "sidePanel", "debugger", "scripting"],
   "host_permissions": [
     "*://stripe-payments-demo.appspot.com/*",
-    "*://ai.pearextension.com/*"
+    "*://ai.pearextension.com/*",
+    "http://localhost/*"
   ],
   "action": {
     "default_icon": {
