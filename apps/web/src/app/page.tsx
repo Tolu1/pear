@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import Wave from "@/components/wave";
 import ProductShowcase from "@/components/product-showcase";
 import InstallButton from "@/components/install-button";
+import Link from "next/link";
 
 export default function Page() {
   return (
@@ -9,7 +10,7 @@ export default function Page() {
       <div className="flex flex-col items-center gap-12 lg:gap-6">
         <div className="flex flex-col items-center gap-[3px] text-center">
           <h1
-            className="font-melody text-[48px] leading-[48px] tracking-[-0.02em] text-[#0E140E] md:text-[90px] md:leading-[90px]"
+            className="font-melody px-2 text-[48px] leading-[48px] tracking-[-0.02em] text-[#0E140E] md:px-0 md:text-[90px] md:leading-[90px]"
             style={{ WebkitTextStroke: "0.5px #0E140E" }}
           >
             CRYPTO ACCEPTED EVERYWHERE
@@ -34,7 +35,13 @@ export default function Page() {
           <div className="flex w-full flex-col items-center gap-2">
             <InstallButton />
             <p className="leading-[18px] tracking-[-0.08em] text-black/50">
-              Chrome & Firefox supported
+              Chrome supported ·{" "}
+              <Link
+                href="/privacy"
+                className="transition-colors hover:text-black/60"
+              >
+                Privacy
+              </Link>
             </p>
           </div>
         </div>
