@@ -11,7 +11,6 @@ export type NetworkConfig = {
 type TokenConfig = {
   name: string;
   symbol: string;
-  coingeckoId: string;
   networks: Partial<Record<Blockchain, NetworkConfig>>;
 };
 
@@ -19,7 +18,6 @@ export const SUPPORTED_TOKENS: Record<TokenId, TokenConfig> = {
   'usd-coin': {
     name: 'USDC',
     symbol: 'USDC',
-    coingeckoId: 'usd-coin',
     networks: {
       lisk: {
         contractAddress: '0xf242275d3a6527d877f2c927a82d9b057609cc71',

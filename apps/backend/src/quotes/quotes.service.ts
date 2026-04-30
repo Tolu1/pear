@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { CreateQuoteDto } from './dto/create-quote.dto';
 import { QuotesRepository } from './quotes.repository';
 import { QuoteMapper } from './quote.mapper';
-import { ExchangeRateService } from '../exchange-rate/exchange-rate.service';
+import { FiatToCryptoService } from '../rates/fiat-to-crypto.service';
 import { Quote } from './interfaces/quote.interface';
 
 const QUOTE_TTL_MINUTES = 15;
@@ -12,11 +12,11 @@ const QUOTE_TTL_MINUTES = 15;
 export class QuotesService {
   constructor(
     private readonly quotesRepository: QuotesRepository,
-    private readonly exchangeRateService: ExchangeRateService,
+    private readonly fiatToCryptoService: FiatToCryptoService,
   ) {}
 
   async create(dto: CreateQuoteDto): Promise<Quote> {
-    const { cryptoAmount, rate } = await this.exchangeRateService.convert(
+    const { cryptoAmount, rate } = await this.fiatToCryptoService.convert(
       dto.amount,
       dto.currency,
       dto.tokenId,

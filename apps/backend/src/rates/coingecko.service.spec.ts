@@ -1,10 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ExchangeRateService } from './exchange-rate.service';
 import { ConfigService } from '@nestjs/config';
-import { TokenId } from 'src/common/constants/supported-tokens.constant';
+import { CoinGeckoService } from './coingecko.service';
 
-describe('ExchangeRateService', () => {
-  let service: ExchangeRateService;
+describe('CoinGeckoService', () => {
+  let service: CoinGeckoService;
 
   const mockConfigService = {
     get: jest.fn().mockReturnValue('mock-coingecko-api-key'),
@@ -14,30 +13,20 @@ describe('ExchangeRateService', () => {
     jest.clearAllMocks();
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ExchangeRateService, ConfigService],
+      providers: [CoinGeckoService, ConfigService],
     })
       .overrideProvider(ConfigService)
       .useValue(mockConfigService)
       .compile();
 
-    service = module.get<ExchangeRateService>(ExchangeRateService);
+    service = module.get<CoinGeckoService>(CoinGeckoService);
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  it('should convert fiat to crypto and return both rate and amount', async () => {
-    const rate = '0.37';
-    const getRateSpy = jest.spyOn(service, 'getRate').mockResolvedValue(rate);
-
-    const result = await service.convert('1000', 'USD', 'usd-coin');
-    expect(getRateSpy).toHaveBeenCalledWith('USD', 'usd-coin');
-    expect(result.rate).toBe(rate);
-    expect(parseFloat(result.cryptoAmount)).toBeCloseTo(2702.7, 2);
-  });
-
-  it('should get exchange rate from CoinGecko API', async () => {
+  it('should fetch price from CoinGecko API', async () => {
     const mockResponse = {
       market_data: {
         current_price: {
@@ -51,7 +40,7 @@ describe('ExchangeRateService', () => {
       json: () => Promise.resolve(mockResponse),
     } as unknown as Response);
 
-    const result = await service.getRate('USD', 'usd-coin');
+    const result = await service.getPrice('usd-coin', 'USD');
 
     expect(result).toBe('0.37');
     expect(fetch).toHaveBeenCalledWith(
@@ -69,7 +58,7 @@ describe('ExchangeRateService', () => {
     );
   });
 
-  it('should throw an error if price is not available', async () => {
+  it('should throw if price is not available for the currency', async () => {
     const mockResponse = {
       market_data: {
         current_price: {
@@ -83,25 +72,19 @@ describe('ExchangeRateService', () => {
       json: () => Promise.resolve(mockResponse),
     } as unknown as Response);
 
-    await expect(service.getRate('USD', 'usd-coin')).rejects.toThrow(
+    await expect(service.getPrice('usd-coin', 'USD')).rejects.toThrow(
       'Price not available for usd-coin in USD',
     );
   });
 
-  it('should throw an error for unsupported token', async () => {
-    await expect(
-      service.getRate('USD', 'fake-token' as TokenId),
-    ).rejects.toThrow('Unsupported crypto: fake-token');
-  });
-
-  it('should handle API errors gracefully', async () => {
+  it('should throw on API error', async () => {
     global.fetch = jest.fn().mockResolvedValueOnce({
       ok: false,
       status: 404,
       statusText: 'Not Found',
     } as Response);
 
-    await expect(service.getRate('USD', 'usd-coin')).rejects.toThrow(
+    await expect(service.getPrice('usd-coin', 'USD')).rejects.toThrow(
       'CoinGecko API returned 404: Not Found',
     );
   });

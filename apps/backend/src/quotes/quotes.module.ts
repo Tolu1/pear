@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { QuotesService } from './quotes.service';
 import { QuotesController } from './quotes.controller';
 import { QuotesRepository } from './quotes.repository';
-import { ExchangeRateModule } from '../exchange-rate/exchange-rate.module';
+import { RatesModule } from '../rates/rates.module';
 
 @Module({
-  imports: [ExchangeRateModule],
+  imports: [RatesModule],
   controllers: [QuotesController],
   providers: [QuotesService, QuotesRepository],
   exports: [QuotesService],
