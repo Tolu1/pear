@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1773278108801,
-      "tag": "0000_breezy_fixer",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1775566311371,
-      "tag": "0001_skinny_pretty_boy",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1775645803076,
-      "tag": "0002_sleepy_archangel",
+      "when": 1777536089339,
+      "tag": "0000_nice_nova",
       "breakpoints": true
     }
   ]

@@ -27,13 +27,14 @@ describe('ExchangeRateService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should convert fiat to crypto', async () => {
+  it('should convert fiat to crypto and return both rate and amount', async () => {
     const rate = '0.37';
     const getRateSpy = jest.spyOn(service, 'getRate').mockResolvedValue(rate);
 
     const result = await service.convert('1000', 'USD', 'usd-coin');
     expect(getRateSpy).toHaveBeenCalledWith('USD', 'usd-coin');
-    expect(parseFloat(result)).toBeCloseTo(2702.7, 2);
+    expect(result.rate).toBe(rate);
+    expect(parseFloat(result.cryptoAmount)).toBeCloseTo(2702.7, 2);
   });
 
   it('should get exchange rate from CoinGecko API', async () => {
@@ -83,7 +84,7 @@ describe('ExchangeRateService', () => {
     } as unknown as Response);
 
     await expect(service.getRate('USD', 'usd-coin')).rejects.toThrow(
-      'Price not available for lisk in usd',
+      'Price not available for usd-coin in USD',
     );
   });
 

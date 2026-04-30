@@ -9,11 +9,7 @@ import { PaymentIntentsRepository } from './payment-intents.repository';
 import { PaymentIntentMapper } from './payment-intent.mapper';
 import { QuotesService } from '../quotes/quotes.service';
 import { VirtualCardService } from '../virtual-card/virtual-card.service';
-import {
-  getTokenNetworkConfig,
-  type Blockchain,
-  type TokenId,
-} from '../common/constants/supported-tokens.constant';
+import { getTokenNetworkConfig } from '../common/constants/supported-tokens.constant';
 import { type Erc20Transfer } from './interfaces/erc20-transfer.interface';
 import { PaymentIntentStatus } from './enums/payment-intent-status.enum';
 import { PaymentIntent } from './interfaces/payment-intent.interface';
@@ -38,13 +34,11 @@ export class PaymentIntentsService {
       throw new QuoteExpiredException();
     }
 
-    const blockchain = quote.blockchain as Blockchain;
-    const tokenId = quote.tokenId as TokenId;
-    const tokenConfig = getTokenNetworkConfig(tokenId, blockchain);
+    const tokenConfig = getTokenNetworkConfig(quote.tokenId, quote.blockchain);
 
     if (!tokenConfig) {
       throw new BadRequestException(
-        `Unsupported token ${tokenId} on ${blockchain}`,
+        `Unsupported token ${quote.tokenId} on ${quote.blockchain}`,
       );
     }
 

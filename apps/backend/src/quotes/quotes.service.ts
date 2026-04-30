@@ -16,7 +16,7 @@ export class QuotesService {
   ) {}
 
   async create(dto: CreateQuoteDto): Promise<Quote> {
-    const cryptoAmount = await this.exchangeRateService.convert(
+    const { cryptoAmount, rate } = await this.exchangeRateService.convert(
       dto.amount,
       dto.currency,
       dto.tokenId,
@@ -29,6 +29,7 @@ export class QuotesService {
       amount: dto.amount,
       currency: dto.currency,
       cryptoAmount,
+      rate,
       tokenId: dto.tokenId,
       blockchain: dto.blockchain,
       expiresAt,

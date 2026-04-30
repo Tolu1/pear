@@ -19,12 +19,11 @@ export class ExchangeRateService {
     amount: string,
     from: SupportedFiat,
     to: SupportedCrypto,
-  ): Promise<string> {
+  ): Promise<{ cryptoAmount: string; rate: string }> {
     const rate = await this.getRate(from, to);
-    const amountDecimal = new Decimal(amount);
-    const rateDecimal = new Decimal(rate);
+    const cryptoAmount = new Decimal(amount).dividedBy(rate).toString();
 
-    return amountDecimal.dividedBy(rateDecimal).toString();
+    return { cryptoAmount, rate };
   }
 
   async getRate(from: SupportedFiat, to: SupportedCrypto): Promise<string> {

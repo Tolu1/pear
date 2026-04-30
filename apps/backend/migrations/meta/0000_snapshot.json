@@ -1,58 +1,45 @@
 {
-  "id": "21bb5a11-94c6-40b3-8219-d78a29258196",
+  "id": "2a98ad43-78c0-4e81-8b7f-6585ecc3847d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.payments": {
-      "name": "payments",
+    "public.quotes": {
+      "name": "quotes",
       "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "varchar(50)",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
-        "merchantDomain": {
-          "name": "merchantDomain",
-          "type": "varchar(255)",
+        "amount": {
+          "name": "amount",
+          "type": "numeric(18, 4)",
           "primaryKey": false,
           "notNull": true
         },
-        "paymentUrl": {
-          "name": "paymentUrl",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "from": {
-          "name": "from",
-          "type": "varchar(42)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "fiatAmount": {
-          "name": "fiatAmount",
-          "type": "numeric(10, 4)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "fiatCurrencyCode": {
-          "name": "fiatCurrencyCode",
+        "currency": {
+          "name": "currency",
           "type": "varchar(3)",
           "primaryKey": false,
           "notNull": true
         },
-        "tokenAmount": {
-          "name": "tokenAmount",
+        "crypto_amount": {
+          "name": "crypto_amount",
           "type": "numeric(30, 18)",
           "primaryKey": false,
           "notNull": true
         },
-        "tokenId": {
-          "name": "tokenId",
+        "rate": {
+          "name": "rate",
+          "type": "numeric(30, 18)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "token_id": {
+          "name": "token_id",
           "type": "varchar(20)",
           "primaryKey": false,
           "notNull": true
@@ -63,23 +50,20 @@
           "primaryKey": false,
           "notNull": true
         },
-        "status": {
-          "name": "status",
-          "type": "payment_status",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'created'"
-        },
-        "createdAt": {
-          "name": "createdAt",
+        "expires_at": {
+          "name": "expires_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
+          "notNull": true
         },
-        "updatedAt": {
-          "name": "updatedAt",
+        "consumed_at": {
+          "name": "consumed_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
@@ -93,18 +77,133 @@
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
+    },
+    "public.payment_intents": {
+      "name": "payment_intents",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(50)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "quote_id": {
+          "name": "quote_id",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "payment_intent_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'requires_transfer'"
+        },
+        "amount": {
+          "name": "amount",
+          "type": "numeric(18, 4)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "currency": {
+          "name": "currency",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "crypto_amount": {
+          "name": "crypto_amount",
+          "type": "numeric(30, 18)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "token_id": {
+          "name": "token_id",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "blockchain": {
+          "name": "blockchain",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "payment_address": {
+          "name": "payment_address",
+          "type": "varchar(42)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "from_address": {
+          "name": "from_address",
+          "type": "varchar(42)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "merchant_domain": {
+          "name": "merchant_domain",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "payment_intents_quoteId_unique": {
+          "name": "payment_intents_quoteId_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "quote_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
   "enums": {
-    "public.payment_status": {
-      "name": "payment_status",
+    "public.payment_intent_status": {
+      "name": "payment_intent_status",
       "schema": "public",
       "values": [
-        "created",
-        "awaiting_crypto_payment",
-        "processing_fiat_payment",
-        "completed",
-        "failed"
+        "requires_transfer",
+        "processing",
+        "succeeded",
+        "canceled",
+        "expired"
       ]
     }
   },
