@@ -1,8 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ClsModule } from 'nestjs-cls';
+import { ClsPluginTransactional } from '@nestjs-cls/transactional';
+import { TransactionalAdapterDrizzleOrm } from '@nestjs-cls/transactional-adapter-drizzle-orm';
 import Joi from 'joi';
 import { HealthController } from './health/health.controller';
-import { DatabaseModule } from './database/database.module';
+import { DrizzleModule, DRIZZLE } from './drizzle/drizzle.module';
 import { TokensModule } from './tokens/tokens.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
 import { QuotesModule } from './quotes/quotes.module';
@@ -28,7 +31,16 @@ const evmAddress = Joi.string().pattern(/^0x[a-fA-F0-9]{40}$/);
         CARD_NAME: Joi.string().required(),
       }),
     }),
-    DatabaseModule,
+    ClsModule.forRoot({
+      plugins: [
+        new ClsPluginTransactional({
+          imports: [DrizzleModule],
+          adapter: new TransactionalAdapterDrizzleOrm({
+            drizzleInstanceToken: DRIZZLE,
+          }),
+        }),
+      ],
+    }),
     TokensModule,
     WebhooksModule,
     QuotesModule,
