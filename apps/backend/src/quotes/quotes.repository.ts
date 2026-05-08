@@ -24,4 +24,14 @@ export class QuotesRepository {
     if (!quote) throw new QuoteNotFoundException();
     return quote;
   }
+
+  async update(id: string, data: Partial<typeof quotes.$inferInsert>) {
+    const [quote] = await this.txHost.tx
+      .update(quotes)
+      .set(data)
+      .where(eq(quotes.id, id))
+      .returning();
+    if (!quote) throw new QuoteNotFoundException();
+    return quote;
+  }
 }

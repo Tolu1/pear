@@ -3,6 +3,7 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
+import { Transactional } from '@nestjs-cls/transactional';
 import { v4 as uuidv4 } from 'uuid';
 import { CreatePaymentIntentDto } from './dto/create-payment-intent.dto';
 import { PaymentIntentsRepository } from './payment-intents.repository';
@@ -13,7 +14,6 @@ import { getTokenNetworkConfig } from '../common/constants/supported-tokens.cons
 import { type Erc20Transfer } from './interfaces/erc20-transfer.interface';
 import { PaymentIntentStatus } from './enums/payment-intent-status.enum';
 import { PaymentIntent } from './interfaces/payment-intent.interface';
-import { QuoteExpiredException } from './exceptions/quote-expired.exception';
 import { PaymentIntentConflictException } from './exceptions/payment-intent-conflict.exception';
 import { VirtualCard } from '../virtual-card/interfaces/virtual-card.interface';
 
@@ -27,12 +27,9 @@ export class PaymentIntentsService {
     private readonly virtualCardService: VirtualCardService,
   ) {}
 
+  @Transactional()
   async create(dto: CreatePaymentIntentDto): Promise<PaymentIntent> {
-    const quote = await this.quotesService.findOne(dto.quoteId);
-
-    if (new Date() > quote.expiresAt) {
-      throw new QuoteExpiredException();
-    }
+    const quote = await this.quotesService.findActive(dto.quoteId);
 
     const tokenConfig = getTokenNetworkConfig(quote.tokenId, quote.blockchain);
 
@@ -61,6 +58,8 @@ export class PaymentIntentsService {
       expiresAt,
       status: PaymentIntentStatus.REQUIRES_TRANSFER,
     });
+
+    await this.quotesService.markConsumed(quote.id);
 
     return PaymentIntentMapper.toDomain(intent);
   }
