@@ -4,7 +4,7 @@ import { PaymentIntentStatus } from '../enums/payment-intent-status.enum';
 class QuoteDto {
   id: string;
   amount: string;
-  currency: string;
+  currencyCode: string;
   cryptoAmount: string;
   rate: string;
   expiresAt: Date;

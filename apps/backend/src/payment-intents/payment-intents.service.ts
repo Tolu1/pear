@@ -153,7 +153,7 @@ export class PaymentIntentsService {
       quote: {
         id: quote.id,
         amount: quote.amount,
-        currency: quote.currency,
+        currencyCode: quote.currencyCode,
         cryptoAmount: quote.cryptoAmount,
         rate: quote.rate,
         expiresAt: quote.expiresAt,

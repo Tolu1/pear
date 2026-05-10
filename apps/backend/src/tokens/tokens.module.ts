@@ -1,8 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TokensService } from './tokens.service';
+import { IsValidTokenIdConstraint } from './validators/is-valid-token-id.validator';
+import { IsValidNetworkForTokenConstraint } from './validators/is-valid-network-for-token.validator';
 
 @Module({
-  providers: [TokensService],
+  providers: [
+    TokensService,
+    IsValidTokenIdConstraint,
+    IsValidNetworkForTokenConstraint,
+  ],
   exports: [TokensService],
 })
 export class TokensModule {}

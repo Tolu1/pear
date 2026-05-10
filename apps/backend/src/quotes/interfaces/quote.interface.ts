@@ -3,7 +3,7 @@ import { type CurrencyCode } from '../../common/constants/supported-currencies.c
 export interface Quote {
   id: string;
   amount: string;
-  currency: CurrencyCode;
+  currencyCode: CurrencyCode;
   cryptoAmount: string;
   rate: string;
   tokenId: string;

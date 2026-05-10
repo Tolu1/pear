@@ -4,7 +4,7 @@ import { Quote } from '../interfaces/quote.interface';
 export class QuoteResponseDto implements Quote {
   id: string;
   amount: string;
-  currency: CurrencyCode;
+  currencyCode: CurrencyCode;
   cryptoAmount: string;
   rate: string;
   tokenId: string;

@@ -20,7 +20,7 @@ export class QuotesService {
   async create(dto: CreateQuoteDto): Promise<Quote> {
     const { cryptoAmount, rate } = await this.fiatToCryptoService.convert(
       dto.amount,
-      dto.currency,
+      dto.currencyCode,
       dto.tokenId,
     );
 
@@ -29,7 +29,7 @@ export class QuotesService {
     const quote = await this.quotesRepository.create({
       id: `qt_${uuidv4()}`,
       amount: dto.amount,
-      currency: dto.currency,
+      currencyCode: dto.currencyCode,
       cryptoAmount,
       rate,
       tokenId: dto.tokenId,

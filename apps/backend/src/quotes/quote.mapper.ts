@@ -7,7 +7,7 @@ export class QuoteMapper {
     return {
       id: quote.id,
       amount: quote.amount,
-      currency: quote.currency as CurrencyCode,
+      currencyCode: quote.currencyCode as CurrencyCode,
       cryptoAmount: quote.cryptoAmount,
       rate: quote.rate,
       tokenId: quote.tokenId,
