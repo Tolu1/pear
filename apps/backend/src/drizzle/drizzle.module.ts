@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterDrizzleOrm } from '@nestjs-cls/transactional-adapter-drizzle-orm';
 import { neon, neonConfig } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
@@ -13,9 +12,7 @@ export const DRIZZLE: symbol = Symbol('DRIZZLE');
 
 export type DrizzleClient = ReturnType<typeof drizzle<typeof schema>>;
 
-export type DrizzleTxHost = TransactionHost<
-  TransactionalAdapterDrizzleOrm<DrizzleClient>
->;
+export type DrizzleAdapter = TransactionalAdapterDrizzleOrm<DrizzleClient>;
 
 @Module({
   providers: [
