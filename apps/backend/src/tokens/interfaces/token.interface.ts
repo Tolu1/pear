@@ -12,5 +12,6 @@ export interface Token {
   name: string;
   symbol: string;
   decimals: number;
+  coingeckoId: string;
   networks: Record<string, TokenNetwork>;
 }

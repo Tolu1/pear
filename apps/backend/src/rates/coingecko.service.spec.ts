@@ -1,9 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { CoinGeckoService } from './coingecko.service';
 
 describe('CoinGeckoService', () => {
   let service: CoinGeckoService;
+  let cache: { get: jest.Mock; set: jest.Mock };
 
   const mockConfigService = {
     get: jest.fn().mockReturnValue('mock-coingecko-api-key'),
@@ -12,12 +14,18 @@ describe('CoinGeckoService', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
 
+    cache = {
+      get: jest.fn().mockResolvedValue(undefined),
+      set: jest.fn().mockResolvedValue(undefined),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
-      providers: [CoinGeckoService, ConfigService],
-    })
-      .overrideProvider(ConfigService)
-      .useValue(mockConfigService)
-      .compile();
+      providers: [
+        CoinGeckoService,
+        { provide: ConfigService, useValue: mockConfigService },
+        { provide: CACHE_MANAGER, useValue: cache },
+      ],
+    }).compile();
 
     service = module.get<CoinGeckoService>(CoinGeckoService);
   });
@@ -26,7 +34,7 @@ describe('CoinGeckoService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should fetch price from CoinGecko API', async () => {
+  it('should fetch price from CoinGecko API on cache miss', async () => {
     const mockResponse = {
       market_data: {
         current_price: {
@@ -56,6 +64,18 @@ describe('CoinGeckoService', () => {
         }),
       }),
     );
+    expect(cache.set).toHaveBeenCalledWith('coingecko:usd-coin:usd', '0.37');
+  });
+
+  it('should return cached price without calling API', async () => {
+    cache.get.mockResolvedValueOnce('0.37');
+    global.fetch = jest.fn();
+
+    const result = await service.getPrice('usd-coin', 'USD');
+
+    expect(result).toBe('0.37');
+    expect(fetch).not.toHaveBeenCalled();
+    expect(cache.set).not.toHaveBeenCalled();
   });
 
   it('should throw if price is not available for the currency', async () => {

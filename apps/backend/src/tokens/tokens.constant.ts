@@ -13,6 +13,7 @@ interface TokenConfig {
   name: string;
   symbol: string;
   decimals: number;
+  coingeckoId: string;
   networks: TokenNetworkConfig[];
 }
 
@@ -21,6 +22,7 @@ export const tokens: Record<string, TokenConfig> = {
     name: 'USDC',
     symbol: 'USDC',
     decimals: 6,
+    coingeckoId: 'usd-coin',
     networks: [
       {
         network: 'base',

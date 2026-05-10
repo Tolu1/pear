@@ -141,6 +141,9 @@ importers:
       '@nestjs-cls/transactional-adapter-drizzle-orm':
         specifier: ^1.2.3
         version: 1.2.3(@nestjs-cls/transactional@3.2.0(@nestjs/common@11.1.12(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.12)(nestjs-cls@6.2.0(@nestjs/common@11.1.12(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.12)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))(drizzle-orm@0.43.1(@neondatabase/serverless@1.0.2)(@opentelemetry/api@1.9.0)(@types/pg@8.16.0))(nestjs-cls@6.2.0(@nestjs/common@11.1.12(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.12)(reflect-metadata@0.2.2)(rxjs@7.8.2))
+      '@nestjs/cache-manager':
+        specifier: ^3.1.2
+        version: 3.1.2(@nestjs/common@11.1.12(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.12)(cache-manager@7.2.8)(keyv@5.6.0)(rxjs@7.8.2)
       '@nestjs/common':
         specifier: ^11.0.1
         version: 11.1.12(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2)
@@ -162,6 +165,9 @@ importers:
       '@scalar/nestjs-api-reference':
         specifier: ^1.1.6
         version: 1.1.6
+      cache-manager:
+        specifier: ^7.2.8
+        version: 7.2.8
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1
@@ -830,6 +836,9 @@ packages:
     resolution: {integrity: sha512-37l5RltIdFRf3RT1qZiDYEcStZnrU+IzHfg0sPx4T3viWeVy+b6RbGgSw4eiAGL624jjmxl4aB90Uv0EOtr7eQ==}
     engines: {node: '>= 10'}
     hasBin: true
+
+  '@cacheable/utils@2.4.1':
+    resolution: {integrity: sha512-eiFgzCbIneyMlLOmNG4g9xzF7Hv3Mga4LjxjcSC/ues6VYq2+gUbQI8JqNuw/ZM8tJIeIaBGpswAsqV2V7ApgA==}
 
   '@coinbase/cdp-sdk@1.43.0':
     resolution: {integrity: sha512-Fre1tvoIi4HAoC8/PgBoLsuZ9mt7K0R50EEC6i+6FaipW7oO3MABCx+vGAcM7EpcbVa7E6hTFe2/a0UdoajvYQ==}
@@ -1827,6 +1836,9 @@ packages:
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
 
+  '@keyv/serialize@1.1.1':
+    resolution: {integrity: sha512-dXn3FZhPv0US+7dtJsIi2R+c7qWYiReoEh5zUntWCf4oSpMNib8FDhSoed6m3QyZdx5hK7iLFkYk3rNxwt8vTA==}
+
   '@lit-labs/ssr-dom-shim@1.5.1':
     resolution: {integrity: sha512-Aou5UdlSpr5whQe8AA/bZG0jMj96CoJIWbGfZ91qieWu5AWUMKw8VR/pAkQkJYvBNhmCcWnZlyyk5oze8JIqYA==}
 
@@ -2145,6 +2157,15 @@ packages:
       nestjs-cls: ^6.2.0
       reflect-metadata: '*'
       rxjs: '>= 7'
+
+  '@nestjs/cache-manager@3.1.2':
+    resolution: {integrity: sha512-Eglt8lUzC3Q3OZ2hFt4vLZ190M94YSJXUiKo67K/zlUgZQGtvxL0AYeKbG96x8+1gJTF7QhFpYw/RkQ28416Mw==}
+    peerDependencies:
+      '@nestjs/common': ^9.0.0 || ^10.0.0 || ^11.0.0
+      '@nestjs/core': ^9.0.0 || ^10.0.0 || ^11.0.0
+      cache-manager: '>=6'
+      keyv: '>=5'
+      rxjs: ^7.8.1
 
   '@nestjs/cli@11.0.15':
     resolution: {integrity: sha512-4Sw4i+PRI1CGVnl3F15GWytFYD+QHs6vsayVeqDhhWwL1a7ZhQyUYvmlCMoWi77rZA0+m3ObUO1WujtkXsYBDQ==}
@@ -4315,6 +4336,9 @@ packages:
     resolution: {integrity: sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==}
     engines: {node: '>= 0.8'}
 
+  cache-manager@7.2.8:
+    resolution: {integrity: sha512-0HDaDLBBY/maa/LmUVAr70XUOwsiQD+jyzCBjmUErYZUKdMS9dT59PqW59PpVqfGM7ve6H0J6307JTpkCYefHQ==}
+
   cacheable-lookup@7.0.0:
     resolution: {integrity: sha512-+qJyx4xiKra8mZrcwhjMRMUhD5NR1R8esPkzIYxX96JiecFoxAXFuz/GpR3+ev4PE1WamHip78wV0vcmPQtp8w==}
     engines: {node: '>=14.16'}
@@ -5620,6 +5644,10 @@ packages:
   hash.js@1.1.7:
     resolution: {integrity: sha512-taOaskGt4z4SOANNseOviYDvjEJinIkRgmp7LbKP2YTTmVxWBl87s/uzK9r+44BclBSp2X7K1hqeNfz9JbBeXA==}
 
+  hashery@1.5.1:
+    resolution: {integrity: sha512-iZyKG96/JwPz1N55vj2Ie2vXbhu440zfUfJvSwEqEbeLluk7NnapfGqa7LH0mOsnDxTF85Mx8/dyR6HfqcbmbQ==}
+    engines: {node: '>=20'}
+
   hasown@2.0.2:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
     engines: {node: '>= 0.4'}
@@ -5636,6 +5664,9 @@ packages:
   hono@4.11.4:
     resolution: {integrity: sha512-U7tt8JsyrxSRKspfhtLET79pU8K+tInj5QZXs1jSugO1Vq5dFj3kmZsRldo29mTBfcjDRVRXrEZ6LS63Cog9ZA==}
     engines: {node: '>=16.9.0'}
+
+  hookified@1.15.1:
+    resolution: {integrity: sha512-MvG/clsADq1GPM2KGo2nyfaWVyn9naPiXrqIe4jYjXNZQt238kWyOGrsyc/DmRAQ+Re6yeo6yX/yoNCG5KAEVg==}
 
   html-escaper@2.0.2:
     resolution: {integrity: sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==}
@@ -6201,6 +6232,9 @@ packages:
 
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
+
+  keyv@5.6.0:
+    resolution: {integrity: sha512-CYDD3SOtsHtyXeEORYRx2qBtpDJFjRTGXUtmNEMGyzYOKj1TE3tycdlho7kA1Ufx9OYWZzg52QFBGALTirzDSw==}
 
   keyvaluestorage-interface@1.0.0:
     resolution: {integrity: sha512-8t6Q3TclQ4uZynJY9IGr2+SsIGwK9JHcO6ootkHCGA0CrQCRy+VkouYNO2xicET6b9al7QKzpebNow+gkpCL8g==}
@@ -8989,6 +9023,11 @@ snapshots:
       '@boundaryml/baml-win32-arm64-msvc': 0.220.0
       '@boundaryml/baml-win32-x64-msvc': 0.220.0
 
+  '@cacheable/utils@2.4.1':
+    dependencies:
+      hashery: 1.5.1
+      keyv: 5.6.0
+
   '@coinbase/cdp-sdk@1.43.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@5.0.10)':
     dependencies:
       '@solana-program/system': 0.10.0(@solana/kit@5.4.0(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@5.0.10))
@@ -9972,6 +10011,8 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
+  '@keyv/serialize@1.1.1': {}
+
   '@lit-labs/ssr-dom-shim@1.5.1': {}
 
   '@lit/reactive-element@2.1.2':
@@ -10379,6 +10420,14 @@ snapshots:
       '@nestjs/core': 11.1.12(@nestjs/common@11.1.12(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.12)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       nestjs-cls: 6.2.0(@nestjs/common@11.1.12(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.12)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       reflect-metadata: 0.2.2
+      rxjs: 7.8.2
+
+  '@nestjs/cache-manager@3.1.2(@nestjs/common@11.1.12(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.12)(cache-manager@7.2.8)(keyv@5.6.0)(rxjs@7.8.2)':
+    dependencies:
+      '@nestjs/common': 11.1.12(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/core': 11.1.12(@nestjs/common@11.1.12(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.12)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      cache-manager: 7.2.8
+      keyv: 5.6.0
       rxjs: 7.8.2
 
   '@nestjs/cli@11.0.15(@swc/cli@0.6.0(@swc/core@1.15.8(@swc/helpers@0.5.18))(chokidar@4.0.3))(@swc/core@1.15.8(@swc/helpers@0.5.18))(@types/node@22.19.7)(esbuild@0.25.12)':
@@ -13552,6 +13601,11 @@ snapshots:
 
   bytes@3.1.2: {}
 
+  cache-manager@7.2.8:
+    dependencies:
+      '@cacheable/utils': 2.4.1
+      keyv: 5.6.0
+
   cacheable-lookup@7.0.0: {}
 
   cacheable-request@10.2.14:
@@ -15052,6 +15106,10 @@ snapshots:
       inherits: 2.0.4
       minimalistic-assert: 1.0.1
 
+  hashery@1.5.1:
+    dependencies:
+      hookified: 1.15.1
+
   hasown@2.0.2:
     dependencies:
       function-bind: 1.1.2
@@ -15072,6 +15130,8 @@ snapshots:
       react-is: 16.13.1
 
   hono@4.11.4: {}
+
+  hookified@1.15.1: {}
 
   html-escaper@2.0.2: {}
 
@@ -15846,6 +15906,10 @@ snapshots:
   keyv@4.5.4:
     dependencies:
       json-buffer: 3.0.1
+
+  keyv@5.6.0:
+    dependencies:
+      '@keyv/serialize': 1.1.1
 
   keyvaluestorage-interface@1.0.0: {}
 

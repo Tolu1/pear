@@ -10,9 +10,7 @@ import { TokensService } from '../tokens.service';
 
 @ValidatorConstraint({ name: 'IsValidNetworkForToken', async: false })
 @Injectable()
-export class IsValidNetworkForTokenConstraint
-  implements ValidatorConstraintInterface
-{
+export class IsValidNetworkForTokenConstraint implements ValidatorConstraintInterface {
   constructor(private readonly tokensService: TokensService) {}
 
   validate(value: unknown, args: ValidationArguments): boolean {

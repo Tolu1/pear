@@ -21,6 +21,7 @@ export class TokensService {
       name: token.name,
       symbol: token.symbol,
       decimals: token.decimals,
+      coingeckoId: token.coingeckoId,
       networks,
     };
   }
