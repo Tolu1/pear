@@ -1,19 +1,15 @@
+import { type Address } from 'viem';
 import { PaymentIntentStatus } from '../enums/payment-intent-status.enum';
 
 export interface PaymentIntent {
   id: string;
   quoteId: string;
   status: PaymentIntentStatus;
-  amount: string;
-  currency: string;
-  cryptoAmount: string;
-  tokenId: string;
-  blockchain: string;
-  contractAddress: string;
-  paymentAddress: string;
-  fromAddress: string;
+  fromAddress: Address;
   merchantDomain: string;
   metadata: Record<string, unknown> | null;
+  txHash: string | null;
   expiresAt: Date;
   createdAt: Date;
+  updatedAt: Date;
 }

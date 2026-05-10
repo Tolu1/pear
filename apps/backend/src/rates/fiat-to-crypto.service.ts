@@ -4,7 +4,6 @@ import { CoinGeckoService } from './coingecko.service';
 import { COINGECKO_ID_BY_TOKEN } from './coingecko-id.constants';
 import { UnsupportedTokenException } from './exceptions/unsupported-token.exception';
 import { type CurrencyCode } from '../common/constants/supported-currencies.contant';
-import { type TokenId } from '../common/constants/supported-tokens.constant';
 
 @Injectable()
 export class FiatToCryptoService {
@@ -13,7 +12,7 @@ export class FiatToCryptoService {
   async convert(
     amount: string,
     currencyCode: CurrencyCode,
-    tokenId: TokenId,
+    tokenId: string,
   ): Promise<{ cryptoAmount: string; rate: string }> {
     const rate = await this.getRate(currencyCode, tokenId);
     const cryptoAmount = new Decimal(amount).dividedBy(rate).toString();
@@ -22,7 +21,7 @@ export class FiatToCryptoService {
 
   private async getRate(
     currencyCode: CurrencyCode,
-    tokenId: TokenId,
+    tokenId: string,
   ): Promise<string> {
     const coinId = COINGECKO_ID_BY_TOKEN[tokenId];
     if (!coinId) {

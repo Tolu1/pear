@@ -7,10 +7,10 @@ import Joi from 'joi';
 import { HealthController } from './health/health.controller';
 import { DrizzleModule, DRIZZLE } from './drizzle/drizzle.module';
 import { TokensModule } from './tokens/tokens.module';
-import { WebhooksModule } from './webhooks/webhooks.module';
 import { QuotesModule } from './quotes/quotes.module';
 import { PaymentIntentsModule } from './payment-intents/payment-intents.module';
 import { VirtualCardModule } from './virtual-card/virtual-card.module';
+import { BlockchainModule } from './blockchain/blockchain.module';
 
 const evmAddress = Joi.string().pattern(/^0x[a-fA-F0-9]{40}$/);
 
@@ -21,8 +21,6 @@ const evmAddress = Joi.string().pattern(/^0x[a-fA-F0-9]{40}$/);
       validationSchema: Joi.object({
         DATABASE_URL: Joi.string().required(),
         COINGECKO_API_KEY: Joi.string().required(),
-        MORALIS_API_KEY: Joi.string().required(),
-        MORALIS_STREAM_SECRET: Joi.string().required(),
         PAYMENT_ADDRESS_LISK: evmAddress.required(),
         PAYMENT_ADDRESS_SAFE: evmAddress.required(),
         CARD_NUMBER: Joi.string().required(),
@@ -42,10 +40,10 @@ const evmAddress = Joi.string().pattern(/^0x[a-fA-F0-9]{40}$/);
       ],
     }),
     TokensModule,
-    WebhooksModule,
     QuotesModule,
     PaymentIntentsModule,
     VirtualCardModule,
+    BlockchainModule,
   ],
   controllers: [HealthController],
 })

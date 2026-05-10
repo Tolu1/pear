@@ -7,7 +7,7 @@ export const quotes = pgTable('quotes', {
   cryptoAmount: decimal({ precision: 30, scale: 18 }).notNull(),
   rate: decimal({ precision: 30, scale: 18 }).notNull(),
   tokenId: varchar({ length: 20 }).notNull(),
-  blockchain: varchar({ length: 20 }).notNull(),
+  network: varchar({ length: 20 }).notNull(),
   expiresAt: timestamp().notNull(),
   consumedAt: timestamp(),
   createdAt: timestamp().defaultNow().notNull(),

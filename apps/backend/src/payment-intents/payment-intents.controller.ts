@@ -14,9 +14,12 @@ import {
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOperation,
+  ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { type Hash } from 'viem';
 import { PaymentIntentsService } from './payment-intents.service';
 import { CreatePaymentIntentDto } from './dto/create-payment-intent.dto';
+import { SubmitPaymentIntentDto } from './dto/submit-payment-intent.dto';
 import { PaymentIntentResponseDto } from './dto/payment-intent-response.dto';
 import { PaymentIntentStatusResponseDto } from './dto/payment-intent-status-response.dto';
 import { VirtualCardResponseDto } from '../virtual-card/dto/virtual-card-response.dto';
@@ -29,12 +32,12 @@ export class PaymentIntentsController {
   @ApiOperation({ summary: 'Create a payment intent from a quote' })
   @ApiNotFoundResponse({ description: 'Quote not found' })
   @ApiBadRequestResponse({
-    description: 'Quote has expired or token is unsupported on the blockchain',
+    description: 'Quote has expired or token is unsupported on the network',
   })
   create(
-    @Body() createPaymentIntentDto: CreatePaymentIntentDto,
+    @Body() dto: CreatePaymentIntentDto,
   ): Promise<PaymentIntentResponseDto> {
-    return this.paymentIntentsService.create(createPaymentIntentDto);
+    return this.paymentIntentsService.create(dto);
   }
 
   @Get(':id')
@@ -62,6 +65,27 @@ export class PaymentIntentsController {
   @ApiForbiddenResponse({ description: 'Card details not available' })
   getCard(@Param('id') id: string): Promise<VirtualCardResponseDto> {
     return this.paymentIntentsService.getCard(id);
+  }
+
+  @Post(':id/submit')
+  @ApiOperation({
+    summary: 'Submit the on-chain transaction hash for a payment intent',
+  })
+  @ApiNotFoundResponse({ description: 'Payment intent not found' })
+  @ApiConflictResponse({
+    description: 'Payment intent is not in requires_transfer state',
+  })
+  @ApiBadRequestResponse({
+    description: 'Transaction does not match the expected transfer',
+  })
+  @ApiUnprocessableEntityResponse({
+    description: 'On-chain transfer did not succeed',
+  })
+  submit(
+    @Param('id') id: string,
+    @Body() dto: SubmitPaymentIntentDto,
+  ): Promise<PaymentIntentResponseDto> {
+    return this.paymentIntentsService.submit(id, dto.txHash as Hash);
   }
 
   @Post(':id/complete')

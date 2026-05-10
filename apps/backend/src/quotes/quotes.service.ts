@@ -33,7 +33,7 @@ export class QuotesService {
       cryptoAmount,
       rate,
       tokenId: dto.tokenId,
-      blockchain: dto.blockchain,
+      network: dto.network,
       expiresAt,
     });
 
