@@ -4,7 +4,8 @@ import { paymentIntents } from './payment-intents.schema';
 import { PaymentIntent } from './interfaces/payment-intent.interface';
 import { PaymentIntentResponseDto } from './dto/payment-intent-response.dto';
 import { Quote } from '../quotes/interfaces/quote.interface';
-import { Token, TokenRail } from '../tokens/interfaces/token.interface';
+import { Token } from '../tokens/interfaces/token.interface';
+import { TokenRail } from '../tokens/interfaces/token-rail.interface';
 
 export class PaymentIntentMapper {
   static toDomain(intent: typeof paymentIntents.$inferSelect): PaymentIntent {

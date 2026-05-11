@@ -1,5 +1,6 @@
 import { type Address } from 'viem';
-import { Token, TokenRail } from '../interfaces/token.interface';
+import { Token } from '../interfaces/token.interface';
+import { TokenRail } from '../interfaces/token-rail.interface';
 
 export class TokenResponseDto implements Omit<Token, 'rails'> {
   id: string;

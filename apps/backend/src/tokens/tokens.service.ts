@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { TokensRepository } from './tokens.repository';
-import { Token, TokenRail } from './interfaces/token.interface';
+import { Token } from './interfaces/token.interface';
+import { TokenRail } from './interfaces/token-rail.interface';
 import { TokenRailNotSupportedException } from './exceptions/token-rail-not-supported.exception';
 
 @Injectable()
