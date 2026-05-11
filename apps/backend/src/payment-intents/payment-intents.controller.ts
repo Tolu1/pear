@@ -6,6 +6,7 @@ import {
   Param,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -14,8 +15,11 @@ import {
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOperation,
+  ApiSecurity,
+  ApiUnauthorizedResponse,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { ServiceAuthGuard } from '../common/guards/service-auth.guard';
 import { type Hash } from 'viem';
 import { PaymentIntentsService } from './payment-intents.service';
 import { PaymentIntentMapper } from './payment-intent.mapper';
@@ -97,8 +101,17 @@ export class PaymentIntentsController {
 
   @Post(':id/complete')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Mark a processing payment intent as completed' })
+  @UseGuards(ServiceAuthGuard)
+  @ApiSecurity('service-api-key')
+  @ApiOperation({
+    summary: 'Mark a processing payment intent as completed',
+    description:
+      'Service-to-service endpoint. Called by the AI service after checkout automation succeeds.',
+  })
   @ApiNoContentResponse()
+  @ApiUnauthorizedResponse({
+    description: 'Missing or invalid service API key',
+  })
   @ApiNotFoundResponse({ description: 'Payment intent not found' })
   @ApiConflictResponse({
     description: 'Payment intent is not in processing state',

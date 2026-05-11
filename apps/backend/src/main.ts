@@ -18,6 +18,10 @@ async function bootstrap() {
       'One-click stablecoin payments for any website. Pear uses AI agents to handle checkout on sites like Amazon, Airbnb, and Netflix.',
     )
     .setVersion('1.0')
+    .addApiKey(
+      { type: 'apiKey', in: 'header', name: 'x-service-api-key' },
+      'service-api-key',
+    )
     .build();
   const document = SwaggerModule.createDocument(app, config);
   app.use('/docs-json', (_req: Request, res: Response) => res.json(document));

@@ -23,6 +23,7 @@ import { BlockchainModule } from './blockchain/blockchain.module';
         CARD_EXPIRY: Joi.string().required(),
         CARD_CVV: Joi.string().required(),
         CARD_NAME: Joi.string().required(),
+        SERVICE_API_KEY: Joi.string().required(),
       }),
     }),
     ClsModule.forRoot({
