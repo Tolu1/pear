@@ -12,8 +12,6 @@ import { PaymentIntentsModule } from './payment-intents/payment-intents.module';
 import { VirtualCardModule } from './virtual-card/virtual-card.module';
 import { BlockchainModule } from './blockchain/blockchain.module';
 
-const evmAddress = Joi.string().pattern(/^0x[a-fA-F0-9]{40}$/);
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -21,8 +19,6 @@ const evmAddress = Joi.string().pattern(/^0x[a-fA-F0-9]{40}$/);
       validationSchema: Joi.object({
         DATABASE_URL: Joi.string().required(),
         COINGECKO_API_KEY: Joi.string().required(),
-        PAYMENT_ADDRESS_LISK: evmAddress.required(),
-        PAYMENT_ADDRESS_SAFE: evmAddress.required(),
         CARD_NUMBER: Joi.string().required(),
         CARD_EXPIRY: Joi.string().required(),
         CARD_CVV: Joi.string().required(),
