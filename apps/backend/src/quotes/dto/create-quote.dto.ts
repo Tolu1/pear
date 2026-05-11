@@ -4,7 +4,6 @@ import {
   SUPPORTED_CURRENCIES_CODES,
 } from '../../common/constants/supported-currencies.contant';
 import { IsValidTokenId } from '../../tokens/validators/is-valid-token-id.validator';
-import { IsValidNetworkForToken } from '../../tokens/validators/is-valid-network-for-token.validator';
 
 export class CreateQuoteDto {
   @IsNotEmpty()
@@ -18,8 +17,4 @@ export class CreateQuoteDto {
   @IsNotEmpty()
   @IsValidTokenId()
   tokenId: string;
-
-  @IsNotEmpty()
-  @IsValidNetworkForToken('tokenId')
-  network: string;
 }

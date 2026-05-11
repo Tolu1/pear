@@ -1,9 +1,14 @@
 import { IsNotEmpty, IsString, IsOptional, IsObject } from 'class-validator';
+import { IsValidRailId } from '../../tokens/validators/is-valid-rail-id.validator';
 
 export class CreatePaymentIntentDto {
   @IsNotEmpty()
   @IsString()
   quoteId: string;
+
+  @IsNotEmpty()
+  @IsValidRailId()
+  railId: string;
 
   @IsNotEmpty()
   @IsString()

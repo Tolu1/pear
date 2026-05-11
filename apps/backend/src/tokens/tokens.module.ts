@@ -3,7 +3,7 @@ import { TokensService } from './tokens.service';
 import { TokensRepository } from './tokens.repository';
 import { TokensController } from './tokens.controller';
 import { IsValidTokenIdConstraint } from './validators/is-valid-token-id.validator';
-import { IsValidNetworkForTokenConstraint } from './validators/is-valid-network-for-token.validator';
+import { IsValidRailIdConstraint } from './validators/is-valid-rail-id.validator';
 
 @Module({
   controllers: [TokensController],
@@ -11,7 +11,7 @@ import { IsValidNetworkForTokenConstraint } from './validators/is-valid-network-
     TokensService,
     TokensRepository,
     IsValidTokenIdConstraint,
-    IsValidNetworkForTokenConstraint,
+    IsValidRailIdConstraint,
   ],
   exports: [TokensService],
 })

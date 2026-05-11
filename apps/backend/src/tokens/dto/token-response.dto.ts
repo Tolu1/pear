@@ -12,8 +12,10 @@ export class TokenResponseDto implements Omit<Token, 'rails'> {
 }
 
 export class TokenRailResponseDto implements Omit<TokenRail, 'confirmations'> {
-  network: string;
+  id: string;
+  tokenId: string;
   chainId: number;
+  network: string;
   tokenAddress: Address;
   paymentAddress: Address;
 }

@@ -8,7 +8,6 @@ export class QuoteResponseDto implements Quote {
   cryptoAmount: string;
   rate: string;
   tokenId: string;
-  network: string;
   expiresAt: Date;
   consumedAt: Date | null;
   createdAt: Date;

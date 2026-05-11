@@ -4,7 +4,6 @@ import { CreateQuoteDto } from './dto/create-quote.dto';
 import { QuotesRepository } from './quotes.repository';
 import { QuoteMapper } from './quote.mapper';
 import { FiatToCryptoService } from '../rates/fiat-to-crypto.service';
-import { TokensService } from '../tokens/tokens.service';
 import { Quote } from './interfaces/quote.interface';
 import { QuoteExpiredException } from './exceptions/quote-expired.exception';
 import { QuoteAlreadyConsumedException } from './exceptions/quote-already-consumed.exception';
@@ -16,7 +15,6 @@ export class QuotesService {
   constructor(
     private readonly quotesRepository: QuotesRepository,
     private readonly fiatToCryptoService: FiatToCryptoService,
-    private readonly tokensService: TokensService,
   ) {}
 
   async create(dto: CreateQuoteDto): Promise<Quote> {
@@ -35,7 +33,6 @@ export class QuotesService {
       cryptoAmount,
       rate,
       tokenId: dto.tokenId,
-      network: dto.network,
       expiresAt,
     });
 
@@ -51,7 +48,6 @@ export class QuotesService {
     const quote = await this.findOne(id);
     if (quote.consumedAt) throw new QuoteAlreadyConsumedException();
     if (new Date() > quote.expiresAt) throw new QuoteExpiredException();
-    this.tokensService.assertRailSupport(quote.tokenId, quote.network);
     return quote;
   }
 

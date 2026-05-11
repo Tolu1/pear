@@ -17,6 +17,7 @@ export const paymentIntentStatusEnum = pgEnum('payment_intent_status', [
 export const paymentIntents = pgTable('payment_intents', {
   id: varchar({ length: 50 }).primaryKey(),
   quoteId: varchar({ length: 50 }).notNull().unique(),
+  railId: varchar({ length: 50 }).notNull(),
   status: paymentIntentStatusEnum().notNull().default('requires_transfer'),
   fromAddress: varchar({ length: 42 }).notNull(),
   merchantDomain: varchar({ length: 255 }).notNull(),

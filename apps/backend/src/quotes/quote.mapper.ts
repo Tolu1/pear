@@ -11,7 +11,6 @@ export class QuoteMapper {
       cryptoAmount: quote.cryptoAmount,
       rate: quote.rate,
       tokenId: quote.tokenId,
-      network: quote.network,
       expiresAt: quote.expiresAt,
       consumedAt: quote.consumedAt,
       createdAt: quote.createdAt,

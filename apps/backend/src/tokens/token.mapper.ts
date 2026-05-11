@@ -14,8 +14,10 @@ export class TokenMapper {
       coingeckoId: token.coingeckoId,
       rails: token.rails.map(
         (rail): TokenRailResponseDto => ({
-          network: rail.network,
+          id: rail.id,
+          tokenId: rail.tokenId,
           chainId: rail.chainId,
+          network: rail.network,
           tokenAddress: rail.tokenAddress,
           paymentAddress: rail.paymentAddress,
         }),

@@ -29,13 +29,14 @@ export class QuoteDto implements Omit<Quote, 'consumedAt' | 'createdAt'> {
   cryptoAmount: string;
   rate: string;
   tokenId: string;
-  network: string;
   expiresAt: Date;
 }
 
 export class RailDto implements Omit<TokenRail, 'confirmations'> {
-  network: string;
+  id: string;
+  tokenId: string;
   chainId: number;
+  network: string;
   tokenAddress: Address;
   paymentAddress: Address;
 }

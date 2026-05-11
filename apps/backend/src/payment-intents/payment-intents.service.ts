@@ -29,8 +29,7 @@ export class PaymentIntentsService {
   @Transactional()
   async create(dto: CreatePaymentIntentDto): Promise<PaymentIntent> {
     const quote = await this.quotesService.findActive(dto.quoteId);
-    const token = this.tokensService.findOne(quote.tokenId);
-    const rail = this.tokensService.findRail(token, quote.network);
+    const rail = this.tokensService.findRail(dto.railId);
 
     const expiresAt = new Date(
       Date.now() + PAYMENT_INTENT_TTL_MINUTES * 60 * 1000,
@@ -39,6 +38,7 @@ export class PaymentIntentsService {
     const intentRow = await this.paymentIntentsRepository.create({
       id: `pi_${uuidv4()}`,
       quoteId: quote.id,
+      railId: rail.id,
       fromAddress: dto.fromAddress,
       merchantDomain: dto.merchantDomain,
       metadata: dto.metadata ?? null,
@@ -54,8 +54,7 @@ export class PaymentIntentsService {
   async findOne(id: string): Promise<PaymentIntent> {
     const intentRow = await this.paymentIntentsRepository.findOne(id);
     const quote = await this.quotesService.findOne(intentRow.quoteId);
-    const token = this.tokensService.findOne(quote.tokenId);
-    const rail = this.tokensService.findRail(token, quote.network);
+    const rail = this.tokensService.findRail(intentRow.railId);
     return PaymentIntentMapper.toDomain(intentRow, quote, rail);
   }
 
