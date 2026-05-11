@@ -18,6 +18,7 @@ import {
 } from '@nestjs/swagger';
 import { type Hash } from 'viem';
 import { PaymentIntentsService } from './payment-intents.service';
+import { PaymentIntentMapper } from './payment-intent.mapper';
 import { CreatePaymentIntentDto } from './dto/create-payment-intent.dto';
 import { SubmitPaymentIntentDto } from './dto/submit-payment-intent.dto';
 import { PaymentIntentResponseDto } from './dto/payment-intent-response.dto';
@@ -34,17 +35,19 @@ export class PaymentIntentsController {
   @ApiBadRequestResponse({
     description: 'Quote has expired or token is unsupported on the network',
   })
-  create(
+  async create(
     @Body() dto: CreatePaymentIntentDto,
   ): Promise<PaymentIntentResponseDto> {
-    return this.paymentIntentsService.create(dto);
+    const intent = await this.paymentIntentsService.create(dto);
+    return PaymentIntentMapper.toResponse(intent);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a payment intent by id' })
   @ApiNotFoundResponse({ description: 'Payment intent not found' })
-  findOne(@Param('id') id: string): Promise<PaymentIntentResponseDto> {
-    return this.paymentIntentsService.findOne(id);
+  async findOne(@Param('id') id: string): Promise<PaymentIntentResponseDto> {
+    const intent = await this.paymentIntentsService.findOne(id);
+    return PaymentIntentMapper.toResponse(intent);
   }
 
   @Get(':id/status')
@@ -81,11 +84,15 @@ export class PaymentIntentsController {
   @ApiUnprocessableEntityResponse({
     description: 'On-chain transfer did not succeed',
   })
-  submit(
+  async submit(
     @Param('id') id: string,
     @Body() dto: SubmitPaymentIntentDto,
   ): Promise<PaymentIntentResponseDto> {
-    return this.paymentIntentsService.submit(id, dto.txHash as Hash);
+    const intent = await this.paymentIntentsService.submit(
+      id,
+      dto.txHash as Hash,
+    );
+    return PaymentIntentMapper.toResponse(intent);
   }
 
   @Post(':id/complete')

@@ -4,31 +4,30 @@ import { paymentIntents } from './payment-intents.schema';
 import { PaymentIntent } from './interfaces/payment-intent.interface';
 import { PaymentIntentResponseDto } from './dto/payment-intent-response.dto';
 import { Quote } from '../quotes/interfaces/quote.interface';
-import { Token } from '../tokens/interfaces/token.interface';
 import { TokenRail } from '../tokens/interfaces/token-rail.interface';
 
 export class PaymentIntentMapper {
-  static toDomain(intent: typeof paymentIntents.$inferSelect): PaymentIntent {
+  static toDomain(
+    intentRow: typeof paymentIntents.$inferSelect,
+    quote: Quote,
+    rail: TokenRail,
+  ): PaymentIntent {
     return {
-      id: intent.id,
-      quoteId: intent.quoteId,
-      status: intent.status as PaymentIntentStatus,
-      fromAddress: intent.fromAddress as Address,
-      merchantDomain: intent.merchantDomain,
-      metadata: intent.metadata as Record<string, unknown> | null,
-      txHash: intent.txHash,
-      expiresAt: intent.expiresAt,
-      createdAt: intent.createdAt,
-      updatedAt: intent.updatedAt,
+      id: intentRow.id,
+      status: intentRow.status as PaymentIntentStatus,
+      fromAddress: intentRow.fromAddress as Address,
+      merchantDomain: intentRow.merchantDomain,
+      metadata: intentRow.metadata as Record<string, unknown> | null,
+      txHash: intentRow.txHash,
+      expiresAt: intentRow.expiresAt,
+      createdAt: intentRow.createdAt,
+      updatedAt: intentRow.updatedAt,
+      quote,
+      rail,
     };
   }
 
-  static toResponse(
-    intent: PaymentIntent,
-    quote: Quote,
-    token: Token,
-    rail: TokenRail,
-  ): PaymentIntentResponseDto {
+  static toResponse(intent: PaymentIntent): PaymentIntentResponseDto {
     return {
       id: intent.id,
       status: intent.status,
@@ -40,23 +39,20 @@ export class PaymentIntentMapper {
       createdAt: intent.createdAt,
       updatedAt: intent.updatedAt,
       quote: {
-        id: quote.id,
-        amount: quote.amount,
-        currencyCode: quote.currencyCode,
-        cryptoAmount: quote.cryptoAmount,
-        rate: quote.rate,
-        expiresAt: quote.expiresAt,
+        id: intent.quote.id,
+        amount: intent.quote.amount,
+        currencyCode: intent.quote.currencyCode,
+        cryptoAmount: intent.quote.cryptoAmount,
+        rate: intent.quote.rate,
+        tokenId: intent.quote.tokenId,
+        network: intent.quote.network,
+        expiresAt: intent.quote.expiresAt,
       },
-      token: {
-        id: token.id,
-        name: token.name,
-        symbol: token.symbol,
-        decimals: token.decimals,
-        network: rail.network,
-        tokenAddress: rail.tokenAddress,
-        paymentAddress: rail.paymentAddress,
-        chainId: rail.chainId,
-        confirmations: rail.confirmations,
+      rail: {
+        network: intent.rail.network,
+        chainId: intent.rail.chainId,
+        tokenAddress: intent.rail.tokenAddress,
+        paymentAddress: intent.rail.paymentAddress,
       },
     };
   }

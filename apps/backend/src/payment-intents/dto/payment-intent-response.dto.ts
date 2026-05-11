@@ -1,28 +1,14 @@
 import { type Address } from 'viem';
+import { PaymentIntent } from '../interfaces/payment-intent.interface';
+import { Quote } from '../../quotes/interfaces/quote.interface';
+import { TokenRail } from '../../tokens/interfaces/token-rail.interface';
 import { PaymentIntentStatus } from '../enums/payment-intent-status.enum';
+import { type CurrencyCode } from '../../common/constants/supported-currencies.contant';
 
-class QuoteDto {
-  id: string;
-  amount: string;
-  currencyCode: string;
-  cryptoAmount: string;
-  rate: string;
-  expiresAt: Date;
-}
-
-class TokenDto {
-  id: string;
-  name: string;
-  symbol: string;
-  decimals: number;
-  network: string;
-  tokenAddress: Address;
-  paymentAddress: Address;
-  chainId: number;
-  confirmations: number;
-}
-
-export class PaymentIntentResponseDto {
+export class PaymentIntentResponseDto implements Omit<
+  PaymentIntent,
+  'quote' | 'rail'
+> {
   id: string;
   status: PaymentIntentStatus;
   fromAddress: Address;
@@ -33,5 +19,23 @@ export class PaymentIntentResponseDto {
   createdAt: Date;
   updatedAt: Date;
   quote: QuoteDto;
-  token: TokenDto;
+  rail: RailDto;
+}
+
+export class QuoteDto implements Omit<Quote, 'consumedAt' | 'createdAt'> {
+  id: string;
+  amount: string;
+  currencyCode: CurrencyCode;
+  cryptoAmount: string;
+  rate: string;
+  tokenId: string;
+  network: string;
+  expiresAt: Date;
+}
+
+export class RailDto implements Omit<TokenRail, 'confirmations'> {
+  network: string;
+  chainId: number;
+  tokenAddress: Address;
+  paymentAddress: Address;
 }

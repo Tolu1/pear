@@ -3,7 +3,6 @@ import { Transactional } from '@nestjs-cls/transactional';
 import { v4 as uuidv4 } from 'uuid';
 import { type Hash, parseUnits } from 'viem';
 import { CreatePaymentIntentDto } from './dto/create-payment-intent.dto';
-import { PaymentIntentResponseDto } from './dto/payment-intent-response.dto';
 import { PaymentIntentsRepository } from './payment-intents.repository';
 import { PaymentIntentMapper } from './payment-intent.mapper';
 import { QuotesService } from '../quotes/quotes.service';
@@ -28,7 +27,7 @@ export class PaymentIntentsService {
   ) {}
 
   @Transactional()
-  async create(dto: CreatePaymentIntentDto): Promise<PaymentIntentResponseDto> {
+  async create(dto: CreatePaymentIntentDto): Promise<PaymentIntent> {
     const quote = await this.quotesService.findActive(dto.quoteId);
     const token = this.tokensService.findOne(quote.tokenId);
     const rail = this.tokensService.findRail(token, quote.network);
@@ -37,7 +36,7 @@ export class PaymentIntentsService {
       Date.now() + PAYMENT_INTENT_TTL_MINUTES * 60 * 1000,
     );
 
-    const row = await this.paymentIntentsRepository.create({
+    const intentRow = await this.paymentIntentsRepository.create({
       id: `pi_${uuidv4()}`,
       quoteId: quote.id,
       fromAddress: dto.fromAddress,
@@ -49,79 +48,62 @@ export class PaymentIntentsService {
 
     await this.quotesService.markConsumed(quote.id);
 
-    return PaymentIntentMapper.toResponse(
-      PaymentIntentMapper.toDomain(row),
-      quote,
-      token,
-      rail,
-    );
+    return PaymentIntentMapper.toDomain(intentRow, quote, rail);
   }
 
-  async findOne(id: string): Promise<PaymentIntentResponseDto> {
-    const intent = await this.loadIntent(id);
-    const quote = await this.quotesService.findOne(intent.quoteId);
+  async findOne(id: string): Promise<PaymentIntent> {
+    const intentRow = await this.paymentIntentsRepository.findOne(id);
+    const quote = await this.quotesService.findOne(intentRow.quoteId);
     const token = this.tokensService.findOne(quote.tokenId);
     const rail = this.tokensService.findRail(token, quote.network);
-    return PaymentIntentMapper.toResponse(intent, quote, token, rail);
+    return PaymentIntentMapper.toDomain(intentRow, quote, rail);
   }
 
   async getCard(id: string): Promise<VirtualCard> {
-    const intent = await this.loadIntent(id);
+    const intent = await this.findOne(id);
     if (intent.status !== PaymentIntentStatus.PROCESSING) {
       throw new ForbiddenException('Card details not available');
     }
     return this.virtualCardService.issueCard();
   }
 
-  async submit(id: string, txHash: Hash): Promise<PaymentIntentResponseDto> {
-    const intent = await this.loadIntent(id);
+  async submit(id: string, txHash: Hash): Promise<PaymentIntent> {
+    const intent = await this.findOne(id);
     if (intent.status !== PaymentIntentStatus.REQUIRES_TRANSFER) {
       throw new PaymentIntentConflictException();
     }
 
-    const quote = await this.quotesService.findOne(intent.quoteId);
-    const token = this.tokensService.findOne(quote.tokenId);
-    const rail = this.tokensService.findRail(token, quote.network);
+    const token = this.tokensService.findOne(intent.quote.tokenId);
 
     await this.blockchainService.assertTransfer(
       txHash,
       {
         from: intent.fromAddress,
-        to: rail.paymentAddress,
-        value: parseUnits(quote.cryptoAmount, token.decimals),
-        tokenAddress: rail.tokenAddress,
-        chainId: rail.chainId,
+        to: intent.rail.paymentAddress,
+        value: parseUnits(intent.quote.cryptoAmount, token.decimals),
+        tokenAddress: intent.rail.tokenAddress,
+        chainId: intent.rail.chainId,
       },
-      rail.confirmations,
+      intent.rail.confirmations,
     );
 
-    const updatedRow = await this.paymentIntentsRepository.update(id, {
+    const intentRow = await this.paymentIntentsRepository.update(id, {
       status: PaymentIntentStatus.PROCESSING,
       txHash,
       updatedAt: new Date(),
     });
 
-    return PaymentIntentMapper.toResponse(
-      PaymentIntentMapper.toDomain(updatedRow),
-      quote,
-      token,
-      rail,
-    );
+    return PaymentIntentMapper.toDomain(intentRow, intent.quote, intent.rail);
   }
 
   async complete(id: string): Promise<void> {
-    const intent = await this.loadIntent(id);
+    const intent = await this.findOne(id);
     if (intent.status !== PaymentIntentStatus.PROCESSING) {
       throw new PaymentIntentConflictException();
     }
-    await this.paymentIntentsRepository.update(id, {
+    await this.paymentIntentsRepository.update(intent.id, {
       status: PaymentIntentStatus.SUCCEEDED,
       updatedAt: new Date(),
     });
-  }
-
-  private async loadIntent(id: string): Promise<PaymentIntent> {
-    const row = await this.paymentIntentsRepository.findOne(id);
-    return PaymentIntentMapper.toDomain(row);
   }
 }
