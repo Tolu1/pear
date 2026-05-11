@@ -44,7 +44,7 @@ describe('FiatToCryptoService', () => {
       symbol: 'USDC',
       decimals: 6,
       coingeckoId: 'usd-coin',
-      networks: {},
+      rails: [],
     });
     coinGecko.getPrice.mockResolvedValue('0.37');
 

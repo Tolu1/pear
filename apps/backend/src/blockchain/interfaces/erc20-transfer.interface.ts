@@ -5,4 +5,5 @@ export interface Erc20Transfer {
   to: Address;
   value: bigint;
   tokenAddress: Address;
+  chainId: number;
 }

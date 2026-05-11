@@ -1,11 +1,4 @@
-import { type Address, type Chain } from 'viem';
-
-export interface TokenNetwork {
-  tokenAddress: Address;
-  paymentAddress: Address;
-  chain: Chain;
-  confirmations: number;
-}
+import { type Address } from 'viem';
 
 export interface Token {
   id: string;
@@ -13,5 +6,13 @@ export interface Token {
   symbol: string;
   decimals: number;
   coingeckoId: string;
-  networks: Record<string, TokenNetwork>;
+  rails: TokenRail[];
+}
+
+export interface TokenRail {
+  network: string;
+  chainId: number;
+  tokenAddress: Address;
+  paymentAddress: Address;
+  confirmations: number;
 }

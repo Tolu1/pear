@@ -20,7 +20,7 @@ export class IsValidNetworkForTokenConstraint implements ValidatorConstraintInte
     if (typeof tokenId !== 'string') return false;
     try {
       const token = this.tokensService.findOne(tokenId);
-      return value in token.networks;
+      return token.rails.some((rail) => rail.network === value);
     } catch {
       return false;
     }
