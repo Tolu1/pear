@@ -10,12 +10,9 @@ import { QuotesService } from '../quotes/quotes.service';
 import { VirtualCardService } from '../virtual-card/virtual-card.service';
 import { TokensService } from '../tokens/tokens.service';
 import { BlockchainService } from '../blockchain/blockchain.service';
-import { Quote } from '../quotes/interfaces/quote.interface';
-import { Token, TokenRail } from '../tokens/interfaces/token.interface';
 import { PaymentIntent } from './interfaces/payment-intent.interface';
 import { PaymentIntentStatus } from './enums/payment-intent-status.enum';
 import { PaymentIntentConflictException } from './exceptions/payment-intent-conflict.exception';
-import { TokenNotOnNetworkException } from './exceptions/token-not-on-network.exception';
 import { VirtualCard } from '../virtual-card/interfaces/virtual-card.interface';
 
 const PAYMENT_INTENT_TTL_MINUTES = 30;
@@ -34,7 +31,7 @@ export class PaymentIntentsService {
   async create(dto: CreatePaymentIntentDto): Promise<PaymentIntentResponseDto> {
     const quote = await this.quotesService.findActive(dto.quoteId);
     const token = this.tokensService.findOne(quote.tokenId);
-    const rail = this.requireRail(token, quote.network);
+    const rail = this.tokensService.findRail(token, quote.network);
 
     const expiresAt = new Date(
       Date.now() + PAYMENT_INTENT_TTL_MINUTES * 60 * 1000,
@@ -52,7 +49,7 @@ export class PaymentIntentsService {
 
     await this.quotesService.markConsumed(quote.id);
 
-    return this.composeResponse(
+    return PaymentIntentMapper.toResponse(
       PaymentIntentMapper.toDomain(row),
       quote,
       token,
@@ -64,8 +61,8 @@ export class PaymentIntentsService {
     const intent = await this.loadIntent(id);
     const quote = await this.quotesService.findOne(intent.quoteId);
     const token = this.tokensService.findOne(quote.tokenId);
-    const rail = this.requireRail(token, quote.network);
-    return this.composeResponse(intent, quote, token, rail);
+    const rail = this.tokensService.findRail(token, quote.network);
+    return PaymentIntentMapper.toResponse(intent, quote, token, rail);
   }
 
   async getCard(id: string): Promise<VirtualCard> {
@@ -84,7 +81,7 @@ export class PaymentIntentsService {
 
     const quote = await this.quotesService.findOne(intent.quoteId);
     const token = this.tokensService.findOne(quote.tokenId);
-    const rail = this.requireRail(token, quote.network);
+    const rail = this.tokensService.findRail(token, quote.network);
 
     await this.blockchainService.assertTransfer(
       txHash,
@@ -104,7 +101,7 @@ export class PaymentIntentsService {
       updatedAt: new Date(),
     });
 
-    return this.composeResponse(
+    return PaymentIntentMapper.toResponse(
       PaymentIntentMapper.toDomain(updatedRow),
       quote,
       token,
@@ -126,49 +123,5 @@ export class PaymentIntentsService {
   private async loadIntent(id: string): Promise<PaymentIntent> {
     const row = await this.paymentIntentsRepository.findOne(id);
     return PaymentIntentMapper.toDomain(row);
-  }
-
-  private requireRail(token: Token, network: string): TokenRail {
-    const rail = token.rails.find((r) => r.network === network);
-    if (!rail) throw new TokenNotOnNetworkException();
-    return rail;
-  }
-
-  private composeResponse(
-    intent: PaymentIntent,
-    quote: Quote,
-    token: Token,
-    rail: TokenRail,
-  ): PaymentIntentResponseDto {
-    return {
-      id: intent.id,
-      status: intent.status,
-      fromAddress: intent.fromAddress,
-      merchantDomain: intent.merchantDomain,
-      metadata: intent.metadata,
-      txHash: intent.txHash,
-      expiresAt: intent.expiresAt,
-      createdAt: intent.createdAt,
-      updatedAt: intent.updatedAt,
-      quote: {
-        id: quote.id,
-        amount: quote.amount,
-        currencyCode: quote.currencyCode,
-        cryptoAmount: quote.cryptoAmount,
-        rate: quote.rate,
-        expiresAt: quote.expiresAt,
-      },
-      token: {
-        id: token.id,
-        name: token.name,
-        symbol: token.symbol,
-        decimals: token.decimals,
-        network: rail.network,
-        tokenAddress: rail.tokenAddress,
-        paymentAddress: rail.paymentAddress,
-        chainId: rail.chainId,
-        confirmations: rail.confirmations,
-      },
-    };
   }
 }
