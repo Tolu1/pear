@@ -140,7 +140,7 @@ function Features() {
             />
           </svg>
           <span className="text-sm leading-[16px] font-semibold tracking-[-0.06em] text-[#0E140E]/70">
-            USDC & LSK supported
+            Stablecoins supported
           </span>
         </Badge>
       </li>
