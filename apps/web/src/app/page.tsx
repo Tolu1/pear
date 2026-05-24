@@ -28,6 +28,9 @@ export default function Page() {
             <Features />
           </div>
         </div>
+        <div className="lg:pt-6">
+          <BackedByStamp />
+        </div>
         <ProductShowcase />
 
         <div className="flex w-full flex-col items-center gap-4 px-6">
@@ -142,6 +145,38 @@ function Features() {
         </Badge>
       </li>
     </ul>
+  );
+}
+
+function BackedByStamp() {
+  return (
+    <div className="-rotate-[2deg] rounded-[10px] bg-[#2F4439] px-6 py-3 ring-2 ring-[#2F4439] ring-offset-2 ring-offset-[#FFF8D4]">
+      <div className="flex flex-col items-center gap-1 font-mono">
+        <div className="flex items-center gap-2">
+          <span aria-hidden className="h-px w-6 bg-[#FFF8D4]/50" />
+          <span className="text-[9px] leading-[10px] font-bold tracking-[0.3em] text-[#FFF8D4]/80 uppercase">
+            Backed by
+          </span>
+          <span aria-hidden className="h-px w-6 bg-[#FFF8D4]/50" />
+        </div>
+        <a
+          href="https://forbesfamilygroup.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[13px] leading-[15px] font-bold tracking-[-0.01em] text-[#FFF8D4] uppercase transition-opacity hover:opacity-70"
+        >
+          Forbes Family Group
+        </a>
+        <a
+          href="https://www.cornerstonevc.co"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[13px] leading-[15px] font-bold tracking-[-0.01em] text-[#FFF8D4] uppercase transition-opacity hover:opacity-70"
+        >
+          Cornerstone VC
+        </a>
+      </div>
+    </div>
   );
 }
 
