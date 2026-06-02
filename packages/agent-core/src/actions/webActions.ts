@@ -8,6 +8,9 @@ export const clickCoordAction = createAction({
         x: z.number().int(),
         y: z.number().int(),
     }),
+    resolver: async ({ input: { x, y }, harness }) => {
+        await harness.click({ x, y });
+    },
     render: ({ x, y }) => `⊙ click (${x}, ${y})`
 });
 
@@ -17,6 +20,9 @@ export const mouseDoubleClickAction = createAction({
         x: z.number().int(),
         y: z.number().int(),
     }),
+    resolver: async ({ input: { x, y }, harness }) => {
+        await harness.doubleClick({ x, y });
+    },
     render: ({ x, y }) => `⊙ double click (${x}, ${y})`
 });
 
@@ -26,6 +32,9 @@ export const mouseRightClickAction = createAction({
         x: z.number().int(),
         y: z.number().int(),
     }),
+    resolver: async ({ input: { x, y }, harness }) => {
+        await harness.rightClick({ x, y });
+    },
     render: ({ x, y }) => `⊙ right click (${x}, ${y})`
 });
 
@@ -36,6 +45,9 @@ export const mouseDragAction = createAction({
         from: z.object({ x: z.number().int(), y: z.number().int() }),
         to: z.object({ x: z.number().int(), y: z.number().int() })
     }),
+    resolver: async ({ input: { from, to }, harness }) => {
+        await harness.drag({ x1: from.x, y1: from.y, x2: to.x, y2: to.y });
+    },
     render: ({ from, to }) => `⤡ drag (${from.x}, ${from.y}) -> (${to.x}, ${to.y})`
 });
 
@@ -45,27 +57,42 @@ export const typeAction = createAction({
     schema: z.object({
         content: z.string().describe("Content to type"),
     }),
+    resolver: async ({ input: { content }, harness }) => {
+        await harness.type({ content });
+    },
     render: ({ content }) => `⌨︎ type "${content}"`
 });
 
 export const keyboardEnterAction = createAction({
     name: 'keyboard:enter',
+    resolver: async ({ harness }) => {
+        await harness.enter();
+    },
     render: () => `⏎ press enter`
 });
 
 export const keyboardTabAction = createAction({
     name: 'keyboard:tab',
+    resolver: async ({ harness }) => {
+        await harness.tab();
+    },
     render: () => `⇥ press tab`
 });
 
 export const keyboardBackspaceAction = createAction({
     name: 'keyboard:backspace',
+    resolver: async ({ harness }) => {
+        await harness.backspace();
+    },
     render: () => `⌫ press backspace`
 });
 
 export const keyboardSelectAllAction = createAction({
     name: 'keyboard:select_all',
     description: "Select all content in the active text area (CTRL+A)",
+    resolver: async ({ harness }) => {
+        await harness.selectAll();
+    },
     render: () => `⬚ select all`
 });
 
@@ -78,6 +105,9 @@ export const scrollCoordAction = createAction({
         deltaX: z.number().int().describe("Pixels to scroll horizontally"),
         deltaY: z.number().int().describe("Pixels to scroll vertically"),
     }),
+    resolver: async ({ input: { x, y, deltaX, deltaY }, harness }) => {
+        await harness.scroll({ x, y, deltaX, deltaY });
+    },
     render: ({ x, y, deltaX, deltaY }) => `↕ scroll (${deltaX}px, ${deltaY}px)`
 });
 
@@ -87,6 +117,9 @@ export const switchTabAction = createAction({
     schema: z.object({
         index: z.number().int().describe("Index of tab to switch to"),
     }),
+    resolver: async ({ input: { index }, harness }) => {
+        await harness.switchTab({ index });
+    },
     render: ({ index }) => `⧉ switch to tab ${index}`
 });
 
@@ -94,6 +127,9 @@ export const newTabAction = createAction({
     name: 'browser:tab:new',
     description: "Open and switch to a new tab",
     schema: z.object({}),
+    resolver: async ({ harness }) => {
+        await harness.newTab();
+    },
     render: () => `⊞ open new tab`
 });
 
@@ -103,6 +139,9 @@ export const navigateAction = createAction({
     schema: z.object({
         url: z.string().describe('URL to navigate to'),
     }),
+    resolver: async ({ input: { url }, harness }) => {
+        await harness.navigate(url);
+    },
     render: ({ url }) => `⛓︎ navigate to ${url}`
 });
 
@@ -110,6 +149,9 @@ export const goBackAction = createAction({
     name: 'browser:nav:back',
     description: "Go back",
     schema: z.object({}),
+    resolver: async ({ harness }) => {
+        await harness.goBack();
+    },
     render: () => `← navigate back`
 });
 
@@ -119,6 +161,9 @@ export const waitAction = createAction({
     schema: z.object({
         seconds: z.number()
     }),
+    resolver: async ({ input: { seconds } }) => {
+        await new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+    },
     render: ({ seconds }) => `◴ wait for ${seconds}s`
 });
 

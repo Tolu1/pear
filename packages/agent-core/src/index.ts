@@ -5,6 +5,7 @@ export * from './web/harness.interface';
 export * from './transport';
 export * from './step-handler';
 export * from './agent-server';
+export * from './agent-client';
 export { AgentMemory } from './memory';
 export { MultiModelHarness } from './ai/multiModelHarness';
 export { webActions } from './actions/webActions';
