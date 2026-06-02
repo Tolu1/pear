@@ -1,7 +1,7 @@
 import { createTRPCClient, httpLink } from '@trpc/client';
 import type { AgentRouter } from './agent-server';
 import type { WebHarnessLike } from './web/harness.interface';
-import type { ObservationPayload, ActionWireForm } from './transport/messages';
+import type { ObservationPayload, ActionWireForm, ActionResult } from './transport/messages';
 import type { ActionDefinition } from './actions';
 import { webActions } from './actions/webActions';
 import { taskActions } from './actions/taskActions';
@@ -45,17 +45,11 @@ export class AgentClient {
         });
 
         let seq = 0;
-        let lastActionId: string | undefined;
-        let lastActionResult: 'ok' | 'failed' | undefined;
-        let lastActionError: string | undefined;
+        let lastBatchResults: ActionResult[] | undefined;
 
         try {
             while (true) {
-                const observation = await this.captureObservation(
-                    lastActionId,
-                    lastActionResult,
-                    lastActionError,
-                );
+                const observation = await this.captureObservation(lastBatchResults);
 
                 const { reasoning, actions, isComplete } = await this.trpc.step.mutate({
                     sessionId,
@@ -65,23 +59,22 @@ export class AgentClient {
 
                 await options.onStep?.({ reasoning, actions, isComplete });
 
-                lastActionId = undefined;
-                lastActionResult = undefined;
-                lastActionError = undefined;
-
+                const batchResults: ActionResult[] = [];
                 for (const action of actions) {
                     await options.onAction?.(action);
                     try {
                         await this.dispatch(action);
-                        lastActionId = action.variant;
-                        lastActionResult = 'ok';
+                        batchResults.push({ actionId: action.variant, result: 'ok' });
                     } catch (err) {
-                        lastActionId = action.variant;
-                        lastActionResult = 'failed';
-                        lastActionError = err instanceof Error ? err.message : String(err);
+                        batchResults.push({
+                            actionId: action.variant,
+                            result: 'failed',
+                            error: err instanceof Error ? err.message : String(err),
+                        });
                         break;
                     }
                 }
+                lastBatchResults = batchResults.length > 0 ? batchResults : undefined;
 
                 if (isComplete) break;
             }
@@ -91,9 +84,7 @@ export class AgentClient {
     }
 
     private async captureObservation(
-        lastActionId: string | undefined,
-        lastActionResult: 'ok' | 'failed' | undefined,
-        lastActionError: string | undefined,
+        lastBatchResults: ActionResult[] | undefined,
     ): Promise<ObservationPayload> {
         const image = await this.harness.screenshot();
         const base64 = await image.toBase64();
@@ -106,9 +97,7 @@ export class AgentClient {
             screenshot: { base64, dpr: 1, width, height },
             url: activeTab?.url ?? '',
             title: activeTab?.title,
-            ...(lastActionId ? { lastActionId } : {}),
-            ...(lastActionResult ? { lastActionResult } : {}),
-            ...(lastActionError ? { lastActionError } : {}),
+            ...(lastBatchResults ? { lastBatchResults } : {}),
         };
     }
 

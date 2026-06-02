@@ -5,6 +5,7 @@ import { ActionDefinition } from '@/actions';
 import { MultiModelHarness } from '@/ai/multiModelHarness';
 import type { Action } from '@/actions/types';
 import type { ObservationPayload } from '@/transport/messages';
+import { retryOnError } from '@/common/util';
 
 const DEFAULT_MIN_RETAINED_SCREENSHOTS = 2;
 
@@ -26,13 +27,15 @@ export async function runStep(input: RunStepInput): Promise<RunStepOutput> {
   const { memory, task, observation, actionVocabulary, models } = input;
   const screenshotLimit = input.minScreenshots ?? DEFAULT_MIN_RETAINED_SCREENSHOTS;
 
-  if (observation.lastActionId) {
-    const resultContent = observation.lastActionResult === 'failed'
-      ? { result: 'failed' as const, error: observation.lastActionError ?? 'unknown error' }
-      : { result: 'ok' as const };
-    memory.recordObservation(
-      Observation.fromActionResult(observation.lastActionId, resultContent),
-    );
+  if (observation.lastBatchResults) {
+    for (const r of observation.lastBatchResults) {
+      const content = r.result === 'failed'
+        ? { result: 'failed' as const, error: r.error ?? 'unknown error' }
+        : { result: 'ok' as const };
+      memory.recordObservation(
+        Observation.fromActionResult(r.actionId, content),
+      );
+    }
   }
 
   const screenshot = Image.fromBase64(observation.screenshot.base64);
@@ -59,7 +62,26 @@ export async function runStep(input: RunStepInput): Promise<RunStepOutput> {
     connectorInstructions: [],
   };
 
-  const { reasoning, actions } = await models.partialAct(context, task, [], actionVocabulary);
+  let reasoning = '';
+  let actions: Action[] = [];
+
+  await retryOnError(
+    async () => {
+      const result = await models.partialAct(context, task, [], actionVocabulary);
+      reasoning = result.reasoning;
+      actions = result.actions;
+      if (actions.length === 0) {
+        throw new Error('No actions generated');
+      }
+    },
+    {
+      mode: 'retry_on_partial_message',
+      errorSubstrings: ['HTTP body is not JSON', '401 Unauthorized', 'No actions generated'],
+      retryLimit: 3,
+      delayMs: 1000,
+      showWarnOnRetry: true,
+    },
+  );
 
   memory.recordThought(reasoning);
 

@@ -8,13 +8,18 @@ export const ScreenshotPayloadSchema = z.object({
 });
 export type ScreenshotPayload = z.infer<typeof ScreenshotPayloadSchema>;
 
+export const ActionResultSchema = z.object({
+  actionId: z.string(),
+  result: z.enum(['ok', 'failed']),
+  error: z.string().optional(),
+});
+export type ActionResult = z.infer<typeof ActionResultSchema>;
+
 export const ObservationPayloadSchema = z.object({
   screenshot: ScreenshotPayloadSchema,
   url: z.string(),
   title: z.string().optional(),
-  lastActionId: z.string().optional(),
-  lastActionResult: z.enum(['ok', 'failed']).optional(),
-  lastActionError: z.string().optional(),
+  lastBatchResults: z.array(ActionResultSchema).optional(),
 });
 export type ObservationPayload = z.infer<typeof ObservationPayloadSchema>;
 

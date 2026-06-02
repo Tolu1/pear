@@ -43,6 +43,7 @@ class InMemorySessionStore implements SessionStore {
 export interface AgentServerOptions {
     llm: LLMClient | LLMClient[];
     sessionStore?: SessionStore;
+    prompt?: string;
 }
 
 export class AgentServer {
@@ -51,11 +52,13 @@ export class AgentServer {
     private models: MultiModelHarness;
     private sessionStore: SessionStore;
     private actionVocabulary = [...webActions, ...taskActions];
+    private prompt?: string;
 
     constructor(options: AgentServerOptions) {
         const clients = Array.isArray(options.llm) ? options.llm : [options.llm];
         this.models = new MultiModelHarness(clients);
         this.sessionStore = options.sessionStore ?? new InMemorySessionStore();
+        this.prompt = options.prompt;
         this.router = this.buildRouter();
     }
 
@@ -67,7 +70,7 @@ export class AgentServer {
         const sessionId = randomUUID();
         await this.sessionStore.set(sessionId, {
             goal: input.goal,
-            memory: new AgentMemory(),
+            memory: new AgentMemory({ instructions: this.prompt ?? null }),
             createdAt: Date.now(),
         });
         return { sessionId };
