@@ -26,7 +26,15 @@ export async function runStep(input: RunStepInput): Promise<RunStepOutput> {
   const { memory, task, observation, actionVocabulary, models } = input;
   const screenshotLimit = input.minScreenshots ?? DEFAULT_MIN_RETAINED_SCREENSHOTS;
 
-  // Record observation as 'web' connector outputs, matching BrowserConnector.collectObservations
+  if (observation.lastActionId) {
+    const resultContent = observation.lastActionResult === 'failed'
+      ? { result: 'failed' as const, error: observation.lastActionError ?? 'unknown error' }
+      : { result: 'ok' as const };
+    memory.recordObservation(
+      Observation.fromActionResult(observation.lastActionId, resultContent),
+    );
+  }
+
   const screenshot = Image.fromBase64(observation.screenshot.base64);
   memory.recordObservation(
     Observation.fromConnector('web', screenshot, {
@@ -44,8 +52,6 @@ export async function runStep(input: RunStepInput): Promise<RunStepOutput> {
     }),
   );
 
-  // Build context — mirrors Agent._buildContext, with no connector-contributed instructions
-  // (BrowserConnector.getInstructions returns undefined upstream).
   const observationContent = await memory.render();
   const context = {
     instructions: memory.instructions,
@@ -56,6 +62,12 @@ export async function runStep(input: RunStepInput): Promise<RunStepOutput> {
   const { reasoning, actions } = await models.partialAct(context, task, [], actionVocabulary);
 
   memory.recordThought(reasoning);
+
+  for (const action of actions) {
+    memory.recordObservation(
+      Observation.fromActionTaken(action.variant, JSON.stringify(action)),
+    );
+  }
 
   return { reasoning, actions };
 }

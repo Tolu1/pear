@@ -19,10 +19,8 @@ export const ObservationPayloadSchema = z.object({
 export type ObservationPayload = z.infer<typeof ObservationPayloadSchema>;
 
 export const ActionWireFormSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  input: z.unknown(),
-});
+  variant: z.string(),
+}).passthrough();
 export type ActionWireForm = z.infer<typeof ActionWireFormSchema>;
 
 export const StartInputSchema = z.object({
