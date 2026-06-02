@@ -1,0 +1,43 @@
+{
+  "name": "@repo/agent-core",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Browser agent core: agent loop, memory, actions, transport contract. Consumed by apps/ai (server) and apps/extension (client).",
+  "exports": {
+    ".": "./src/index.ts",
+    "./memory": "./src/memory/index.ts",
+    "./actions": "./src/actions/index.ts",
+    "./connectors": "./src/connectors/index.ts",
+    "./transport": "./src/transport/index.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "lint": "eslint .",
+    "baml:generate": "baml-cli generate --from baml_src",
+    "baml:check": "baml-cli check --from baml_src"
+  },
+  "dependencies": {
+    "@boundaryml/baml": "^0.220.0",
+    "@paralleldrive/cuid2": "^2.2.2",
+    "@trpc/client": "^11.0.0",
+    "@trpc/server": "^11.0.0",
+    "ansis": "^4.1.0",
+    "eventemitter3": "^5.0.1",
+    "object-hash": "^3.0.0",
+    "pino": "^9.6.0",
+    "pino-pretty": "^13.0.0",
+    "sharp": "^0.34.3",
+    "ws": "^8.18.0",
+    "zod": "^3.24.4",
+    "zod-to-json-schema": "^3.24.5"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^22.15.3",
+    "@types/object-hash": "^3.0.6",
+    "@types/ws": "^8.5.10",
+    "eslint": "^9.26.0",
+    "typescript": "5.8.2"
+  }
+}
