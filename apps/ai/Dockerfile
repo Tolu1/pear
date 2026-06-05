@@ -25,6 +25,7 @@ COPY --from=builder /app/apps/ai/dist ./apps/ai/dist
 COPY --from=builder /app/apps/ai/node_modules ./apps/ai/node_modules
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/packages/agent-core/dist ./packages/agent-core/dist
+COPY --from=builder /app/packages/agent-core/node_modules ./packages/agent-core/node_modules
 COPY --from=builder /app/packages/agent-core/package.json ./packages/agent-core/package.json
 
 USER nestjs
