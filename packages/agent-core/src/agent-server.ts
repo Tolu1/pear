@@ -71,7 +71,7 @@ export class AgentServer extends EventEmitter<AgentServerEvents> {
         this.router = this.buildRouter();
     }
 
-    async setup(): Promise<void> {
+    async init(): Promise<void> {
         await this.models.setup();
         this.emit('start');
     }
