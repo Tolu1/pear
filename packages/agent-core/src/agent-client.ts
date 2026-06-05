@@ -1,4 +1,5 @@
 import { createTRPCClient, httpLink } from '@trpc/client';
+import EventEmitter from 'eventemitter3';
 import type { AgentRouter } from './agent-server';
 import type { WebHarnessLike } from './web/harness.interface';
 import type { ObservationPayload, ActionWireForm, ActionResult } from './transport/messages';
@@ -15,20 +16,27 @@ export interface AgentClientOptions {
 export interface AgentRunOptions {
     goal: string;
     targetUrl?: string;
-    onAction?: (action: ActionWireForm) => void | Promise<void>;
-    onStep?: (info: {
-        reasoning: string;
-        actions: ActionWireForm[];
-        isComplete: boolean;
-    }) => void | Promise<void>;
 }
 
-export class AgentClient {
+export interface AgentClientEvents {
+    'start': () => void;
+    'thought': (thought: string) => void;
+    'actionStarted': (action: ActionWireForm) => void;
+    'actionDone': (action: ActionWireForm) => void;
+    'pause': () => void;
+    'resume': () => void;
+    'stop': () => void;
+}
+
+export class AgentClient extends EventEmitter<AgentClientEvents> {
     private trpc: ReturnType<typeof createTRPCClient<AgentRouter>>;
     private harness: WebHarnessLike;
     private actionMap: Map<string, ActionDefinition<any>>;
+    private _paused: boolean = false;
+    private _pauseResolve: (() => void) | null = null;
 
     constructor(options: AgentClientOptions) {
+        super();
         this.harness = options.harness;
         this.trpc = createTRPCClient<AgentRouter>({
             links: [httpLink({ url: options.serverUrl, fetch: options.fetch })],
@@ -39,6 +47,7 @@ export class AgentClient {
     }
 
     async run(options: AgentRunOptions): Promise<void> {
+        this.emit('start');
         const { sessionId } = await this.trpc.start.mutate({
             goal: options.goal,
             targetUrl: options.targetUrl,
@@ -57,15 +66,18 @@ export class AgentClient {
                     observation,
                 });
 
-                await options.onStep?.({ reasoning, actions, isComplete });
+                this.emit('thought', reasoning);
 
                 const batchResults: ActionResult[] = [];
                 for (const action of actions) {
-                    await options.onAction?.(action);
+                    await this._waitIfPaused();
+                    this.emit('actionStarted', action);
                     try {
                         await this.dispatch(action);
+                        this.emit('actionDone', action);
                         batchResults.push({ actionId: action.variant, result: 'ok' });
                     } catch (err) {
+                        this.emit('actionDone', action);
                         batchResults.push({
                             actionId: action.variant,
                             result: 'failed',
@@ -77,10 +89,37 @@ export class AgentClient {
                 lastBatchResults = batchResults.length > 0 ? batchResults : undefined;
 
                 if (isComplete) break;
+                await this._waitIfPaused();
             }
         } finally {
             await this.trpc.cancel.mutate({ sessionId });
+            this.emit('stop');
         }
+    }
+
+    private async _waitIfPaused(): Promise<void> {
+        if (!this._paused) return;
+        this.emit('pause');
+        await new Promise<void>((resolve) => {
+            this._pauseResolve = resolve;
+        });
+    }
+
+    pause(): void {
+        this._paused = true;
+    }
+
+    resume(): void {
+        this._paused = false;
+        if (this._pauseResolve) {
+            this._pauseResolve();
+            this._pauseResolve = null;
+        }
+        this.emit('resume');
+    }
+
+    get paused(): boolean {
+        return this._paused;
     }
 
     private async captureObservation(

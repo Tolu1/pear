@@ -1,8 +1,9 @@
 import { initTRPC } from '@trpc/server';
 import { randomUUID } from 'crypto';
+import EventEmitter from 'eventemitter3';
 import { AgentMemory } from './memory';
 import { MultiModelHarness } from './ai/multiModelHarness';
-import type { LLMClient } from './ai/types';
+import type { LLMClient, ModelUsage } from './ai/types';
 import { runStep } from './step-handler';
 import { webActions } from './actions/webActions';
 import { taskActions } from './actions/taskActions';
@@ -46,7 +47,13 @@ export interface AgentServerOptions {
     prompt?: string;
 }
 
-export class AgentServer {
+export interface AgentServerEvents {
+    'start': () => void;
+    'thought': (info: { sessionId: string; thought: string }) => void;
+    'tokensUsed': (usage: ModelUsage) => void;
+}
+
+export class AgentServer extends EventEmitter<AgentServerEvents> {
     public readonly router: ReturnType<AgentServer['buildRouter']>;
 
     private models: MultiModelHarness;
@@ -55,15 +62,18 @@ export class AgentServer {
     private prompt?: string;
 
     constructor(options: AgentServerOptions) {
+        super();
         const clients = Array.isArray(options.llm) ? options.llm : [options.llm];
         this.models = new MultiModelHarness(clients);
         this.sessionStore = options.sessionStore ?? new InMemorySessionStore();
         this.prompt = options.prompt;
+        this.models.events.on('tokensUsed', (usage) => this.emit('tokensUsed', usage), this);
         this.router = this.buildRouter();
     }
 
     async setup(): Promise<void> {
         await this.models.setup();
+        this.emit('start');
     }
 
     async start(input: StartInput): Promise<StartResponse> {
@@ -89,6 +99,8 @@ export class AgentServer {
             actionVocabulary: this.actionVocabulary,
             models: this.models,
         });
+
+        this.emit('thought', { sessionId: input.sessionId, thought: reasoning });
 
         const isComplete = actions.some(
             (a) => a.variant === 'task:done' || a.variant === 'task:fail',
