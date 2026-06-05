@@ -3,14 +3,36 @@
   "version": "0.0.0",
   "private": true,
   "description": "Browser agent core: agent loop, memory, actions, transport contract. Consumed by apps/ai (server) and apps/extension (client).",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./memory": "./src/memory/index.ts",
-    "./actions": "./src/actions/index.ts",
-    "./connectors": "./src/connectors/index.ts",
-    "./transport": "./src/transport/index.ts"
+    ".": {
+      "import": { "types": "./dist/index.d.mts", "default": "./dist/index.mjs" },
+      "require": { "types": "./dist/index.d.ts", "default": "./dist/index.js" }
+    },
+    "./memory": {
+      "import": { "types": "./dist/memory/index.d.mts", "default": "./dist/memory/index.mjs" },
+      "require": { "types": "./dist/memory/index.d.ts", "default": "./dist/memory/index.js" }
+    },
+    "./actions": {
+      "import": { "types": "./dist/actions/index.d.mts", "default": "./dist/actions/index.mjs" },
+      "require": { "types": "./dist/actions/index.d.ts", "default": "./dist/actions/index.js" }
+    },
+    "./connectors": {
+      "import": { "types": "./dist/connectors/index.d.mts", "default": "./dist/connectors/index.mjs" },
+      "require": { "types": "./dist/connectors/index.d.ts", "default": "./dist/connectors/index.js" }
+    },
+    "./transport": {
+      "import": { "types": "./dist/transport/index.d.mts", "default": "./dist/transport/index.mjs" },
+      "require": { "types": "./dist/transport/index.d.ts", "default": "./dist/transport/index.js" }
+    }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
+    "build": "tsup",
     "check-types": "tsc --noEmit",
     "lint": "eslint .",
     "baml:generate": "baml-cli generate --from baml_src",
@@ -38,6 +60,7 @@
     "@types/object-hash": "^3.0.6",
     "@types/ws": "^8.5.10",
     "eslint": "^9.26.0",
+    "tsup": "^8.5.1",
     "typescript": "5.8.2"
   }
 }
