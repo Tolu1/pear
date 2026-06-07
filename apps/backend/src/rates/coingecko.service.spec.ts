@@ -1,91 +1,98 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 import { CoinGeckoService } from './coingecko.service';
+import { createMock, DeepMocked } from '../../test/utils/create-mock';
 
 describe('CoinGeckoService', () => {
   let service: CoinGeckoService;
-
-  const mockConfigService = {
-    get: jest.fn().mockReturnValue('mock-coingecko-api-key'),
-  };
+  let cache: DeepMocked<Cache>;
+  let configService: DeepMocked<ConfigService>;
 
   beforeEach(async () => {
-    jest.clearAllMocks();
+    cache = createMock<Cache>();
+    configService = createMock<ConfigService>();
+    configService.get.mockReturnValue('test-coingecko-key');
 
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [CoinGeckoService, ConfigService],
-    })
-      .overrideProvider(ConfigService)
-      .useValue(mockConfigService)
-      .compile();
+    const moduleRef = await Test.createTestingModule({
+      providers: [
+        CoinGeckoService,
+        { provide: ConfigService, useValue: configService },
+        { provide: CACHE_MANAGER, useValue: cache },
+      ],
+    }).compile();
 
-    service = module.get<CoinGeckoService>(CoinGeckoService);
+    service = moduleRef.get(CoinGeckoService);
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
+  describe('getPrice()', () => {
+    const okResponse = (price: Record<string, number>) =>
+      ({
+        ok: true,
+        json: () => Promise.resolve({ market_data: { current_price: price } }),
+      }) as unknown as Response;
 
-  it('should fetch price from CoinGecko API', async () => {
-    const mockResponse = {
-      market_data: {
-        current_price: {
-          usd: 0.37,
-        },
-      },
-    };
+    it('returns cached price without hitting CoinGecko', async () => {
+      cache.get.mockResolvedValue('0.37');
+      const fetchSpy = jest.spyOn(global, 'fetch');
 
-    global.fetch = jest.fn().mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve(mockResponse),
-    } as unknown as Response);
+      const result = await service.getPrice('usd-coin', 'USD');
 
-    const result = await service.getPrice('usd-coin', 'USD');
+      expect(result).toBe('0.37');
+      expect(fetchSpy).not.toHaveBeenCalled();
+    });
 
-    expect(result).toBe('0.37');
-    expect(fetch).toHaveBeenCalledWith(
-      expect.stringContaining(
-        'https://api.coingecko.com/api/v3/coins/usd-coin',
-      ),
-      expect.objectContaining({
-        method: 'GET',
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        headers: expect.objectContaining({
-          accept: 'application/json',
-          'x-cg-demo-api-key': 'mock-coingecko-api-key',
-        }),
-      }),
-    );
-  });
+    it('fetches from CoinGecko and caches the result on cache miss', async () => {
+      cache.get.mockResolvedValue(undefined);
+      jest
+        .spyOn(global, 'fetch')
+        .mockResolvedValueOnce(okResponse({ usd: 0.37 }));
 
-  it('should throw if price is not available for the currency', async () => {
-    const mockResponse = {
-      market_data: {
-        current_price: {
-          eur: 0.35,
-        },
-      },
-    };
+      const result = await service.getPrice('usd-coin', 'USD');
 
-    global.fetch = jest.fn().mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve(mockResponse),
-    } as unknown as Response);
+      expect(result).toBe('0.37');
+      expect(cache.set).toHaveBeenCalledWith('coingecko:usd-coin:usd', '0.37');
+    });
 
-    await expect(service.getPrice('usd-coin', 'USD')).rejects.toThrow(
-      'Price not available for usd-coin in USD',
-    );
-  });
+    it('sends the API key as a header when configured', async () => {
+      cache.get.mockResolvedValue(undefined);
+      const fetchSpy = jest
+        .spyOn(global, 'fetch')
+        .mockResolvedValueOnce(okResponse({ usd: 1 }));
 
-  it('should throw on API error', async () => {
-    global.fetch = jest.fn().mockResolvedValueOnce({
-      ok: false,
-      status: 404,
-      statusText: 'Not Found',
-    } as Response);
+      await service.getPrice('usd-coin', 'USD');
 
-    await expect(service.getPrice('usd-coin', 'USD')).rejects.toThrow(
-      'CoinGecko API returned 404: Not Found',
-    );
+      const [url, options] = fetchSpy.mock.calls[0] as [string, RequestInit];
+      expect(url).toContain('/coins/usd-coin');
+      expect(options.headers).toMatchObject({
+        accept: 'application/json',
+        'x-cg-demo-api-key': 'test-coingecko-key',
+      });
+    });
+
+    it('throws when CoinGecko returns a non-OK status', async () => {
+      cache.get.mockResolvedValue(undefined);
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+        statusText: 'Not Found',
+      } as Response);
+
+      await expect(service.getPrice('usd-coin', 'USD')).rejects.toThrow(
+        'CoinGecko API returned 404: Not Found',
+      );
+    });
+
+    it('throws when the requested currency is missing from the response', async () => {
+      cache.get.mockResolvedValue(undefined);
+      jest
+        .spyOn(global, 'fetch')
+        .mockResolvedValueOnce(okResponse({ eur: 0.35 }));
+
+      await expect(service.getPrice('usd-coin', 'USD')).rejects.toThrow(
+        'Price not available for usd-coin in USD',
+      );
+    });
   });
 });

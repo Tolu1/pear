@@ -1,0 +1,1 @@
+ALTER TABLE "quotes" RENAME COLUMN "currency" TO "currency_code";

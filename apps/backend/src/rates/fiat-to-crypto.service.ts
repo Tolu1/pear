@@ -1,33 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import Decimal from 'decimal.js';
 import { CoinGeckoService } from './coingecko.service';
-import { COINGECKO_ID_BY_TOKEN } from './coingecko-id.constants';
-import { UnsupportedTokenException } from './exceptions/unsupported-token.exception';
+import { TokensService } from '../tokens/tokens.service';
 import { type CurrencyCode } from '../common/constants/supported-currencies.contant';
-import { type TokenId } from '../common/constants/supported-tokens.constant';
 
 @Injectable()
 export class FiatToCryptoService {
-  constructor(private readonly coinGecko: CoinGeckoService) {}
+  constructor(
+    private readonly coinGecko: CoinGeckoService,
+    private readonly tokensService: TokensService,
+  ) {}
 
   async convert(
     amount: string,
     currencyCode: CurrencyCode,
-    tokenId: TokenId,
+    tokenId: string,
   ): Promise<{ cryptoAmount: string; rate: string }> {
-    const rate = await this.getRate(currencyCode, tokenId);
+    const { coingeckoId } = this.tokensService.findOne(tokenId);
+    const rate = await this.coinGecko.getPrice(coingeckoId, currencyCode);
     const cryptoAmount = new Decimal(amount).dividedBy(rate).toString();
     return { cryptoAmount, rate };
-  }
-
-  private async getRate(
-    currencyCode: CurrencyCode,
-    tokenId: TokenId,
-  ): Promise<string> {
-    const coinId = COINGECKO_ID_BY_TOKEN[tokenId];
-    if (!coinId) {
-      throw new UnsupportedTokenException();
-    }
-    return this.coinGecko.getPrice(coinId, currencyCode);
   }
 }

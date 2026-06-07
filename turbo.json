@@ -13,6 +13,48 @@
     "check-types": {
       "dependsOn": ["^check-types"]
     },
+    "typecheck": {
+      "dependsOn": ["^typecheck"]
+    },
+    "test": {
+      "inputs": [
+        "src/**/*.ts",
+        "test/**/*.ts",
+        "package.json",
+        "tsconfig.json",
+        "jest.config.*"
+      ],
+      "outputs": ["coverage/**"]
+    },
+    "test:int": {
+      "inputs": [
+        "src/**/*.ts",
+        "test/**/*.ts",
+        "migrations/**",
+        "package.json",
+        "tsconfig.json"
+      ],
+      "outputs": []
+    },
+    "test:e2e": {
+      "inputs": [
+        "src/**/*.ts",
+        "test/**/*.ts",
+        "migrations/**",
+        "package.json",
+        "tsconfig.json"
+      ],
+      "outputs": []
+    },
+    "test:cov": {
+      "inputs": [
+        "src/**/*.ts",
+        "test/**/*.ts",
+        "package.json",
+        "tsconfig.json"
+      ],
+      "outputs": ["coverage/**"]
+    },
     "dev": {
       "cache": false,
       "persistent": true

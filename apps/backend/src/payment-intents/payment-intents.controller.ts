@@ -6,6 +6,7 @@ import {
   Param,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -14,9 +15,16 @@ import {
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOperation,
+  ApiSecurity,
+  ApiUnauthorizedResponse,
+  ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { ServiceAuthGuard } from '../common/guards/service-auth.guard';
+import { type Hash } from 'viem';
 import { PaymentIntentsService } from './payment-intents.service';
+import { PaymentIntentMapper } from './payment-intent.mapper';
 import { CreatePaymentIntentDto } from './dto/create-payment-intent.dto';
+import { SubmitPaymentIntentDto } from './dto/submit-payment-intent.dto';
 import { PaymentIntentResponseDto } from './dto/payment-intent-response.dto';
 import { PaymentIntentStatusResponseDto } from './dto/payment-intent-status-response.dto';
 import { VirtualCardResponseDto } from '../virtual-card/dto/virtual-card-response.dto';
@@ -29,19 +37,21 @@ export class PaymentIntentsController {
   @ApiOperation({ summary: 'Create a payment intent from a quote' })
   @ApiNotFoundResponse({ description: 'Quote not found' })
   @ApiBadRequestResponse({
-    description: 'Quote has expired or token is unsupported on the blockchain',
+    description: 'Quote has expired or token is unsupported on the network',
   })
-  create(
-    @Body() createPaymentIntentDto: CreatePaymentIntentDto,
+  async create(
+    @Body() dto: CreatePaymentIntentDto,
   ): Promise<PaymentIntentResponseDto> {
-    return this.paymentIntentsService.create(createPaymentIntentDto);
+    const intent = await this.paymentIntentsService.create(dto);
+    return PaymentIntentMapper.toResponse(intent);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a payment intent by id' })
   @ApiNotFoundResponse({ description: 'Payment intent not found' })
-  findOne(@Param('id') id: string): Promise<PaymentIntentResponseDto> {
-    return this.paymentIntentsService.findOne(id);
+  async findOne(@Param('id') id: string): Promise<PaymentIntentResponseDto> {
+    const intent = await this.paymentIntentsService.findOne(id);
+    return PaymentIntentMapper.toResponse(intent);
   }
 
   @Get(':id/status')
@@ -64,10 +74,44 @@ export class PaymentIntentsController {
     return this.paymentIntentsService.getCard(id);
   }
 
+  @Post(':id/submit')
+  @ApiOperation({
+    summary: 'Submit the on-chain transaction hash for a payment intent',
+  })
+  @ApiNotFoundResponse({ description: 'Payment intent not found' })
+  @ApiConflictResponse({
+    description: 'Payment intent is not in requires_transfer state',
+  })
+  @ApiBadRequestResponse({
+    description: 'Transaction does not match the expected transfer',
+  })
+  @ApiUnprocessableEntityResponse({
+    description: 'On-chain transfer did not succeed',
+  })
+  async submit(
+    @Param('id') id: string,
+    @Body() dto: SubmitPaymentIntentDto,
+  ): Promise<PaymentIntentResponseDto> {
+    const intent = await this.paymentIntentsService.submit(
+      id,
+      dto.txHash as Hash,
+    );
+    return PaymentIntentMapper.toResponse(intent);
+  }
+
   @Post(':id/complete')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Mark a processing payment intent as completed' })
+  @UseGuards(ServiceAuthGuard)
+  @ApiSecurity('service-api-key')
+  @ApiOperation({
+    summary: 'Mark a processing payment intent as completed',
+    description:
+      'Service-to-service endpoint. Called by the AI service after checkout automation succeeds.',
+  })
   @ApiNoContentResponse()
+  @ApiUnauthorizedResponse({
+    description: 'Missing or invalid service API key',
+  })
   @ApiNotFoundResponse({ description: 'Payment intent not found' })
   @ApiConflictResponse({
     description: 'Payment intent is not in processing state',

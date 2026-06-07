@@ -1,35 +1,60 @@
+import { type Address } from 'viem';
 import { PaymentIntentStatus } from './enums/payment-intent-status.enum';
 import { paymentIntents } from './payment-intents.schema';
 import { PaymentIntent } from './interfaces/payment-intent.interface';
-import {
-  getTokenNetworkConfig,
-  type Blockchain,
-  type TokenId,
-} from '../common/constants/supported-tokens.constant';
+import { PaymentIntentResponseDto } from './dto/payment-intent-response.dto';
+import { Quote } from '../quotes/interfaces/quote.interface';
+import { TokenRail } from '../tokens/interfaces/token-rail.interface';
 
 export class PaymentIntentMapper {
-  static toDomain(intent: typeof paymentIntents.$inferSelect): PaymentIntent {
-    const tokenConfig = getTokenNetworkConfig(
-      intent.tokenId as TokenId,
-      intent.blockchain as Blockchain,
-    );
+  static toDomain(
+    intentRow: typeof paymentIntents.$inferSelect,
+    quote: Quote,
+    rail: TokenRail,
+  ): PaymentIntent {
+    return {
+      id: intentRow.id,
+      status: intentRow.status as PaymentIntentStatus,
+      fromAddress: intentRow.fromAddress as Address,
+      merchantDomain: intentRow.merchantDomain,
+      metadata: intentRow.metadata as Record<string, unknown> | null,
+      txHash: intentRow.txHash,
+      expiresAt: intentRow.expiresAt,
+      createdAt: intentRow.createdAt,
+      updatedAt: intentRow.updatedAt,
+      quote,
+      rail,
+    };
+  }
 
+  static toResponse(intent: PaymentIntent): PaymentIntentResponseDto {
     return {
       id: intent.id,
-      quoteId: intent.quoteId,
-      status: intent.status as PaymentIntentStatus,
-      amount: intent.amount,
-      currency: intent.currency,
-      cryptoAmount: intent.cryptoAmount,
-      tokenId: intent.tokenId,
-      blockchain: intent.blockchain,
-      contractAddress: tokenConfig!.contractAddress,
-      paymentAddress: intent.paymentAddress,
+      status: intent.status,
       fromAddress: intent.fromAddress,
       merchantDomain: intent.merchantDomain,
-      metadata: intent.metadata as Record<string, unknown> | null,
+      metadata: intent.metadata,
+      txHash: intent.txHash,
       expiresAt: intent.expiresAt,
       createdAt: intent.createdAt,
+      updatedAt: intent.updatedAt,
+      quote: {
+        id: intent.quote.id,
+        amount: intent.quote.amount,
+        currencyCode: intent.quote.currencyCode,
+        cryptoAmount: intent.quote.cryptoAmount,
+        rate: intent.quote.rate,
+        tokenId: intent.quote.tokenId,
+        expiresAt: intent.quote.expiresAt,
+      },
+      rail: {
+        id: intent.rail.id,
+        tokenId: intent.rail.tokenId,
+        chainId: intent.rail.chainId,
+        network: intent.rail.network,
+        tokenAddress: intent.rail.tokenAddress,
+        paymentAddress: intent.rail.paymentAddress,
+      },
     };
   }
 }

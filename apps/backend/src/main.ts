@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { useContainer } from 'class-validator';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
@@ -9,6 +10,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { rawBody: true });
   app.setGlobalPrefix('v1', { exclude: ['health'] });
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   const config = new DocumentBuilder()
     .setTitle('Pear API')
@@ -16,6 +18,10 @@ async function bootstrap() {
       'One-click stablecoin payments for any website. Pear uses AI agents to handle checkout on sites like Amazon, Airbnb, and Netflix.',
     )
     .setVersion('1.0')
+    .addApiKey(
+      { type: 'apiKey', in: 'header', name: 'x-service-api-key' },
+      'service-api-key',
+    )
     .build();
   const document = SwaggerModule.createDocument(app, config);
   app.use('/docs-json', (_req: Request, res: Response) => res.json(document));

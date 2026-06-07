@@ -1,14 +1,9 @@
-import { IsNotEmpty, IsNumberString, IsString, IsIn } from 'class-validator';
+import { IsNotEmpty, IsNumberString, IsIn } from 'class-validator';
 import {
   type CurrencyCode,
   SUPPORTED_CURRENCIES_CODES,
 } from '../../common/constants/supported-currencies.contant';
-import {
-  type TokenId,
-  SUPPORTED_TOKEN_IDS,
-  type Blockchain,
-  SUPPORTED_BLOCKCHAINS,
-} from '../../common/constants/supported-tokens.constant';
+import { IsValidTokenId } from '../../tokens/validators/is-valid-token-id.validator';
 
 export class CreateQuoteDto {
   @IsNotEmpty()
@@ -16,17 +11,10 @@ export class CreateQuoteDto {
   amount: string;
 
   @IsNotEmpty()
-  @IsString()
   @IsIn(SUPPORTED_CURRENCIES_CODES)
-  currency: CurrencyCode;
+  currencyCode: CurrencyCode;
 
   @IsNotEmpty()
-  @IsString()
-  @IsIn(SUPPORTED_TOKEN_IDS)
-  tokenId: TokenId;
-
-  @IsNotEmpty()
-  @IsString()
-  @IsIn(SUPPORTED_BLOCKCHAINS)
-  blockchain: Blockchain;
+  @IsValidTokenId()
+  tokenId: string;
 }

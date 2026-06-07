@@ -1,18 +1,13 @@
 import { type CurrencyCode } from '../../common/constants/supported-currencies.contant';
-import {
-  type Blockchain,
-  type TokenId,
-} from '../../common/constants/supported-tokens.constant';
 import { Quote } from '../interfaces/quote.interface';
 
 export class QuoteResponseDto implements Quote {
   id: string;
   amount: string;
-  currency: CurrencyCode;
+  currencyCode: CurrencyCode;
   cryptoAmount: string;
   rate: string;
-  tokenId: TokenId;
-  blockchain: Blockchain;
+  tokenId: string;
   expiresAt: Date;
   consumedAt: Date | null;
   createdAt: Date;

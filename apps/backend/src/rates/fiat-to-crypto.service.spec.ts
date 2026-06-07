@@ -1,48 +1,63 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { CoinGeckoService } from './coingecko.service';
 import { FiatToCryptoService } from './fiat-to-crypto.service';
-import { UnsupportedTokenException } from './exceptions/unsupported-token.exception';
-import { type TokenId } from '../common/constants/supported-tokens.constant';
+import { TokensService } from '../tokens/tokens.service';
+import { TokenNotFoundException } from '../tokens/exceptions/token-not-found.exception';
+import { createMock, DeepMocked } from '../../test/utils/create-mock';
+import { makeToken } from '../../test/factories';
 
 describe('FiatToCryptoService', () => {
   let service: FiatToCryptoService;
-  let coinGecko: jest.Mocked<CoinGeckoService>;
+  let coinGecko: DeepMocked<CoinGeckoService>;
+  let tokensService: DeepMocked<TokensService>;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    coinGecko = createMock<CoinGeckoService>();
+    tokensService = createMock<TokensService>();
+
+    const moduleRef = await Test.createTestingModule({
       providers: [
         FiatToCryptoService,
-        {
-          provide: CoinGeckoService,
-          useValue: {
-            getPrice: jest.fn(),
-          },
-        },
+        { provide: CoinGeckoService, useValue: coinGecko },
+        { provide: TokensService, useValue: tokensService },
       ],
     }).compile();
 
-    service = module.get<FiatToCryptoService>(FiatToCryptoService);
-    coinGecko = module.get(CoinGeckoService);
+    service = moduleRef.get(FiatToCryptoService);
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
+  describe('convert()', () => {
+    it('returns rate and crypto amount derived from the CoinGecko price', async () => {
+      tokensService.findOne.mockReturnValue(
+        makeToken({ coingeckoId: 'usd-coin' }),
+      );
+      coinGecko.getPrice.mockResolvedValue('0.37');
 
-  it('should convert fiat to crypto and return rate and amount', async () => {
-    coinGecko.getPrice.mockResolvedValue('0.37');
+      const result = await service.convert('1000', 'USD', 'usd-coin');
 
-    const result = await service.convert('1000', 'USD', 'usd-coin');
+      expect(result.rate).toBe('0.37');
+      expect(parseFloat(result.cryptoAmount)).toBeCloseTo(2702.7, 2);
+    });
 
-    expect(coinGecko.getPrice).toHaveBeenCalledWith('usd-coin', 'USD');
-    expect(result.rate).toBe('0.37');
-    expect(parseFloat(result.cryptoAmount)).toBeCloseTo(2702.7, 2);
-  });
+    it('looks up the token via the token id, not the coingecko id', async () => {
+      tokensService.findOne.mockReturnValue(makeToken({ coingeckoId: 'dai' }));
+      coinGecko.getPrice.mockResolvedValue('1.00');
 
-  it('should throw UnsupportedTokenException for unknown token', async () => {
-    await expect(
-      service.convert('1000', 'USD', 'fake-token' as TokenId),
-    ).rejects.toThrow(UnsupportedTokenException);
-    expect(coinGecko.getPrice).not.toHaveBeenCalled();
+      await service.convert('10', 'USD', 'maker-dai');
+
+      expect(tokensService.findOne).toHaveBeenCalledWith('maker-dai');
+      expect(coinGecko.getPrice).toHaveBeenCalledWith('dai', 'USD');
+    });
+
+    it('propagates TokenNotFoundException without calling CoinGecko', async () => {
+      tokensService.findOne.mockImplementation(() => {
+        throw new TokenNotFoundException();
+      });
+
+      await expect(service.convert('1000', 'USD', 'unknown')).rejects.toThrow(
+        TokenNotFoundException,
+      );
+      expect(coinGecko.getPrice).not.toHaveBeenCalled();
+    });
   });
 });
