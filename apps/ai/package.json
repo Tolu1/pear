@@ -5,6 +5,9 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "baml:check": "baml-cli check --from src/baml/baml_src",
     "baml:generate": "baml-cli generate --from src/baml/baml_src",
