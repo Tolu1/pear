@@ -12,6 +12,8 @@ import {
 const STABILITY_TIMEOUT_MS = 5000;
 const SETTLE_MS = 300;
 const TOTAL_TYPING_DELAY_MS = 500;
+const MOUSE_MOVE_STEPS = 20;
+const DRAG_HOLD_MS = 500;
 
 const isMac =
   (navigator as Navigator & { userAgentData?: { platform?: string } })
@@ -20,8 +22,7 @@ const isMac =
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// Ported verbatim from @repo/agent-core web/util.ts so the browser harness
-// splits <enter>/<tab> markers identically to the upstream Playwright harness.
+// <enter>/<tab> markers in content become key presses; other runs are typed.
 function parseTypeContent(content: string): string[] {
   const regex = /<enter>|<tab>/g;
   const result: string[] = [];
@@ -43,14 +44,14 @@ interface EvaluateResponse<T> {
 }
 
 /**
- * Browser implementation of {@link WebHarnessLike}, adapted from upstream's
- * Playwright WebHarness. Drives the user's live tab via chrome.debugger (CDP)
- * instead of Playwright; coordinates arrive already in CSS-pixel space (see
- * {@link CanvasImage}), so transform is identity and is intentionally dropped.
+ * Browser implementation of {@link WebHarnessLike}, driving the active tab via
+ * chrome.debugger (CDP). Coordinates arrive in CSS-pixel space (see
+ * {@link CanvasImage}), so the transform option is a no-op here.
  */
 export class WebHarness implements WebHarnessLike {
   private activeTabId: number;
   private readonly attached = new Set<number>();
+  private lastMouse = { x: 0, y: 0 };
 
   constructor(tabId: number) {
     this.activeTabId = tabId;
@@ -120,15 +121,37 @@ export class WebHarness implements WebHarnessLike {
     });
   }
 
+  // Step through the path so mousemove fires en route, activating hover-gated targets.
+  private async moveMouse(
+    x: number,
+    y: number,
+    steps: number,
+    buttons = 0,
+  ): Promise<void> {
+    const from = this.lastMouse;
+    const n = Math.max(1, steps);
+    for (let i = 1; i <= n; i++) {
+      const ix = from.x + ((x - from.x) * i) / n;
+      const iy = from.y + ((y - from.y) * i) / n;
+      await this.mouse(
+        "mouseMoved",
+        ix,
+        iy,
+        buttons ? { button: "left", buttons } : {},
+      );
+    }
+    this.lastMouse = { x, y };
+  }
+
   async click({ x, y }: { x: number; y: number }): Promise<void> {
-    await this.mouse("mouseMoved", x, y);
+    await this.moveMouse(x, y, MOUSE_MOVE_STEPS);
     await this.mouse("mousePressed", x, y, { button: "left", clickCount: 1 });
     await this.mouse("mouseReleased", x, y, { button: "left", clickCount: 1 });
     await this.waitForStability();
   }
 
   async doubleClick({ x, y }: { x: number; y: number }): Promise<void> {
-    await this.mouse("mouseMoved", x, y);
+    await this.moveMouse(x, y, 1);
     await this.mouse("mousePressed", x, y, { button: "left", clickCount: 1 });
     await this.mouse("mouseReleased", x, y, { button: "left", clickCount: 1 });
     await this.mouse("mousePressed", x, y, { button: "left", clickCount: 2 });
@@ -137,7 +160,7 @@ export class WebHarness implements WebHarnessLike {
   }
 
   async rightClick({ x, y }: { x: number; y: number }): Promise<void> {
-    await this.mouse("mouseMoved", x, y);
+    await this.moveMouse(x, y, MOUSE_MOVE_STEPS);
     await this.mouse("mousePressed", x, y, { button: "right", clickCount: 1 });
     await this.mouse("mouseReleased", x, y, { button: "right", clickCount: 1 });
     await this.waitForStability();
@@ -154,9 +177,10 @@ export class WebHarness implements WebHarnessLike {
     x2: number;
     y2: number;
   }): Promise<void> {
-    await this.mouse("mouseMoved", x1, y1);
+    await this.moveMouse(x1, y1, 1);
     await this.mouse("mousePressed", x1, y1, { button: "left", clickCount: 1 });
-    await this.mouse("mouseMoved", x2, y2, { button: "left", buttons: 1 });
+    await sleep(DRAG_HOLD_MS);
+    await this.moveMouse(x2, y2, MOUSE_MOVE_STEPS, 1);
     await this.mouse("mouseReleased", x2, y2, { button: "left", clickCount: 1 });
     await this.waitForStability();
   }
@@ -172,7 +196,7 @@ export class WebHarness implements WebHarnessLike {
     deltaX: number;
     deltaY: number;
   }): Promise<void> {
-    await this.mouse("mouseMoved", x, y);
+    await this.moveMouse(x, y, 1);
     await this.mouse("mouseWheel", x, y, { deltaX, deltaY });
     await this.waitForStability();
   }
