@@ -335,6 +335,9 @@ importers:
       '@radix-ui/react-slot':
         specifier: ^1.2.2
         version: 1.2.4(@types/react@19.2.8)(react@19.2.3)
+      '@repo/agent-core':
+        specifier: workspace:*
+        version: file:packages/agent-core(bufferutil@4.1.0)(typescript@5.8.3)(utf-8-validate@5.0.10)
       '@tailwindcss/vite':
         specifier: ^4.1.6
         version: 4.1.18(vite@6.4.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.45.0)(tsx@4.22.4)(yaml@2.9.0))
