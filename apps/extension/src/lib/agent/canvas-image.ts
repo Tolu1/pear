@@ -13,8 +13,7 @@ async function blobToBase64(blob: Blob): Promise<string> {
 /**
  * Browser-side {@link ImageLike}. Normalizes a captureVisibleTab screenshot
  * (physical pixels = CSS pixels × dpr) down to CSS-pixel space so model-returned
- * coordinates align 1:1 with CDP Input dispatch. Mirrors upstream's
- * `image.resize(width / dpr, height / dpr)`.
+ * coordinates align 1:1 with CDP Input dispatch.
  */
 export class CanvasImage implements ImageLike {
   private readonly sourceBase64: string;

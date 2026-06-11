@@ -54,9 +54,9 @@ export const NAMED_KEYS = {
   backspace: { key: "Backspace", code: "Backspace", keyCode: 8, shift: false },
 } satisfies Record<string, KeyInput>;
 
-// US keyboard layout: chars reachable via Shift, mapped to the physical key
-// that produces them. keyCode is the unshifted key's virtual code (Chromium /
-// puppeteer convention) so on-page handlers reading event.keyCode behave.
+// US-layout shifted chars, mapped to the physical key that produces them.
+// keyCode is the unshifted key's virtual code so on-page handlers reading
+// event.keyCode behave.
 const SHIFTED: Record<string, { code: string; keyCode: number }> = {
   "!": { code: "Digit1", keyCode: 49 },
   "@": { code: "Digit2", keyCode: 50 },
