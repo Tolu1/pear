@@ -13,7 +13,10 @@ const STABILITY_TIMEOUT_MS = 5000;
 const SETTLE_MS = 300;
 const TOTAL_TYPING_DELAY_MS = 500;
 
-const isMac = navigator.userAgent.includes("Mac");
+const isMac =
+  (navigator as Navigator & { userAgentData?: { platform?: string } })
+    .userAgentData?.platform === "macOS" ||
+  navigator.userAgent.includes("Mac");
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
