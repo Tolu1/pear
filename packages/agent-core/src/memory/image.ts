@@ -2,10 +2,11 @@ import { Image as BamlImage } from '@boundaryml/baml';
 import { StoredMedia } from './serde';
 import { Sharp } from 'sharp';
 import sharp from 'sharp';
+import type { ImageLike } from './image-like';
 
 export type ImageMediaType = `image/${string}`;
 
-export class Image {
+export class Image implements ImageLike {
     private img: Sharp;
 
     constructor(img: Sharp) {

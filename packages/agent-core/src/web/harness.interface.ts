@@ -1,4 +1,4 @@
-import type { Image } from '../memory/image';
+import type { ImageLike } from '../memory/image-like';
 import type { WebAction } from './types';
 
 export interface TabInfo {
@@ -24,7 +24,7 @@ export interface WebHarnessLike {
   start(): Promise<void>;
   stop(): Promise<void>;
 
-  screenshot(options?: ScreenshotOptions): Promise<Image>;
+  screenshot(options?: ScreenshotOptions): Promise<ImageLike>;
   retrieveTabState(): Promise<TabState>;
 
   click(coord: { x: number; y: number }, options?: ClickOptions): Promise<void>;
