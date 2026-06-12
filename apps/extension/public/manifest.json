@@ -5,9 +5,7 @@
   "description": "Buy anything online using crypto",
   "permissions": ["tabs", "activeTab", "sidePanel", "debugger", "scripting"],
   "host_permissions": [
-    "*://stripe-payments-demo.appspot.com/*",
-    "*://ai.pearextension.com/*",
-    "http://localhost/*"
+    "<all_urls>"
   ],
   "action": {
     "default_icon": {

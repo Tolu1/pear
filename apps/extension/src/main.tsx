@@ -5,6 +5,7 @@ import {
   RouterProvider,
 } from "@tanstack/react-router";
 import { Router } from "./router";
+import "./dev-smoke";
 
 const rootElement = document.getElementById("root")!;
 if (!rootElement.innerHTML) {
