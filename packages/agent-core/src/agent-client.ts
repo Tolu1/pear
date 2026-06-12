@@ -52,15 +52,18 @@ export class AgentClient extends EventEmitter<AgentClientEvents> {
 
     async run(options: AgentRunOptions): Promise<AgentRunResult> {
         this.emit('start');
-        const { sessionId } = await this.trpc.start.mutate({
-            goal: options.goal,
-            targetUrl: options.targetUrl,
-        });
+        await this.harness.start();
 
+        let sessionId: string | undefined;
         let seq = 0;
         let lastBatchResults: ActionResult[] | undefined;
 
         try {
+            ({ sessionId } = await this.trpc.start.mutate({
+                goal: options.goal,
+                targetUrl: options.targetUrl,
+            }));
+
             while (true) {
                 const observation = await this.captureObservation(lastBatchResults);
 
@@ -103,7 +106,8 @@ export class AgentClient extends EventEmitter<AgentClientEvents> {
                 await this._waitIfPaused();
             }
         } finally {
-            await this.trpc.cancel.mutate({ sessionId });
+            if (sessionId) await this.trpc.cancel.mutate({ sessionId });
+            await this.harness.stop();
             this.emit('stop');
         }
     }
