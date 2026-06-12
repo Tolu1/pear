@@ -13,7 +13,9 @@ export const doneAction = createAction({
 export const failAction = createAction({
     name: 'task:fail',
     description: 'Use if task was attempted but does not seem possible. Use common sense',
-    schema: z.object({}),
+    schema: z.object({
+        reason: z.string().describe('Why the task could not be completed.')
+    }),
     render: () => `✕ fail`
 });
 

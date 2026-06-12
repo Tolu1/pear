@@ -18,6 +18,10 @@ export interface AgentRunOptions {
     targetUrl?: string;
 }
 
+export type AgentRunResult =
+    | { status: 'done'; evidence: string }
+    | { status: 'fail'; reason: string };
+
 export interface AgentClientEvents {
     'start': () => void;
     'thought': (thought: string) => void;
@@ -46,7 +50,7 @@ export class AgentClient extends EventEmitter<AgentClientEvents> {
         );
     }
 
-    async run(options: AgentRunOptions): Promise<void> {
+    async run(options: AgentRunOptions): Promise<AgentRunResult> {
         this.emit('start');
         const { sessionId } = await this.trpc.start.mutate({
             goal: options.goal,
@@ -88,7 +92,14 @@ export class AgentClient extends EventEmitter<AgentClientEvents> {
                 }
                 lastBatchResults = batchResults.length > 0 ? batchResults : undefined;
 
-                if (isComplete) break;
+                if (isComplete) {
+                    const terminal = actions.find(
+                        (a) => a.variant === 'task:done' || a.variant === 'task:fail',
+                    ) as (ActionWireForm & { evidence?: string; reason?: string }) | undefined;
+                    return terminal?.variant === 'task:done'
+                        ? { status: 'done', evidence: terminal.evidence ?? '' }
+                        : { status: 'fail', reason: terminal?.reason ?? '' };
+                }
                 await this._waitIfPaused();
             }
         } finally {

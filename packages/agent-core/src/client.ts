@@ -3,6 +3,7 @@ export type {
     AgentClientOptions,
     AgentClientEvents,
     AgentRunOptions,
+    AgentRunResult,
 } from './agent-client';
 export { webActions } from './actions/webActions';
 export { taskActions } from './actions/taskActions';
