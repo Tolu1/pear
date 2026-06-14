@@ -3,7 +3,7 @@
   "name": "Pear",
   "version": "0.1.0",
   "description": "Buy anything online using crypto",
-  "permissions": ["tabs", "activeTab", "sidePanel", "debugger", "scripting"],
+  "permissions": ["tabs", "activeTab", "sidePanel", "debugger"],
   "host_permissions": [
     "*://stripe-payments-demo.appspot.com/*",
     "*://ai.pearextension.com/*",
