@@ -261,6 +261,16 @@ describe('PaymentIntentsService', () => {
       );
     });
 
+    it('is a no-op when the intent is already succeeded', async () => {
+      const intent = makePaymentIntent({
+        status: PaymentIntentStatus.SUCCEEDED,
+      });
+      jest.spyOn(service, 'findOne').mockResolvedValue(intent);
+
+      await expect(service.complete(intent.id)).resolves.toBeUndefined();
+      expect(repo.update).not.toHaveBeenCalled();
+    });
+
     it('throws PaymentIntentConflictException when the intent is not processing', async () => {
       const intent = makePaymentIntent({
         status: PaymentIntentStatus.REQUIRES_TRANSFER,
