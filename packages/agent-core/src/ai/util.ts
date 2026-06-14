@@ -1,4 +1,4 @@
-// @ts-nocheck — vendored, runtime-trusted (see docs/internal/lineage.md)
+// @ts-nocheck — vendored, runtime-trusted
 import { type LLMClient } from '@/ai/types';
 
 function cleanNestedObject(obj: object): object {
