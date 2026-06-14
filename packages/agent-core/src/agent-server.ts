@@ -7,6 +7,7 @@ import type { LLMClient, ModelUsage } from './ai/types';
 import { runStep } from './step-handler';
 import { webActions } from './actions/webActions';
 import { taskActions } from './actions/taskActions';
+import { findOutcome } from './transport/outcome';
 import {
     CancelInputSchema,
     CancelResponseSchema,
@@ -26,7 +27,14 @@ export interface Session {
     goal: string;
     memory: AgentMemory;
     createdAt: number;
+    onDone?: (evidence: string) => Promise<void> | void;
+    onFail?: (reason: string) => Promise<void> | void;
 }
+
+export type StartOptions = StartInput & {
+    onDone?: (evidence: string) => Promise<void> | void;
+    onFail?: (reason: string) => Promise<void> | void;
+};
 
 export interface SessionStore {
     get(sessionId: string): Promise<Session | undefined>;
@@ -76,14 +84,16 @@ export class AgentServer extends EventEmitter<AgentServerEvents> {
         this.emit('start');
     }
 
-    async start(input: StartInput): Promise<StartResponse> {
+    async start(options: StartOptions): Promise<StartResponse> {
         const sessionId = randomUUID();
-        const instructionParts = [this.prompt, input.context].filter(Boolean);
+        const instructionParts = [this.prompt, options.context].filter(Boolean);
         const instructions = instructionParts.length ? instructionParts.join('\n\n') : null;
         await this.sessionStore.set(sessionId, {
-            goal: input.goal,
+            goal: options.goal,
             memory: new AgentMemory({ instructions }),
             createdAt: Date.now(),
+            onDone: options.onDone,
+            onFail: options.onFail,
         });
         return { sessionId };
     }
@@ -103,6 +113,10 @@ export class AgentServer extends EventEmitter<AgentServerEvents> {
         });
 
         this.emit('thought', { sessionId: input.sessionId, thought: reasoning });
+
+        const outcome = findOutcome(actions);
+        if (outcome?.status === 'done') await session.onDone?.(outcome.evidence);
+        if (outcome?.status === 'fail') await session.onFail?.(outcome.reason);
 
         return { reasoning, actions };
     }
