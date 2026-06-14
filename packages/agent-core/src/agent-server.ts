@@ -78,9 +78,11 @@ export class AgentServer extends EventEmitter<AgentServerEvents> {
 
     async start(input: StartInput): Promise<StartResponse> {
         const sessionId = randomUUID();
+        const instructionParts = [this.prompt, input.context].filter(Boolean);
+        const instructions = instructionParts.length ? instructionParts.join('\n\n') : null;
         await this.sessionStore.set(sessionId, {
             goal: input.goal,
-            memory: new AgentMemory({ instructions: this.prompt ?? null }),
+            memory: new AgentMemory({ instructions }),
             createdAt: Date.now(),
         });
         return { sessionId };
@@ -102,11 +104,7 @@ export class AgentServer extends EventEmitter<AgentServerEvents> {
 
         this.emit('thought', { sessionId: input.sessionId, thought: reasoning });
 
-        const isComplete = actions.some(
-            (a) => a.variant === 'task:done' || a.variant === 'task:fail',
-        );
-
-        return { reasoning, actions, isComplete };
+        return { reasoning, actions };
     }
 
     async cancel(input: CancelInput): Promise<CancelResponse> {

@@ -3,6 +3,7 @@ import EventEmitter from 'eventemitter3';
 import type { AgentRouter } from './agent-server';
 import type { WebHarnessLike } from './web/harness.interface';
 import type { ObservationPayload, ActionWireForm, ActionResult } from './transport/messages';
+import { findOutcome, type Outcome } from './transport/outcome';
 import type { ActionDefinition } from './actions';
 import { webActions } from './actions/webActions';
 import { taskActions } from './actions/taskActions';
@@ -13,14 +14,11 @@ export interface AgentClientOptions {
     fetch?: typeof fetch;
 }
 
-export interface AgentRunOptions {
+export interface AgentStartOptions {
     goal: string;
     targetUrl?: string;
+    context?: string;
 }
-
-export type AgentRunResult =
-    | { status: 'done'; evidence: string }
-    | { status: 'fail'; reason: string };
 
 export interface AgentClientEvents {
     'start': () => void;
@@ -50,24 +48,27 @@ export class AgentClient extends EventEmitter<AgentClientEvents> {
         );
     }
 
-    async run(options: AgentRunOptions): Promise<AgentRunResult> {
+    async start(options: AgentStartOptions): Promise<string> {
+        const { sessionId } = await this.trpc.start.mutate({
+            goal: options.goal,
+            targetUrl: options.targetUrl,
+            context: options.context,
+        });
+        return sessionId;
+    }
+
+    async run(sessionId: string): Promise<Outcome> {
         this.emit('start');
         await this.harness.start();
 
-        let sessionId: string | undefined;
         let seq = 0;
         let lastBatchResults: ActionResult[] | undefined;
 
         try {
-            ({ sessionId } = await this.trpc.start.mutate({
-                goal: options.goal,
-                targetUrl: options.targetUrl,
-            }));
-
             while (true) {
                 const observation = await this.captureObservation(lastBatchResults);
 
-                const { reasoning, actions, isComplete } = await this.trpc.step.mutate({
+                const { reasoning, actions } = await this.trpc.step.mutate({
                     sessionId,
                     seq: seq++,
                     observation,
@@ -95,18 +96,13 @@ export class AgentClient extends EventEmitter<AgentClientEvents> {
                 }
                 lastBatchResults = batchResults.length > 0 ? batchResults : undefined;
 
-                if (isComplete) {
-                    const terminal = actions.find(
-                        (a) => a.variant === 'task:done' || a.variant === 'task:fail',
-                    ) as (ActionWireForm & { evidence?: string; reason?: string }) | undefined;
-                    return terminal?.variant === 'task:done'
-                        ? { status: 'done', evidence: terminal.evidence ?? '' }
-                        : { status: 'fail', reason: terminal?.reason ?? '' };
-                }
+                const outcome = findOutcome(actions);
+                if (outcome) return outcome;
+
                 await this._waitIfPaused();
             }
         } finally {
-            if (sessionId) await this.trpc.cancel.mutate({ sessionId });
+            await this.trpc.cancel.mutate({ sessionId });
             await this.harness.stop();
             this.emit('stop');
         }
