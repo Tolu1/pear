@@ -4,9 +4,9 @@
 // Remove once the agent path is confirmed.
 import { createAgent } from "@/lib/agent/create-agent";
 import { getActiveTab } from "@/lib/browser/get-active-tab";
-import type { AgentRunResult } from "@repo/agent-core/client";
+import type { Outcome } from "@repo/agent-core/client";
 
-async function runAgentSmoke(goal: string): Promise<AgentRunResult> {
+async function runAgentSmoke(goal: string): Promise<Outcome> {
   const tab = await getActiveTab();
   if (!tab.id) throw new Error("No active tab");
 
@@ -15,8 +15,10 @@ async function runAgentSmoke(goal: string): Promise<AgentRunResult> {
   agent.on("actionStarted", (a) => console.log("[agent] →", a.variant, a));
   agent.on("actionDone", (a) => console.log("[agent] ✓", a.variant));
 
+  const sessionId = await agent.start({ goal, targetUrl: tab.url });
+  console.log("[agent] session started:", sessionId);
   console.log("[agent] running:", goal, "on", tab.url);
-  const result = await agent.run({ goal, targetUrl: tab.url });
+  const result = await agent.run(sessionId);
   console.log("[agent] result:", result);
   return result;
 }
