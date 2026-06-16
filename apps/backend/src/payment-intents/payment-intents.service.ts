@@ -97,6 +97,7 @@ export class PaymentIntentsService {
 
   async complete(id: string): Promise<void> {
     const intent = await this.findOne(id);
+    if (intent.status === PaymentIntentStatus.SUCCEEDED) return;
     if (intent.status !== PaymentIntentStatus.PROCESSING) {
       throw new PaymentIntentConflictException();
     }

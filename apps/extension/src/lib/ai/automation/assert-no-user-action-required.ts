@@ -1,5 +1,5 @@
 import { ai } from "@/lib/ai";
-import type { AutomationResult } from "@/lib/automation/interfaces/automation-result";
+import type { AutomationResult } from "./automation-result";
 
 interface AssertNoUserActionRequiredBody {
   url: string;

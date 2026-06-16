@@ -31,6 +31,7 @@ export type ActionWireForm = z.infer<typeof ActionWireFormSchema>;
 export const StartInputSchema = z.object({
   goal: z.string().min(1),
   targetUrl: z.string().optional(),
+  context: z.string().optional(),
   agentOptions: z
     .object({
       maxSteps: z.number().int().positive().optional(),
@@ -60,7 +61,6 @@ export type StepInput = z.infer<typeof StepInputSchema>;
 export const StepResponseSchema = z.object({
   reasoning: z.string(),
   actions: z.array(ActionWireFormSchema),
-  isComplete: z.boolean(),
 });
 export type StepResponse = z.infer<typeof StepResponseSchema>;
 

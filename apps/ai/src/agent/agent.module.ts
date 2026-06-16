@@ -16,7 +16,7 @@ import { AGENT_SERVER } from './agent.constants';
           llm: {
             provider: 'anthropic',
             options: {
-              model: 'claude-sonnet-4-20250514',
+              model: 'claude-sonnet-4-6',
               apiKey,
               temperature: 0,
               promptCaching: true,

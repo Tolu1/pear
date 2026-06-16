@@ -8,23 +8,25 @@ import { getActiveTab } from "@/lib/browser/get-active-tab";
 import { captureScreenshot } from "@/lib/browser/capture-screenshot";
 import { assertNoUserActionRequired } from "@/lib/ai/automation/assert-no-user-action-required";
 import { createPaymentIntent } from "@/lib/api/payment-intents/create-payment-intent";
-import { pollStatus } from "@/lib/api/payment-intents/poll-status";
-import { completePaymentIntent } from "@/lib/api/payment-intents/complete-payment-intent";
 import { transferToken } from "@/lib/blockchain/transfer-token";
+import { startCheckout } from "@/lib/ai/checkout/start-checkout";
+import { createAgent } from "@/lib/agent/create-agent";
 
-export async function submitPayment(): Promise<void> {
+export async function makePayment(): Promise<void> {
   const { payment } = useDetectedPaymentStore.getState();
   const { quote } = useQuoteStore.getState();
   const { setIntent } = usePaymentIntentStore.getState();
-  const { setScreen } = usePaymentScreen.getState();
+  const { setScreen, setError } = usePaymentScreen.getState();
   const { address } = getAccount(config);
 
   if (!payment || !quote || !address) {
     throw new Error("Missing payment context");
   }
 
-  setScreen("checking");
   const tab = await getActiveTab();
+  if (!tab.id) throw new Error("No active tab found");
+
+  setScreen("checking");
   const screenshot = await captureScreenshot();
   await assertNoUserActionRequired({ url: tab.url ?? "", screenshot });
 
@@ -47,7 +49,16 @@ export async function submitPayment(): Promise<void> {
     },
   );
 
-  await pollStatus(intent.id, "processing");
-  await completePaymentIntent({ id: intent.id });
-  setScreen("succeeded");
+  // apps/ai sets up the agent session (fetches the card, links the intent) and
+  // completes the intent itself when the agent finishes.
+  const { sessionId } = await startCheckout({ intentId: intent.id });
+  const agent = createAgent(tab.id);
+  const outcome = await agent.run(sessionId);
+
+  if (outcome.status === "done") {
+    setScreen("succeeded");
+  } else {
+    setError(outcome.reason);
+    setScreen("failed");
+  }
 }

@@ -1,4 +1,4 @@
-// @ts-nocheck — vendored, runtime-trusted (see docs/internal/lineage.md)
+// @ts-nocheck — vendored, runtime-trusted
 import {
     MultiMediaMessage
 } from '@/ai/baml_client';

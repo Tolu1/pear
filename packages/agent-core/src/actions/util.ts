@@ -1,4 +1,4 @@
-// @ts-nocheck — vendored, runtime-trusted (see docs/internal/lineage.md)
+// @ts-nocheck — vendored, runtime-trusted
 import { ActionDefinition } from ".";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import TypeBuilder from "@/ai/baml_client/type_builder";

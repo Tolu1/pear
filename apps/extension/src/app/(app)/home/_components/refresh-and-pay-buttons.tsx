@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { useCheckForPaymentPage } from "@/hooks/use-check-for-payment-page";
-import { useSubmitPayment } from "@/hooks/use-submit-payment";
+import { useMakePayment } from "@/hooks/use-make-payment";
 import { useDetectedPaymentStore } from "@/stores/detected-payment.store";
 
 function RefreshAndPayButtons() {
   const { mutate: checkForPaymentPage, isPending } = useCheckForPaymentPage();
-  const { mutate: submitPayment } = useSubmitPayment();
+  const { mutate: makePayment } = useMakePayment();
   const { payment } = useDetectedPaymentStore();
   return (
     <div className="flex flex-col gap-2">
@@ -21,7 +21,7 @@ function RefreshAndPayButtons() {
       <Button
         size="lg"
         className="w-full"
-        onClick={() => submitPayment()}
+        onClick={() => makePayment()}
         disabled={!payment || isPending}
       >
         Pay

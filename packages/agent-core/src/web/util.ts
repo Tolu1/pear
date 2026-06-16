@@ -1,4 +1,4 @@
-// @ts-nocheck — vendored, runtime-trusted (see docs/internal/lineage.md)
+// @ts-nocheck — vendored, runtime-trusted
 export type KeypressIndicator = '<enter>' | '<tab>';
 
 export function parseTypeContent(content: string): (string | KeypressIndicator)[] {
