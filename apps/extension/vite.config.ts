@@ -5,7 +5,10 @@ import path from "path";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  define: {
+    __PLAYGROUND_MODE__: JSON.stringify(mode === "playground"),
+  },
   plugins: [
     react(),
     tailwindcss(),
@@ -57,4 +60,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));

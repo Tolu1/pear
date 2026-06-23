@@ -90,6 +90,10 @@ useStore.getState().setBalance(newBalance);
 
 Use cases are pure TypeScript functions. No hooks. No React lifecycle. No UI concerns.
 
+### Store only what is read
+
+A field belongs in the store only if a component or hook reads it. State added on spec — that nothing observes, or that only the use case which wrote it ever touches — is not domain state, it's noise. Selected-option and other UI-local values live as component `useState`, not the store. Default to the smallest store that the UI actually reflects.
+
 ---
 
 ## Hooks
@@ -107,6 +111,24 @@ Rules:
 - Use cases in `core/` know nothing about React. Hooks know nothing about business logic.
 
 Domain subfolders are not enforced until the flat list becomes painful to navigate.
+
+### Lifecycle vs. store state
+
+Two separate concerns run through every use case, and each has one home:
+
+- **Async lifecycle** — whether the invocation is pending, settled, or threw. Lives in the use-case hook (`useMutation`), consumed at the call site by whatever triggered it.
+- **Domain state** — whatever the use case produces for the UI to reflect: results, phases, streamed updates. Lives in the store, read by any component.
+
+A use case writes freely to the store as it runs; its hook independently exposes the lifecycle. Each component reads what it needs — the trigger reads the lifecycle, observers read the store.
+
+### Errors
+
+An error is either expected or unexpected, and that decides where it goes:
+
+- **Expected failures** the use case can anticipate (no active tab, a service unreachable, validation fails) are **domain outcomes** — handled in place, written to the store (or returned), reflected by the UI. They are not thrown.
+- **Unexpected errors** are not handled inline. The use-case hook re-throws them (`throwOnError`) to the route error boundary. Fail loud.
+
+Same split as lifecycle vs. store state: an expected failure is domain state; an unexpected throw is a lifecycle fact.
 
 ---
 
