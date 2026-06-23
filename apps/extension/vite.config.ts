@@ -2,7 +2,22 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
+import fs from "fs";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
+
+function playgroundManifestName(isPlayground: boolean) {
+  return {
+    name: "playground-manifest-name",
+    apply: "build" as const,
+    writeBundle() {
+      if (!isPlayground) return;
+      const manifestPath = path.resolve(__dirname, "dist/manifest.json");
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+      manifest.name = "Pear Studio";
+      fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
+    },
+  };
+}
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -20,6 +35,7 @@ export default defineConfig(({ mode }) => ({
         process: true,
       },
     }),
+    playgroundManifestName(mode === "playground"),
   ],
   resolve: {
     alias: {
