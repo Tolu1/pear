@@ -5,15 +5,16 @@ import path from "path";
 import fs from "fs";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 
-function playgroundManifestName(isPlayground: boolean) {
+function playgroundManifest(isPlayground: boolean) {
   return {
-    name: "playground-manifest-name",
+    name: "playground-manifest",
     apply: "build" as const,
     writeBundle() {
       if (!isPlayground) return;
       const manifestPath = path.resolve(__dirname, "dist/manifest.json");
       const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
       manifest.name = "Pear Studio";
+      manifest.host_permissions = ["<all_urls>"];
       fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
     },
   };
@@ -35,7 +36,7 @@ export default defineConfig(({ mode }) => ({
         process: true,
       },
     }),
-    playgroundManifestName(mode === "playground"),
+    playgroundManifest(mode === "playground"),
   ],
   resolve: {
     alias: {
