@@ -10,6 +10,7 @@ const labelByType: Record<FeedEntryType, string> = {
   goal: "goal",
   thought: "thinking",
   action: "action",
+  usage: "usage",
   outcome: "outcome",
   error: "error",
 };
@@ -18,6 +19,7 @@ const classByType: Record<FeedEntryType, string> = {
   goal: "text-[#0E140E]",
   thought: "text-[#0E140E]/55 italic",
   action: "text-[#1B5E20]",
+  usage: "text-[#0E140E]/45",
   outcome: "text-[#7D4016] font-semibold",
   error: "text-[#B3261E] font-semibold",
 };

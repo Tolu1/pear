@@ -55,12 +55,22 @@ export const StepInputSchema = z.object({
   sessionId: z.string(),
   seq: z.number().int().nonnegative(),
   observation: ObservationPayloadSchema,
+  includeUsage: z.boolean().optional(),
 });
 export type StepInput = z.infer<typeof StepInputSchema>;
+
+export const UsagePayloadSchema = z.object({
+  inputTokens: z.number(),
+  outputTokens: z.number(),
+  inputCost: z.number().optional(),
+  outputCost: z.number().optional(),
+});
+export type UsagePayload = z.infer<typeof UsagePayloadSchema>;
 
 export const StepResponseSchema = z.object({
   reasoning: z.string(),
   actions: z.array(ActionWireFormSchema),
+  usage: UsagePayloadSchema.optional(),
 });
 export type StepResponse = z.infer<typeof StepResponseSchema>;
 

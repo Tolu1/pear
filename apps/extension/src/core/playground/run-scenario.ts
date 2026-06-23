@@ -35,7 +35,18 @@ export async function runScenario({
   }
 
   const agent = createAgent(tab.id);
-  agent.on("thought", (thought) => appendFeed("thought", thought));
+  agent.on("thought", (thought, usage) => {
+    appendFeed("thought", thought);
+    if (usage) {
+      const tokens = usage.inputTokens + usage.outputTokens;
+      const hasCost =
+        usage.inputCost !== undefined || usage.outputCost !== undefined;
+      const cost = hasCost
+        ? `$${((usage.inputCost ?? 0) + (usage.outputCost ?? 0)).toFixed(4)}`
+        : "N/A";
+      appendFeed("usage", `${tokens.toLocaleString()} tokens · ${cost}`);
+    }
+  });
   agent.on("actionStarted", (action) =>
     appendFeed("action", renderAction(action)),
   );

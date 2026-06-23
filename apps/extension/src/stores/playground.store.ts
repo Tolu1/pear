@@ -5,6 +5,7 @@ export type FeedEntryType =
   | "goal"
   | "thought"
   | "action"
+  | "usage"
   | "outcome"
   | "error";
 

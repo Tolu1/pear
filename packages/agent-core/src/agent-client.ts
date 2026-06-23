@@ -2,7 +2,7 @@ import { createTRPCClient, httpLink } from '@trpc/client';
 import EventEmitter from 'eventemitter3';
 import type { AgentRouter } from './agent-server';
 import type { WebHarnessLike } from './web/harness.interface';
-import type { ObservationPayload, ActionWireForm, ActionResult } from './transport/messages';
+import type { ObservationPayload, ActionWireForm, ActionResult, UsagePayload } from './transport/messages';
 import { findOutcome, type Outcome } from './transport/outcome';
 import type { ActionDefinition } from './actions';
 import { webActions } from './actions/webActions';
@@ -12,6 +12,7 @@ export interface AgentClientOptions {
     serverUrl: string;
     harness: WebHarnessLike;
     fetch?: typeof fetch;
+    includeUsage?: boolean;
 }
 
 export interface AgentStartOptions {
@@ -22,7 +23,7 @@ export interface AgentStartOptions {
 
 export interface AgentClientEvents {
     'start': () => void;
-    'thought': (thought: string) => void;
+    'thought': (thought: string, usage?: UsagePayload) => void;
     'actionStarted': (action: ActionWireForm) => void;
     'actionDone': (action: ActionWireForm) => void;
     'pause': () => void;
@@ -34,12 +35,14 @@ export class AgentClient extends EventEmitter<AgentClientEvents> {
     private trpc: ReturnType<typeof createTRPCClient<AgentRouter>>;
     private harness: WebHarnessLike;
     private actionMap: Map<string, ActionDefinition<any>>;
+    private includeUsage: boolean;
     private _paused: boolean = false;
     private _pauseResolve: (() => void) | null = null;
 
     constructor(options: AgentClientOptions) {
         super();
         this.harness = options.harness;
+        this.includeUsage = options.includeUsage ?? false;
         this.trpc = createTRPCClient<AgentRouter>({
             links: [httpLink({ url: options.serverUrl, fetch: options.fetch })],
         });
@@ -68,13 +71,14 @@ export class AgentClient extends EventEmitter<AgentClientEvents> {
             while (true) {
                 const observation = await this.captureObservation(lastBatchResults);
 
-                const { reasoning, actions } = await this.trpc.step.mutate({
+                const { reasoning, actions, usage } = await this.trpc.step.mutate({
                     sessionId,
                     seq: seq++,
                     observation,
+                    ...(this.includeUsage ? { includeUsage: true } : {}),
                 });
 
-                this.emit('thought', reasoning);
+                this.emit('thought', reasoning, usage);
 
                 const batchResults: ActionResult[] = [];
                 for (const action of actions) {
