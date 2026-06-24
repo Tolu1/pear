@@ -4,7 +4,7 @@ import { ReactQueryProvider } from "@/providers/react-query-provider";
 function PlaygroundLayout() {
   return (
     <ReactQueryProvider>
-      <div className="font-astra flex h-dvh w-full flex-col bg-[#FFFDF5]">
+      <div className="font-astra flex h-dvh w-full flex-col bg-background">
         <Outlet />
       </div>
     </ReactQueryProvider>
