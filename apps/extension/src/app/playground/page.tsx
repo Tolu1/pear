@@ -1,6 +1,7 @@
 import { Joystick } from "lucide-react";
 import RunControls from "./_components/run-controls";
 import EventFeed from "./_components/event-feed";
+import ReportBugButton from "./_components/report-bug-button";
 
 function Page() {
   return (
@@ -15,6 +16,9 @@ function Page() {
             <span className="font-mono text-xs leading-[13px] font-bold tracking-[-0.08em] whitespace-nowrap text-[#0E140E]/70">
               Playground Mode
             </span>
+          </div>
+          <div className="ml-auto">
+            <ReportBugButton />
           </div>
         </div>
         <p className="text-[12px] leading-[15px] tracking-[-0.04em] text-black/68">
