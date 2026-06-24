@@ -13,7 +13,7 @@ function playgroundManifest(isPlayground: boolean) {
       if (!isPlayground) return;
       const manifestPath = path.resolve(__dirname, "dist/manifest.json");
       const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
-      manifest.name = "Pear Studio";
+      manifest.name = "Pear AI";
       manifest.host_permissions = ["<all_urls>"];
       fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
     },

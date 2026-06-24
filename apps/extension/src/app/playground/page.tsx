@@ -8,7 +8,7 @@ function Page() {
       <header className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
           <h1 className="text-[20px] font-bold tracking-[-0.06em] text-[#0E140E]">
-            Pear Studio
+            Pear AI
           </h1>
           <div className="flex h-[19px] shrink-0 items-center gap-0.5 rounded-[14px] border border-[#0E140E] bg-[#FFED9B] px-1.5">
             <Joystick className="size-3 shrink-0 fill-[#FBBA22] text-[#BE910B]" />
