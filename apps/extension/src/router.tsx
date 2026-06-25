@@ -8,6 +8,8 @@ import RootLayout from "@/app/layout";
 import ConnectWallet from "@/app/connect-wallet/page";
 import AppLayout from "@/app/(app)/layout";
 import Home from "@/app/(app)/home/page";
+import PlaygroundLayout from "@/app/playground/layout";
+import Playground from "@/app/playground/page";
 import { RouteErrorBoundary } from "@/components/route-error-boundary";
 
 declare module "@tanstack/react-router" {
@@ -54,14 +56,30 @@ const HomeRoute = createRoute({
   component: () => <Home />,
 });
 
-const routeTree = rootRoute.addChildren([
-  rootLayoutRoute.addChildren([
-    IndexHtmlRoute,
-    RootIndexRoute,
-    ConnectWalletRoute,
-    appLayoutRoute.addChildren([HomeRoute]),
-  ]),
+const rootLayoutSubtree = rootLayoutRoute.addChildren([
+  IndexHtmlRoute,
+  RootIndexRoute,
+  ConnectWalletRoute,
+  appLayoutRoute.addChildren([HomeRoute]),
 ]);
+
+function createPlaygroundSubtree() {
+  const layoutRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    id: "playground-layout",
+    component: () => <PlaygroundLayout />,
+  });
+  const pageRoute = createRoute({
+    getParentRoute: () => layoutRoute,
+    path: "/playground",
+    component: () => <Playground />,
+  });
+  return layoutRoute.addChildren([pageRoute]);
+}
+
+const routeTree = __PLAYGROUND_MODE__
+  ? rootRoute.addChildren([rootLayoutSubtree, createPlaygroundSubtree()])
+  : rootRoute.addChildren([rootLayoutSubtree]);
 
 export const Router = createRouter({
   routeTree,

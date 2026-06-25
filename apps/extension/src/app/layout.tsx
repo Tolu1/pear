@@ -1,5 +1,6 @@
 import { Outlet, useNavigate } from "@tanstack/react-router";
 import { WagmiProvider } from "@/providers/wagmi-provider";
+import { ReactQueryProvider } from "@/providers/react-query-provider";
 import { useAccount } from "wagmi";
 import { useEffect } from "react";
 
@@ -8,7 +9,9 @@ function ProtectedLayout() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isConnected) {
+    if (__PLAYGROUND_MODE__) {
+      navigate({ to: "/playground" });
+    } else if (isConnected) {
       navigate({ to: "/home" });
     } else {
       navigate({ to: "/connect-wallet" });
@@ -25,7 +28,9 @@ function ProtectedLayout() {
 function Layout() {
   return (
     <WagmiProvider>
-      <ProtectedLayout />
+      <ReactQueryProvider>
+        <ProtectedLayout />
+      </ReactQueryProvider>
     </WagmiProvider>
   );
 }

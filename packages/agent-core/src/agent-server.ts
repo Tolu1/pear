@@ -104,6 +104,10 @@ export class AgentServer extends EventEmitter<AgentServerEvents> {
             throw new Error(`Unknown session: ${input.sessionId}`);
         }
 
+        let usage: ModelUsage | undefined;
+        const grabUsage = (u: ModelUsage) => { usage = u; };
+        if (input.includeUsage) this.models.events.on('tokensUsed', grabUsage);
+
         const { reasoning, actions } = await runStep({
             memory: session.memory,
             task: session.goal,
@@ -112,13 +116,26 @@ export class AgentServer extends EventEmitter<AgentServerEvents> {
             models: this.models,
         });
 
+        if (input.includeUsage) this.models.events.off('tokensUsed', grabUsage);
+
         this.emit('thought', { sessionId: input.sessionId, thought: reasoning });
 
         const outcome = findOutcome(actions);
         if (outcome?.status === 'done') await session.onDone?.(outcome.evidence);
         if (outcome?.status === 'fail') await session.onFail?.(outcome.reason);
 
-        return { reasoning, actions };
+        return {
+            reasoning,
+            actions,
+            ...(usage && {
+                usage: {
+                    inputTokens: usage.inputTokens,
+                    outputTokens: usage.outputTokens,
+                    inputCost: usage.inputCost,
+                    outputCost: usage.outputCost,
+                },
+            }),
+        };
     }
 
     async cancel(input: CancelInput): Promise<CancelResponse> {
