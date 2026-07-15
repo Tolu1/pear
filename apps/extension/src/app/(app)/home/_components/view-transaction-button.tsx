@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { usePaymentScreen } from "@/hooks/use-payment-screen";
+import { usePaymentScreenStore } from "@/stores/payment-screen.store";
 
 function ViewTransactionButton() {
-  const { reset } = usePaymentScreen();
+  const { reset } = usePaymentScreenStore();
 
   return (
     <Button variant="outline" size="lg" className="w-full" onClick={reset}>

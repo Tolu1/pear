@@ -4,10 +4,10 @@ import { getActiveTab } from "@/lib/browser/get-active-tab";
 import { captureScreenshot } from "@/lib/browser/capture-screenshot";
 import { useDetectedPaymentStore } from "@/stores/detected-payment.store";
 import { useQuoteStore } from "@/stores/quote.store";
-import { usePaymentScreen } from "@/hooks/use-payment-screen";
+import { usePaymentScreenStore } from "@/stores/payment-screen.store";
 
 export async function checkForPaymentPage(): Promise<void> {
-  const { setScreen } = usePaymentScreen.getState();
+  const { setScreen } = usePaymentScreenStore.getState();
   const { setPayment } = useDetectedPaymentStore.getState();
   const { setQuote } = useQuoteStore.getState();
 

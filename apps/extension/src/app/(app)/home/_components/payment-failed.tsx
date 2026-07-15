@@ -1,7 +1,7 @@
-import { usePaymentScreen } from "@/hooks/use-payment-screen";
+import { usePaymentScreenStore } from "@/stores/payment-screen.store";
 
 function PaymentFailed() {
-  const { error } = usePaymentScreen();
+  const { error } = usePaymentScreenStore();
 
   return (
     <div className="flex h-full flex-col justify-center gap-2.5">

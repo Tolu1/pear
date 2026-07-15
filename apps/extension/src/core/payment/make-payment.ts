@@ -3,7 +3,7 @@ import { config } from "@/lib/blockchain/config";
 import { useDetectedPaymentStore } from "@/stores/detected-payment.store";
 import { useQuoteStore } from "@/stores/quote.store";
 import { usePaymentIntentStore } from "@/stores/payment-intent.store";
-import { usePaymentScreen } from "@/hooks/use-payment-screen";
+import { usePaymentScreenStore } from "@/stores/payment-screen.store";
 import { getActiveTab } from "@/lib/browser/get-active-tab";
 import { captureScreenshot } from "@/lib/browser/capture-screenshot";
 import { assertNoUserActionRequired } from "@/lib/ai/automation/assert-no-user-action-required";
@@ -16,7 +16,7 @@ export async function makePayment(): Promise<void> {
   const { payment } = useDetectedPaymentStore.getState();
   const { quote } = useQuoteStore.getState();
   const { setIntent } = usePaymentIntentStore.getState();
-  const { setScreen, setError } = usePaymentScreen.getState();
+  const { setScreen, setError } = usePaymentScreenStore.getState();
   const { address } = getAccount(config);
 
   if (!payment || !quote || !address) {

@@ -1,7 +1,7 @@
 import { Joystick } from "lucide-react";
 import { RunControls } from "./_components/run-controls";
-import EventFeed from "./_components/event-feed";
-import ReportBugButton from "./_components/report-bug-button";
+import { EventFeed } from "./_components/event-feed";
+import { ReportBugButton } from "./_components/report-bug-button";
 import { AccessWall } from "./_components/access-wall";
 
 function Page() {

@@ -24,12 +24,12 @@ interface PaymentScreenStore {
   reset: () => void;
 }
 
-export const usePaymentScreen = create<PaymentScreenStore>((set) => ({
+export const usePaymentScreenStore = create<PaymentScreenStore>((set) => ({
   screen: "idle",
   error: null,
   warning: null,
   setScreen: (screen) => set({ screen }),
   setError: (error) => set({ error }),
   setWarning: (warning) => set({ warning }),
-  reset: () => set(usePaymentScreen.getInitialState()),
+  reset: () => set(usePaymentScreenStore.getInitialState()),
 }));

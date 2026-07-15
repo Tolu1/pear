@@ -1,5 +1,5 @@
 import BalanceDisplay from "./_components/balance-display";
-import { usePaymentScreen } from "@/hooks/use-payment-screen";
+import { usePaymentScreenStore } from "@/stores/payment-screen.store";
 import GoToPaymentPage from "./_components/go-to-payment-page";
 import Scanning from "./_components/scanning";
 import YouAreAlmostThere from "./_components/you-are-almost-there";
@@ -16,7 +16,7 @@ import ViewTransactionButton from "./_components/view-transaction-button";
 import TryAgainButton from "./_components/try-again-button";
 
 function Page() {
-  const { screen } = usePaymentScreen();
+  const { screen } = usePaymentScreenStore();
 
   function renderMainContent() {
     switch (screen) {

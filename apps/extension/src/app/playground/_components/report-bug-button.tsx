@@ -1,7 +1,7 @@
 import { Bug } from "lucide-react";
 import { useReportBug } from "@/hooks/use-report-bug";
 
-function ReportBugButton() {
+export function ReportBugButton() {
   const { reportBug } = useReportBug();
 
   return (
@@ -15,5 +15,3 @@ function ReportBugButton() {
     </button>
   );
 }
-
-export default ReportBugButton;

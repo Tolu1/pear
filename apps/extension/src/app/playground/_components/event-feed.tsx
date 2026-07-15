@@ -39,7 +39,7 @@ const classByStatus: Record<ScenarioRunStatus, string> = {
   failed: "border-[#B3261E]/45 bg-[#B3261E]/12 text-[#B3261E]",
 };
 
-function EventFeed() {
+export function EventFeed() {
   const feed = usePlaygroundStore((state) => state.feed);
   const status = usePlaygroundStore((state) => state.status);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -159,5 +159,3 @@ function StatusIndicator({ status }: { status: ScenarioRunStatus }) {
   if (status !== "running") return null;
   return <span className="size-1.5 animate-pulse rounded-full bg-current" />;
 }
-
-export default EventFeed;

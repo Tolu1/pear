@@ -1,11 +1,11 @@
 import { type ErrorComponentProps } from "@tanstack/react-router";
-import { usePaymentScreen } from "@/hooks/use-payment-screen";
+import { usePaymentScreenStore } from "@/stores/payment-screen.store";
 import { useEffect } from "react";
 import UserWarning from "@/app/(app)/home/_components/user-warning";
 import TryAgainButton from "@/app/(app)/home/_components/try-again-button";
 
 export function RouteErrorBoundary({ error, reset }: ErrorComponentProps) {
-  const { setWarning, reset: resetScreen } = usePaymentScreen();
+  const { setWarning, reset: resetScreen } = usePaymentScreenStore();
 
   useEffect(() => {
     console.error("[RouteErrorBoundary]", error);
