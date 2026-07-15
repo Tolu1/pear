@@ -11,6 +11,7 @@ import { QuotesModule } from './quotes/quotes.module';
 import { PaymentIntentsModule } from './payment-intents/payment-intents.module';
 import { VirtualCardModule } from './virtual-card/virtual-card.module';
 import { BlockchainModule } from './blockchain/blockchain.module';
+import { BetaAccessModule } from './beta-access/beta-access.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { BlockchainModule } from './blockchain/blockchain.module';
     PaymentIntentsModule,
     VirtualCardModule,
     BlockchainModule,
+    BetaAccessModule,
   ],
   controllers: [HealthController],
 })

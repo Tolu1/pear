@@ -3,9 +3,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AgentServer } from '@repo/agent-core';
 import { AgentController } from './agent.controller';
 import { AGENT_SERVER } from './agent.constants';
+import { BetaAccessModule } from '../beta-access/beta-access.module';
 
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, BetaAccessModule],
   providers: [
     {
       provide: AGENT_SERVER,

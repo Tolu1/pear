@@ -13,6 +13,7 @@ export interface AgentClientOptions {
     harness: WebHarnessLike;
     fetch?: typeof fetch;
     includeUsage?: boolean;
+    headers?: () => Record<string, string>;
 }
 
 export interface AgentStartOptions {
@@ -44,7 +45,13 @@ export class AgentClient extends EventEmitter<AgentClientEvents> {
         this.harness = options.harness;
         this.includeUsage = options.includeUsage ?? false;
         this.trpc = createTRPCClient<AgentRouter>({
-            links: [httpLink({ url: options.serverUrl, fetch: options.fetch })],
+            links: [
+                httpLink({
+                    url: options.serverUrl,
+                    fetch: options.fetch,
+                    headers: options.headers,
+                }),
+            ],
         });
         this.actionMap = new Map(
             [...webActions, ...taskActions].map((a) => [a.name, a]),

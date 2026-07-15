@@ -1,11 +1,5 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: { throwOnError: true },
-    mutations: { throwOnError: true },
-  },
-});
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/lib/query-client";
 
 export function ReactQueryProvider({ children }: { children: React.ReactNode }) {
   return (

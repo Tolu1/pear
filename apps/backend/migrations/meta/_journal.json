@@ -29,6 +29,20 @@
       "when": 1778519646941,
       "tag": "0003_sloppy_glorian",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1783396741235,
+      "tag": "0004_common_sheva_callister",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1783399539544,
+      "tag": "0005_exotic_lightspeed",
+      "breakpoints": true
     }
   ]
 }

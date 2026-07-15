@@ -121,6 +121,38 @@ Two separate concerns run through every use case, and each has one home:
 
 A use case writes freely to the store as it runs; its hook independently exposes the lifecycle. Each component reads what it needs — the trigger reads the lifecycle, observers read the store.
 
+### Server state vs. store state
+
+Not all data from the server is store state. Two kinds hide under "server data":
+
+- **Server state** — remote data that goes stale and must be kept in sync over its lifetime (refetched, invalidated, revalidated). Lives in React Query (`useQuery`), keyed by its inputs and invalidated when it changes. Do **not** mirror it into a store — that hand-rolls the cache `useQuery` already gives you.
+- **Store state** — client-owned or derived state, and the one-off result of an action. The client holds and mutates it itself.
+
+The test: **does this value need revalidating against the server over its lifetime?** Yes → `useQuery`. Produced once and then client-owned → store. (`useMutation` is still for actions; its `data` is a one-off result, not server state.)
+
+### A query is a store; logic that drives it lives in a use case
+
+A React Query cache is a state backend, the same kind of thing as Zustand, `useState`, or localStorage — it just happens to be server-determined. **Reading** it, in a hook or a component, is reflection, and reflection is allowed anywhere.
+
+Putting **logic** in the hook that wraps a query is the boundary violation: `enabled` conditions, query-key decisions, `onSuccess`/`setQueryData` reconciliation, "if valid then…". That is orchestration, and orchestration is a use case's job.
+
+A use case may write to the query client exactly as it writes to Zustand — `fetchQuery`, `setQueryData`, `invalidateQueries` — treating the query cache as one of its state backends:
+
+```ts
+// core/ use case — one owner of "is this code valid"
+const access = await queryClient.fetchQuery({
+  queryKey: betaAccessKeys.byCode(code),
+  queryFn: () => getBetaAccess(code),
+});
+if (access.valid) useBetaAccessStore.getState().setCode(code);
+```
+
+The wrapping hook then only exposes lifecycle and reflects the cache.
+
+Reading test: open a `use-…` hook and you should be able to say where each truth is decided. If you can't, the decision is in the wrong layer — the decider carries a use-case name, the hook reflects what it resolved.
+
+Staleness does not move ownership into the view. "This can go stale" means a use case refreshes it, not that the query hook owns it.
+
 ### Errors
 
 An error is either expected or unexpected, and that decides where it goes:
