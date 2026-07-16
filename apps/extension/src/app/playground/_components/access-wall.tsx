@@ -52,7 +52,7 @@ export function AccessWall({ children }: { children: React.ReactNode }) {
             "data-[vaul-drawer-direction=bottom]:border-t-0",
           )}
         >
-          <DrawerTitle className="sr-only">Welcome to Pear</DrawerTitle>
+          <DrawerTitle className="sr-only">Welcome to Pear AI</DrawerTitle>
           <DrawerDescription className="sr-only">
             Enter your beta access code to continue.
           </DrawerDescription>
@@ -60,7 +60,7 @@ export function AccessWall({ children }: { children: React.ReactNode }) {
           <div className="flex h-full flex-col justify-between p-5">
             <header className="flex items-center justify-between">
               <span className="font-astra text-[16px] leading-[normal] font-bold tracking-[-0.08em] text-[#0E140E]/80">
-                Pear
+                Pear AI
               </span>
               <span className="font-mono text-[12px] leading-[normal] font-bold tracking-[-0.08em] text-[#0E140E]/50">
                 BETA
@@ -76,11 +76,11 @@ export function AccessWall({ children }: { children: React.ReactNode }) {
               />
               <div className="flex flex-col items-center gap-1">
                 <h1 className="font-astra text-[32px] leading-[normal] font-bold tracking-[-0.08em] text-[#0E140E]">
-                  Welcome to Pear
+                  Welcome to Pear AI
                 </h1>
-                <p className="font-astra max-w-[266px] text-[11px] leading-[normal] text-[#0E140E]/80">
-                  You've been invited to test Pear. Enter the code from your
-                  email invite below. Takes less than a minute.
+                <p className="font-astra max-w-[280px] text-[11px] leading-[normal] text-[#0E140E]/80">
+                  You've been invited to test Pear's autonomous browser agent.
+                  Enter the code from your email invite below.
                 </p>
               </div>
             </main>
