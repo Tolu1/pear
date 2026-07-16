@@ -1,6 +1,11 @@
 import { create } from "zustand";
 
-export type ScenarioRunStatus = "idle" | "running" | "done" | "failed";
+export type ScenarioRunStatus =
+  | "idle"
+  | "running"
+  | "done"
+  | "failed"
+  | "unavailable";
 export type FeedEntryType =
   | "goal"
   | "thought"

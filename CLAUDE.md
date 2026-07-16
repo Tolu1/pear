@@ -210,3 +210,12 @@ UI logic is allowed in `components/`. Business logic is never allowed there.
 A **boundary violation** is: accessing raw state directly, or calling `I_w` without authorization.
 
 ---
+
+## Presentation Art
+
+UI illustrations and icons follow a defined pixel-art style (chunky pixels, dithered shading, bold ink
+outline, warm palette). Before creating or generating any new icon or art element, read
+[`apps/extension/docs/art-style.md`](apps/extension/docs/art-style.md) — it holds the DNA, palette, a
+fill-in-the-blanks generation prompt, and the cleanup + usage rules.
+
+---

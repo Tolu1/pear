@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import LinearProgress from "@mui/material/LinearProgress";
 import { keyframes } from "@emotion/react";
 import { cn } from "@/lib/utils";
+import offlineCloud from "@/assets/images/offline-cloud.png";
 import {
   usePlaygroundStore,
   type FeedEntryType,
@@ -37,6 +38,7 @@ const classByStatus: Record<ScenarioRunStatus, string> = {
   running: "border-[#7D4016]/45 bg-[#FFED9B] text-[#7D4016]",
   done: "border-[#1B5E20]/45 bg-[#1B5E20]/12 text-[#1B5E20]",
   failed: "border-[#B3261E]/45 bg-[#B3261E]/12 text-[#B3261E]",
+  unavailable: "border-[#B3261E]/45 bg-[#B3261E]/12 text-[#B3261E]",
 };
 
 export function EventFeed() {
@@ -110,8 +112,24 @@ export function EventFeed() {
         ref={scrollRef}
         className="min-h-0 flex-1 overflow-y-auto scroll-auto p-4"
       >
-        {feed.length === 0 ? (
-          <p className="pt-6 text-center text-[12px] text-[#0E140E]/40">
+        {status === "unavailable" ? (
+          <div className="flex flex-col items-center gap-1 px-4 pt-10 text-center">
+            <img
+              src={offlineCloud}
+              alt=""
+              draggable={false}
+              className="size-12 select-none"
+            />
+            <p className="text-[13px] font-bold text-[#0E140E]">
+              Can't connect right now
+            </p>
+            <p className="mx-auto max-w-[220px] text-center text-[12px] leading-[15px] text-[#0E140E]/40">
+              Something went wrong and we couldn't start the run. Try again in a
+              moment.
+            </p>
+          </div>
+        ) : feed.length === 0 ? (
+          <p className="mx-auto max-w-[220px] pt-6 text-center text-[12px] leading-[15px] text-[#0E140E]/40">
             Run a scenario to watch the agent's thoughts and actions stream in.
           </p>
         ) : (
@@ -145,7 +163,7 @@ function StatusBadge({ status }: { status: ScenarioRunStatus }) {
   return (
     <span
       className={cn(
-        "inline-flex h-[19px] items-center gap-1 rounded-[14px] border px-2 font-mono text-[10px] font-bold tracking-[-0.04em] uppercase",
+        "inline-flex h-[19px] items-center gap-1 rounded-[14px] border px-2 font-mono text-[10px] font-bold tracking-[-0.04em] whitespace-nowrap uppercase",
         classByStatus[status],
       )}
     >

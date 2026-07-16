@@ -20,7 +20,9 @@ export function accessCodeGuard(betaAccessService: BetaAccessService) {
         return;
       }
     } catch (error) {
-      console.warn('[access-code] counter unreachable, failing open:', error);
+      console.warn('[access-code] access check unavailable, refusing run:', error);
+      res.status(503).json({ error: 'ACCESS_CHECK_UNAVAILABLE' });
+      return;
     }
     next();
   };

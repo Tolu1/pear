@@ -62,10 +62,18 @@ export async function runScenario({
       appendFeed("action", renderAction(action)),
     );
 
-    const sessionId = await agent.start({
-      goal: trimmedGoal,
-      targetUrl: url ?? tab.url,
-    });
+    let sessionId: string;
+    try {
+      sessionId = await agent.start({
+        goal: trimmedGoal,
+        targetUrl: url ?? tab.url,
+      });
+    } catch (error) {
+      console.warn("[run] the run couldn't start:", error);
+      setStatus("unavailable");
+      return;
+    }
+
     const outcome = await agent.run(sessionId);
 
     if (outcome.status === "done") {
