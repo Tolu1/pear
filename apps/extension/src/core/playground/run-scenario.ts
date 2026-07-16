@@ -55,7 +55,9 @@ export async function runScenario({
         const cost = hasCost
           ? `$${((usage.inputCost ?? 0) + (usage.outputCost ?? 0)).toFixed(4)}`
           : "N/A";
-        appendFeed("usage", `${tokens.toLocaleString()} tokens · ${cost}`);
+        // Cost is computed but kept internal, the public feed shows only tokens.
+        void cost;
+        appendFeed("usage", `${tokens.toLocaleString()} tokens`);
       }
     });
     agent.on("actionStarted", (action) =>
