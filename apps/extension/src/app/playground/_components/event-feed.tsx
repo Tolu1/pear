@@ -3,6 +3,7 @@ import LinearProgress from "@mui/material/LinearProgress";
 import { keyframes } from "@emotion/react";
 import { cn } from "@/lib/utils";
 import offlineCloud from "@/assets/images/offline-cloud.png";
+import joystick from "@/assets/images/joystick.png";
 import {
   usePlaygroundStore,
   type FeedEntryType,
@@ -129,9 +130,18 @@ export function EventFeed() {
             </p>
           </div>
         ) : feed.length === 0 ? (
-          <p className="mx-auto max-w-[220px] pt-6 text-center text-[12px] leading-[15px] text-[#0E140E]/40">
-            Run a scenario to watch the agent's thoughts and actions stream in.
-          </p>
+          <div className="flex flex-col items-center gap-2 px-4 pt-8 text-center">
+            <img
+              src={joystick}
+              alt=""
+              draggable={false}
+              className="size-12 select-none"
+            />
+            <p className="mx-auto max-w-[220px] text-center text-[12px] leading-[15px] text-[#0E140E]/40">
+              Run a scenario to watch the agent's thoughts and actions stream
+              in.
+            </p>
+          </div>
         ) : (
           <ul className="flex flex-col gap-2">
             {feed.map((entry) => (
