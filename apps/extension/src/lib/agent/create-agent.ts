@@ -9,6 +9,7 @@ export function createAgent(
     serverUrl: `${import.meta.env.VITE_AI_API_URL}/agent`,
     harness: new WebHarness(tabId),
     includeUsage: __PLAYGROUND_MODE__,
-    headers: () => (accessCode ? { "x-access-code": accessCode } : {}),
+    headers: (): Record<string, string> =>
+      accessCode ? { "x-access-code": accessCode } : {},
   });
 }

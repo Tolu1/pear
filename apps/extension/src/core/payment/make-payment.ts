@@ -52,7 +52,7 @@ export async function makePayment(): Promise<void> {
   // apps/ai sets up the agent session (fetches the card, links the intent) and
   // completes the intent itself when the agent finishes.
   const { sessionId } = await startCheckout({ intentId: intent.id });
-  const agent = createAgent(tab.id);
+  const agent = createAgent(tab.id, null);
   const outcome = await agent.run(sessionId);
 
   if (outcome.status === "done") {
