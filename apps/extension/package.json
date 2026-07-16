@@ -18,12 +18,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@repo/agent-core": "workspace:*",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@metamask/providers": "^22.1.0",
     "@mui/material": "^7.2.0",
     "@radix-ui/react-slot": "^1.2.2",
+    "@repo/agent-core": "workspace:*",
     "@tailwindcss/vite": "^4.1.6",
     "@tanstack/react-query": "^5.76.1",
     "@tanstack/react-router": "^1.120.3",
@@ -37,6 +37,7 @@
     "react-icons": "^5.5.0",
     "tailwind-merge": "^3.3.0",
     "tailwindcss": "^4.1.6",
+    "vaul": "^1.1.2",
     "viem": "^2.29.2",
     "wagmi": "^2.15.3",
     "zustand": "^5.0.7"

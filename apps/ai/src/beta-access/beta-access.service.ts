@@ -40,7 +40,8 @@ export class BetaAccessService {
       body: JSON.stringify({ code }),
     });
     if (!res.ok) {
-      throw new Error(`beta-access ${action} failed: ${res.status}`);
+      const body = await res.text().catch(() => '');
+      throw new Error(`beta-access ${action} failed: ${res.status} ${body}`);
     }
     return (await res.json()) as T;
   }

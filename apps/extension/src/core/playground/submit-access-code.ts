@@ -4,15 +4,13 @@ import { betaAccessKeys } from "@/lib/query-keys";
 import { useBetaAccessStore } from "@/stores/beta-access.store";
 import type { BetaAccess } from "@/interfaces/beta-access";
 
-export async function submitAccessCode(rawCode: string): Promise<BetaAccess> {
-  const code = rawCode.trim().toUpperCase();
-  const access = await queryClient.fetchQuery({
-    queryKey: betaAccessKeys.all,
-    queryFn: () => validateBetaAccess(code),
-  });
+export async function submitAccessCode(code: string): Promise<BetaAccess> {
+  const normalized = code.trim().toUpperCase();
+  const access = await validateBetaAccess(normalized);
 
   if (access.valid) {
-    useBetaAccessStore.getState().setCode(code);
+    queryClient.setQueryData(betaAccessKeys.all, access);
+    useBetaAccessStore.getState().setCode(normalized);
   }
 
   return access;

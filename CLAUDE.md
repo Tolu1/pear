@@ -153,6 +153,24 @@ Reading test: open a `use-…` hook and you should be able to say where each tru
 
 Staleness does not move ownership into the view. "This can go stale" means a use case refreshes it, not that the query hook owns it.
 
+### An action is not a cache read
+
+A query key names **settled state** the client already owns. An action that _tries_ a value — validating a candidate, submitting a draft, checking a code before it's accepted — is a mutation, not a read of that state. Never run it as `fetchQuery`/`useQuery` against the settled state's key.
+
+- **Semantics:** a candidate is not the settled value. It has no claim on the settled value's cache until the action accepts it.
+- **Mechanics:** queries dedupe and read-through by key. Share a key between a settled-state read and a candidate action, and an in-flight or cached read will satisfy the action with the _wrong_ value — or the action's result pollutes the read.
+
+```ts
+// mutation use case — runs the check directly, off any query key
+const result = await validateCandidate(input);
+if (result.valid) {
+  queryClient.setQueryData(settledKey, result); // commit only once accepted
+  store.setAccepted(input);
+}
+```
+
+The action touches the query cache only _after_ it succeeds, via `setQueryData` — never `fetchQuery` to perform the check itself.
+
 ### Errors
 
 An error is either expected or unexpected, and that decides where it goes:

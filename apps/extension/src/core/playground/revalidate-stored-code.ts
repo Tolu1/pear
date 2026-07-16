@@ -3,7 +3,7 @@ import { validateBetaAccess } from "@/lib/ai/beta-access/validate-beta-access";
 import { betaAccessKeys } from "@/lib/query-keys";
 import { useBetaAccessStore } from "@/stores/beta-access.store";
 
-export async function checkBetaAccess(): Promise<void> {
+export async function revalidateStoredCode(): Promise<void> {
   const code = useBetaAccessStore.getState().code;
   if (!code) return;
 

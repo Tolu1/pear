@@ -3,5 +3,8 @@ import { useBetaAccessStore } from "@/stores/beta-access.store";
 
 export function getBetaAccess() {
   const code = useBetaAccessStore.getState().code;
-  return validateBetaAccess(code!);
+  if (!code) {
+    throw new Error("getBetaAccess ran without a stored access code");
+  }
+  return validateBetaAccess(code);
 }
