@@ -107,8 +107,8 @@ export function AccessWall({ children }: { children: React.ReactNode }) {
                     className="w-full rounded-[8px] border border-[#0E140E]/25 bg-[#FFF2B3] px-4 py-2 text-center font-mono text-[12px] leading-[normal] font-bold text-[#0E140E] transition-colors duration-200 placeholder:text-[#0E140E]/50 focus-visible:border-[#0E140E]/40 focus-visible:outline-none"
                   />
                   {errorMessage && (
-                    <div className="animate-in fade-in-0 absolute bottom-full left-0 flex w-full items-center justify-center gap-1 pb-2 text-[11px] font-semibold text-[#B3261E] duration-400">
-                      <AlertCircle className="size-3.25" />
+                    <div className="animate-in fade-in-0 absolute bottom-full left-0 flex w-full items-center justify-center gap-0.75 pb-2 text-[11px] font-semibold text-[#B3261E] duration-400">
+                      <AlertCircle className="mt-[-0.5px] size-3.25" />
                       {errorMessage}
                     </div>
                   )}
