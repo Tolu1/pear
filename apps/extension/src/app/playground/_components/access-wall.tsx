@@ -67,7 +67,7 @@ export function AccessWall({ children }: { children: React.ReactNode }) {
             Enter your beta access code to continue.
           </DrawerDescription>
 
-          <div className="flex h-full flex-col justify-between p-5">
+          <div className="flex h-full flex-col justify-between p-5 select-text">
             <header className="flex items-center justify-between">
               <span className="font-astra text-[16px] leading-[normal] font-bold tracking-[-0.08em] text-[#0E140E]/80">
                 Pear AI
@@ -108,7 +108,7 @@ export function AccessWall({ children }: { children: React.ReactNode }) {
                   />
                   {errorMessage && (
                     <div className="animate-in fade-in-0 absolute bottom-full left-0 flex w-full items-center justify-center gap-1 pb-2 text-[11px] font-semibold text-[#B3261E] duration-400">
-                      <AlertCircle className="size-3.5" />
+                      <AlertCircle className="size-3.25" />
                       {errorMessage}
                     </div>
                   )}
