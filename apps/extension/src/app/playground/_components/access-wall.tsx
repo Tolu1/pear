@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { useBetaAccessStore } from "@/stores/beta-access.store";
 import { useRevalidateStoredCode } from "@/hooks/use-revalidate-stored-code";
 import { useSubmitAccessCode } from "@/hooks/use-submit-access-code";
+import { useViewportReady } from "@/hooks/use-viewport-ready";
 import youreEarly from "@/assets/images/youre-early.png";
 
 const INVITE_FORM = "https://forms.gle/iLRrvmjbQgDLj8Fi9";
@@ -23,7 +24,11 @@ export function AccessWall({ children }: { children: React.ReactNode }) {
 
   useRevalidateStoredCode();
 
-  const open = !code;
+  // Vaul reads window.innerWidth when the drawer opens to scale the background.
+  // The side panel reports 0 on its first frame, which makes that scale -Infinity.
+  const viewportReady = useViewportReady();
+
+  const open = !code && viewportReady;
 
   const errorMessage = isError
     ? "Can't connect right now. Try again."
