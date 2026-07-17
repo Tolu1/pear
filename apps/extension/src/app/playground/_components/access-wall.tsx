@@ -47,7 +47,12 @@ export function AccessWall({ children }: { children: React.ReactNode }) {
     <>
       {code ? children : null}
 
-      <Drawer open={open} dismissible={false} shouldScaleBackground>
+      <Drawer
+        open={open}
+        dismissible={false}
+        shouldScaleBackground
+        repositionInputs={false}
+      >
         <DrawerContent
           className={cn(
             "h-[96.57%] rounded-t-[20px] [&_[data-slot=drawer-handle]]:hidden",
