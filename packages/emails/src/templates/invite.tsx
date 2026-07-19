@@ -39,7 +39,10 @@ export function InviteEmail({
         <meta name="color-scheme" content="light only" />
         <meta name="supported-color-schemes" content="light" />
       </Head>
-      <Preview>You've been invited to test Pear AI</Preview>
+      <Preview>
+        We've spent the last few months teaching an agent how to use a browser
+        by itself.
+      </Preview>
       <Body style={body}>
         <Container style={container}>
           <Text style={wordmark}>Pear AI</Text>
@@ -47,16 +50,17 @@ export function InviteEmail({
           <Heading style={heading}>{greeting}</Heading>
 
           <Text style={paragraph}>
-            We're teaching our agent to browse and get things done on its own.
-            Point it at any site, give it a goal, and watch it work.
+            We've spent the last few months teaching an agent how to use a
+            browser by itself. It's early and it's rough, but it's finally
+            worth showing you.
           </Text>
 
           <Text style={paragraph}>
-            It's still learning and will get things wrong. When it does, tell us
-            with the bug button or just reply here.
+            We'd love for you to break it. When something goes wrong just reply
+            to this email, or hit the bug report button once you're in.
           </Text>
 
-          <Text style={sign}>We hope you like it here.</Text>
+          <Text style={sign}>Hope you like it here.</Text>
 
           <Hr style={rule} />
 

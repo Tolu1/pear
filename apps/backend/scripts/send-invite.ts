@@ -3,7 +3,8 @@ import { Resend } from 'resend';
 
 const FROM_NAME = 'Tolu Olugbesan';
 const FROM_EMAIL = 'tolu@pearextension.com';
-const DOWNLOAD_URL = 'https://pearextension.com/download/pear-ai-playground/beta';
+const DOWNLOAD_URL =
+  'https://pearextension.com/download/pear-ai-playground/beta';
 const VIDEO_URL = 'https://youtu.be/iPmaQMEWK1E';
 
 interface SendInviteInput {
@@ -18,17 +19,21 @@ function requireEnv(key: string): string {
   return value;
 }
 
+function subject(code: string): string {
+  return `Your Pear code is ${code}`;
+}
+
 function plainText(code: string, name?: string): string {
   const greeting = name ? `You're early, ${name}.` : "You're early.";
   return `${greeting}
 
-We're teaching our agent to browse and get things done on its own. Point it at
-any site, give it a goal, and watch it work.
+We've spent the last few months teaching an agent how to use a browser by
+itself. It's early and it's rough, but it's finally worth showing you.
 
-It's still learning and will get things wrong. When it does, tell us with the
-bug button or just reply here.
+We'd love for you to break it. When something goes wrong just reply to this
+email, or hit the bug report button once you're in.
 
-We hope you like it here.
+Hope you like it here.
 
 Your access code: ${code}
 
@@ -57,7 +62,7 @@ export async function sendInvite({
   const { error } = await resend.emails.send({
     from: `${FROM_NAME} <${FROM_EMAIL}>`,
     to,
-    subject: "You've been invited to test Pear AI",
+    subject: subject(code),
     html,
     text: plainText(code, name),
   });
