@@ -102,14 +102,23 @@ async function info(): Promise<void> {
   const code = flag('code');
   const email = flag('for');
 
-  const rows = code
+  const all = process.argv.includes('--all');
+
+  const matches = code
     ? await db.select().from(betaAccess).where(eq(betaAccess.code, code))
     : email
       ? await db.select().from(betaAccess).where(eq(betaAccess.email, email))
       : await db.select().from(betaAccess).orderBy(betaAccess.createdAt);
 
+  const rows = code || all ? matches : matches.filter((row) => row.active);
+
   if (rows.length === 0) {
-    console.log('\nNo matching codes\n');
+    const hidden = matches.length - rows.length;
+    console.log(
+      hidden > 0
+        ? `\nNo active codes ${c.dim(`(${hidden} revoked, --all to see them)`)}\n`
+        : '\nNo matching codes\n',
+    );
     return;
   }
 
