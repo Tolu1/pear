@@ -3,7 +3,7 @@ import { Resend } from 'resend';
 
 const FROM_NAME = 'Tolu Olugbesan';
 const FROM_EMAIL = 'tolu@pearextension.com';
-const DOWNLOAD_URL = 'https://pearextension.com/download/beta';
+const DOWNLOAD_URL = 'https://pearextension.com/download/pear-ai-playground/beta';
 const VIDEO_URL = 'https://youtu.be/iPmaQMEWK1E';
 
 interface SendInviteInput {

@@ -86,7 +86,7 @@ export function InviteEmail({
 InviteEmail.PreviewProps = {
   code: "PEAR-WR4S",
   name: "Ada",
-  downloadUrl: "https://pearextension.com/download/beta",
+  downloadUrl: "https://pearextension.com/download/pear-ai-playground/beta",
   videoUrl: "https://youtu.be/iPmaQMEWK1E",
 } satisfies InviteEmailProps;
 

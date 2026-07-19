@@ -14,5 +14,6 @@ export default $config({
     await import("./infra/secrets");
     await import("./infra/vpc");
     await import("./infra/ai");
+    await import("./infra/downloads");
   },
 });
