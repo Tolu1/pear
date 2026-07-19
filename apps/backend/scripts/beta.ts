@@ -4,6 +4,7 @@ import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { eq, sql } from 'drizzle-orm';
 import { betaAccess } from '../src/beta-access/beta-access.schema';
+import { sendInvite } from './send-invite';
 
 const db = drizzle({
   client: neon(requireEnv('DATABASE_URL')),
@@ -12,7 +13,8 @@ const db = drizzle({
 
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
-const paint = (code: number) => (s: string | number) => `\x1b[${code}m${s}\x1b[0m`;
+const paint = (code: number) => (s: string | number) =>
+  `\x1b[${code}m${s}\x1b[0m`;
 const c = {
   green: paint(32),
   red: paint(31),
@@ -47,15 +49,32 @@ function generateCode(): string {
 
 async function mint(): Promise<void> {
   const email = requireFlag('for');
+  const name = flag('name');
   const limit = Number(flag('limit') ?? 25);
+  const send = !process.argv.includes('--no-send');
 
   for (let attempt = 0; attempt < 5; attempt++) {
     const code = generateCode();
     try {
       await db.insert(betaAccess).values({ code, email, runLimit: limit });
       console.log(
-        `\n${c.green('✓')} Minted ${c.bold(c.cyan(code))} for ${email} ${c.dim(`(${limit} runs)`)}\n`,
+        `\n${c.green('✓')} Minted ${c.bold(c.cyan(code))} for ${email} ${c.dim(`(${limit} runs)`)}`,
       );
+
+      if (!send) {
+        console.log(`${c.dim('⊘ Skipped the invite email (--no-send)')}\n`);
+        return;
+      }
+
+      try {
+        await sendInvite({ to: email, code, name });
+        console.log(`${c.green('✓')} Invite sent to ${email}\n`);
+      } catch (error) {
+        const reason = error instanceof Error ? error.message : String(error);
+        console.log(
+          `${c.red('✗')} Couldn't send the invite: ${reason}\n  ${c.dim(`The code above is live. Send it to ${email} by hand.`)}\n`,
+        );
+      }
       return;
     } catch (error) {
       if (attempt === 4) throw error;
