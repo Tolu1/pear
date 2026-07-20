@@ -13,6 +13,8 @@ export default $config({
   async run() {
     await import("./infra/secrets");
     await import("./infra/vpc");
+    await import("./infra/cluster");
+    await import("./infra/backend");
     await import("./infra/ai");
     await import("./infra/downloads");
   },

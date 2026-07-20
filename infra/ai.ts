@@ -1,7 +1,6 @@
-import { vpc } from "./vpc";
-import { anthropicApiKey, serviceApiKey, backendUrl } from "./secrets";
-
-const cluster = new sst.aws.Cluster("Cluster", { vpc });
+import { cluster } from "./cluster";
+import { backendUrl } from "./backend";
+import { anthropicApiKey, serviceApiKey } from "./secrets";
 
 const domain = $app.stage === "dev" ? "ai.dev.pearextension.com" : undefined;
 
@@ -16,7 +15,7 @@ export const ai = new sst.aws.Service("Ai", {
     PORT: "3000",
     ANTHROPIC_API_KEY: anthropicApiKey.value,
     SERVICE_API_KEY: serviceApiKey.value,
-    BACKEND_URL: backendUrl.value,
+    BACKEND_URL: backendUrl,
   },
   dev: { command: "pnpm --filter ai start:dev" },
 });
