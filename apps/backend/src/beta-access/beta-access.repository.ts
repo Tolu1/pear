@@ -24,7 +24,7 @@ export class BetaAccessRepository {
         and(
           eq(betaAccess.code, code),
           eq(betaAccess.active, true),
-          lt(betaAccess.runsUsed, betaAccess.runLimit),
+          lt(betaAccess.runsUsed, betaAccess.runsGranted),
         ),
       )
       .returning();

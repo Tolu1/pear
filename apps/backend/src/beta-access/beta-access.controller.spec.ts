@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import request from 'supertest';
 import { BetaAccessController } from './beta-access.controller';
 import { BetaAccessService } from './beta-access.service';
+import { MAX_RUNS } from './beta-access.constants';
 import { ServiceAuthGuard } from '../common/guards/service-auth.guard';
 import { createControllerApp } from '../../test/utils/create-controller-app';
 import { createMock, DeepMocked } from '../../test/utils/create-mock';
@@ -54,7 +55,11 @@ describe('BetaAccessController (HTTP)', () => {
         .send({ code: 'PEAR-TEST' })
         .expect(201);
 
-      expect(response.body).toEqual({ valid: true, remaining: 18, limit: 25 });
+      expect(response.body).toEqual({
+        valid: true,
+        remaining: 18,
+        limit: 25,
+      });
       expect(betaAccessService.validate).toHaveBeenCalledWith('PEAR-TEST');
     });
 
@@ -82,7 +87,11 @@ describe('BetaAccessController (HTTP)', () => {
         .send({ code: 'PEAR-TEST' })
         .expect(201);
 
-      expect(response.body).toEqual({ ok: true, remaining: 17, limit: 25 });
+      expect(response.body).toEqual({
+        ok: true,
+        remaining: 17,
+        limit: 25,
+      });
       expect(betaAccessService.consume).toHaveBeenCalledWith('PEAR-TEST');
     });
 

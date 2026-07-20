@@ -2,8 +2,9 @@ import 'dotenv/config';
 import { randomInt } from 'crypto';
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
-import { eq, sql } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { betaAccess } from '../src/beta-access/beta-access.schema';
+import { MAX_RUNS } from '../src/beta-access/beta-access.constants';
 import { sendInvite } from './send-invite';
 
 const db = drizzle({
@@ -50,13 +51,20 @@ function generateCode(): string {
 async function mint(): Promise<void> {
   const email = requireFlag('for');
   const name = flag('name');
-  const limit = Number(flag('limit') ?? 25);
+  const limit = Number(flag('limit') ?? MAX_RUNS);
   const send = !process.argv.includes('--no-send');
+
+  if (!Number.isInteger(limit) || limit < 1)
+    throw new Error(
+      `--limit must be a whole number of runs, got ${flag('limit')}`,
+    );
+  if (limit > MAX_RUNS)
+    throw new Error(`--limit cannot exceed ${MAX_RUNS}, got ${limit}`);
 
   for (let attempt = 0; attempt < 5; attempt++) {
     const code = generateCode();
     try {
-      await db.insert(betaAccess).values({ code, email, runLimit: limit });
+      await db.insert(betaAccess).values({ code, email, runsGranted: limit });
       console.log(
         `\n${c.green('✓')} Minted ${c.bold(c.cyan(code))} for ${email} ${c.dim(`(${limit} runs)`)}`,
       );
@@ -80,22 +88,6 @@ async function mint(): Promise<void> {
       if (attempt === 4) throw error;
     }
   }
-}
-
-async function topup(): Promise<void> {
-  const code = requireFlag('code');
-  const add = Number(requireFlag('add'));
-
-  const [row] = await db
-    .update(betaAccess)
-    .set({ runLimit: sql`${betaAccess.runLimit} + ${add}` })
-    .where(eq(betaAccess.code, code))
-    .returning();
-
-  if (!row) throw new Error(`No such code: ${code}`);
-  console.log(
-    `\n${c.green('✓')} ${c.bold(c.cyan(code))} topped up ${c.dim('→')} ${row.runsUsed}/${row.runLimit} used\n`,
-  );
 }
 
 async function info(): Promise<void> {
@@ -124,11 +116,15 @@ async function info(): Promise<void> {
 
   console.log();
   for (const row of rows) {
-    const remaining = row.runLimit - row.runsUsed;
+    const remaining = row.runsGranted - row.runsUsed;
     const tone = remaining === 0 ? c.red : remaining <= 5 ? c.yellow : c.green;
     const status = row.active ? '' : `  ${c.red('[revoked]')}`;
+    const granted =
+      row.runsGranted === MAX_RUNS
+        ? ''
+        : `  ${c.dim(`(granted ${row.runsGranted})`)}`;
     console.log(
-      `${c.bold(c.cyan(row.code))}  ${c.dim(row.email)}  ${row.runsUsed}/${row.runLimit} used  ${tone(`${remaining} left`)}${status}`,
+      `${c.bold(c.cyan(row.code))}  ${c.dim(row.email)}  ${tone(`${remaining}/${MAX_RUNS} left`)}${granted}${status}`,
     );
   }
   console.log();
@@ -150,7 +146,6 @@ async function revoke(): Promise<void> {
 const actions: Record<string, () => Promise<void>> = {
   mint,
   info,
-  topup,
   revoke,
 };
 

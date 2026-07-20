@@ -1,5 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { BetaAccessService } from './beta-access.service';
+import { MAX_RUNS } from './beta-access.constants';
 import { BetaAccessRepository } from './beta-access.repository';
 import { createMock, DeepMocked } from '../../test/utils/create-mock';
 import { makeBetaAccess } from '../../test/factories';
@@ -24,13 +25,13 @@ describe('BetaAccessService', () => {
   describe('validate()', () => {
     it('returns remaining and limit for an active code', async () => {
       repo.findByCode.mockResolvedValue(
-        makeBetaAccess({ runLimit: 25, runsUsed: 7 }),
+        makeBetaAccess({ runsGranted: 25, runsUsed: 7 }),
       );
 
       expect(await service.validate('PEAR-TEST')).toEqual({
         valid: true,
         remaining: 18,
-        limit: 25,
+        limit: MAX_RUNS,
       });
     });
 
@@ -48,7 +49,7 @@ describe('BetaAccessService', () => {
       expect(await service.validate('NOPE')).toEqual({
         valid: false,
         remaining: 0,
-        limit: 0,
+        limit: MAX_RUNS,
       });
     });
 
@@ -58,7 +59,7 @@ describe('BetaAccessService', () => {
       expect(await service.validate('PEAR-TEST')).toEqual({
         valid: false,
         remaining: 0,
-        limit: 0,
+        limit: MAX_RUNS,
       });
     });
   });
@@ -66,13 +67,13 @@ describe('BetaAccessService', () => {
   describe('consume()', () => {
     it('returns ok with the post-consume remaining', async () => {
       repo.consumeOne.mockResolvedValue(
-        makeBetaAccess({ runLimit: 25, runsUsed: 8 }),
+        makeBetaAccess({ runsGranted: 25, runsUsed: 8 }),
       );
 
       expect(await service.consume('PEAR-TEST')).toEqual({
         ok: true,
         remaining: 17,
-        limit: 25,
+        limit: MAX_RUNS,
       });
     });
 
@@ -90,7 +91,7 @@ describe('BetaAccessService', () => {
       expect(await service.consume('PEAR-TEST')).toEqual({
         ok: false,
         remaining: 0,
-        limit: 0,
+        limit: MAX_RUNS,
       });
     });
   });
