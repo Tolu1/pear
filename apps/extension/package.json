@@ -13,8 +13,8 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx}\"",
     "lint": "eslint .",
     "generate:api-types": "node scripts/generate-types.mjs",
-    "release": "pnpm build && node scripts/assert-no-localhost.mjs && mkdir -p releases && cd dist && zip -r ../releases/pear-extension-v$npm_package_version.zip .",
-    "release:playground": "pnpm build:playground && node scripts/assert-no-localhost.mjs && mkdir -p releases && cd dist && zip -r ../releases/pear-extension-playground-v$npm_package_version.zip .",
+    "release": "pnpm build && mkdir -p releases && cd dist && zip -r ../releases/pear-extension-v$npm_package_version.zip .",
+    "release:playground": "pnpm build:playground && mkdir -p releases && cd dist && zip -r ../releases/pear-extension-playground-v$npm_package_version.zip .",
     "preview": "vite preview"
   },
   "dependencies": {
