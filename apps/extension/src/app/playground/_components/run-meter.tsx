@@ -14,7 +14,7 @@ export function RunMeter() {
       <span className="shrink-0 text-[10px] font-bold tracking-[-0.04em] whitespace-nowrap text-[#0E140E]/40 uppercase">
         Runs left
       </span>
-      <div className="flex flex-1 gap-[2px]">
+      <div className="group relative flex flex-1 gap-[2px]">
         {Array.from({ length: limit }, (_, i) => (
           <div
             key={i}
@@ -24,6 +24,15 @@ export function RunMeter() {
             )}
           />
         ))}
+
+        {low && (
+          <>
+            <div className="absolute inset-x-0 -inset-y-1" />
+            <div className="pointer-events-none absolute -top-1 left-1/2 z-10 -translate-x-1/2 -translate-y-full rounded-[6px] bg-[#151504] px-2 py-1 text-[11px] font-semibold whitespace-nowrap text-[#FFFFFD] opacity-0 transition-opacity delay-0 duration-200 group-hover:opacity-100 group-hover:delay-[400ms]">
+              When these run out, you can ask for more
+            </div>
+          </>
+        )}
       </div>
       <span
         className={cn(
