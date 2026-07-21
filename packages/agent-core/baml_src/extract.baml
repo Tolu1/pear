@@ -13,6 +13,7 @@ function ExtractData (instructions: string, screenshot: image, domContent: strin
         You are Claude Code, Anthropic's official CLI for Claude.
         {%endif%}
         {{ _.role("system") }}
+        {{ AgentIdentity() }}
         Based on the browser screenshot and page content, extract data according to these instructions:
         <instructions>{{ instructions }}</instructions>
         
