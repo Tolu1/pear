@@ -73,6 +73,7 @@ export function InviteEmail({
             <Button style={button} href={downloadUrl}>
               Download Pear AI
             </Button>
+            <Text style={note}>Chrome · Edge · Brave</Text>
           </Section>
 
           <Text style={videoLine}>
@@ -176,6 +177,14 @@ const button: React.CSSProperties = {
   padding: "12px 24px",
   display: "inline-block",
   boxShadow: `3px 3px 0 0 ${INK}`,
+};
+
+const note: React.CSSProperties = {
+  fontSize: "12px",
+  lineHeight: "18px",
+  letterSpacing: "-0.01em",
+  color: MUTED,
+  margin: "10px 0 0",
 };
 
 const videoLine: React.CSSProperties = {
