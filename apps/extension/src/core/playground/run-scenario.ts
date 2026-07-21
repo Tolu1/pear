@@ -1,12 +1,15 @@
 import { createAgent } from "@/lib/agent/create-agent";
 import { renderAction } from "@/lib/agent/render-action";
 import { getActiveTab } from "@/lib/browser/get-active-tab";
+import { isDrivableUrl } from "@/lib/browser/is-drivable-url";
 import { navigateTab } from "@/lib/browser/navigate-tab";
 import { usePlaygroundStore } from "@/stores/playground.store";
 import { useBetaAccessStore } from "@/stores/beta-access.store";
 import { queryClient } from "@/lib/query-client";
 import { betaAccessKeys } from "@/lib/query-keys";
 import type { BetaAccess } from "@/interfaces/beta-access";
+
+const FALLBACK_START_URL = "https://www.google.com";
 
 export interface RunScenarioInput {
   goal: string;
@@ -33,6 +36,9 @@ export async function runScenario({
     return;
   }
 
+  const startUrl =
+    url ?? (isDrivableUrl(tab.url) ? undefined : FALLBACK_START_URL);
+
   queryClient.setQueriesData<BetaAccess>(
     { queryKey: betaAccessKeys.all },
     (prev) =>
@@ -40,9 +46,9 @@ export async function runScenario({
   );
 
   try {
-    if (url) {
-      appendFeed("action", `⛓︎ open ${url}`);
-      await navigateTab(tab.id, url);
+    if (startUrl) {
+      appendFeed("action", `⛓︎ open ${startUrl}`);
+      await navigateTab(tab.id, startUrl);
     }
 
     const agent = createAgent(tab.id, useBetaAccessStore.getState().code);
@@ -68,7 +74,7 @@ export async function runScenario({
     try {
       sessionId = await agent.start({
         goal: trimmedGoal,
-        targetUrl: url ?? tab.url,
+        targetUrl: startUrl ?? tab.url,
       });
     } catch (error) {
       console.warn("[run] the run couldn't start:", error);
