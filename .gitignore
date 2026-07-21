@@ -35,3 +35,7 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# sst
+.sst
+sst-env.d.ts

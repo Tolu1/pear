@@ -1,0 +1,1 @@
+ALTER TABLE "beta_access" RENAME COLUMN "run_limit" TO "runs_granted";

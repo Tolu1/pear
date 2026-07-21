@@ -3,9 +3,16 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BamlModule } from './baml/baml.module';
+import { AgentModule } from './agent/agent.module';
+import { CheckoutModule } from './checkout/checkout.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), BamlModule],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    BamlModule,
+    AgentModule,
+    CheckoutModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

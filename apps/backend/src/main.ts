@@ -1,8 +1,42 @@
 import { NestFactory } from '@nestjs/core';
+import { useContainer } from 'class-validator';
 import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { apiReference } from '@scalar/nestjs-api-reference';
+import type { Request, Response } from 'express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  await app.listen(process.env.PORT ?? 3000);
+  const app = await NestFactory.create(AppModule, { rawBody: true });
+  app.setGlobalPrefix('v1', { exclude: ['health'] });
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
+
+  const config = new DocumentBuilder()
+    .setTitle('Pear API')
+    .setDescription(
+      'One-click stablecoin payments for any website. Pear uses AI agents to handle checkout on sites like Amazon, Airbnb, and Netflix.',
+    )
+    .setVersion('1.0')
+    .addApiKey(
+      { type: 'apiKey', in: 'header', name: 'x-service-api-key' },
+      'service-api-key',
+    )
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  app.use('/docs-json', (_req: Request, res: Response) => res.json(document));
+  app.use(
+    '/docs',
+    apiReference({
+      content: document,
+      theme: 'moon',
+      pageTitle: 'Pear API',
+    }),
+  );
+
+  await app.listen(process.env.PORT ?? 3001);
 }
-bootstrap();
+bootstrap().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

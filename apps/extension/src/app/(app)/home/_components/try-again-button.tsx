@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { usePayment } from "@/hooks/use-payment";
-function TryAgainButton() {
-  const { reset } = usePayment();
+import { usePaymentScreenStore } from "@/stores/payment-screen.store";
+
+function TryAgainButton({ onClick }: { onClick?: () => void } = {}) {
+  const { reset } = usePaymentScreenStore();
   return (
-    <Button size="lg" className="w-full" onClick={reset}>
+    <Button size="lg" className="w-full" onClick={onClick ?? reset}>
       Try Again
     </Button>
   );

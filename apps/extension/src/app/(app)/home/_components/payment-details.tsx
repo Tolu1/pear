@@ -1,9 +1,14 @@
-import { usePayment } from "@/hooks/use-payment";
+import { useDetectedPaymentStore } from "@/stores/detected-payment.store";
+import { useQuoteStore } from "@/stores/quote.store";
+import { getCurrencySymbol } from "@/lib/utils";
 
 function PaymentDetails() {
-  const { payment } = usePayment();
+  const { payment } = useDetectedPaymentStore();
+  const { quote } = useQuoteStore();
 
   if (!payment) return null;
+
+  const currencySymbol = getCurrencySymbol(payment.currencyCode);
 
   return (
     <div className="flex flex-col gap-[6.2px] pt-[6.2px]">
@@ -53,7 +58,8 @@ function PaymentDetails() {
             Payment Amount
           </p>
           <h3 className="font-mono leading-[20px] font-semibold tracking-[-0.06em] text-[#0E140E]">
-            {payment.price}
+            {currencySymbol}
+            {payment.amount}
           </h3>
         </div>
       </div>
@@ -92,23 +98,27 @@ function PaymentDetails() {
           </h3>
         </div>
       </div>
-      <div className="flex h-[106px] flex-col justify-between rounded-[16px] bg-[#FFFFFF]/72 p-2.5 text-xs tracking-[-0.04em] text-[#0E140E]/70">
+      <div className="flex flex-col gap-2 rounded-[16px] bg-[#FFFFFF]/72 p-2.5 text-xs tracking-[-0.04em] text-[#0E140E]/70">
+        {/* TODO: backend needs to return exchangeRate, networkFee, serviceFee on QuoteResponseDto
         <div className="flex h-[15px] justify-between">
           <p>Conversion Rate:</p>
-          <p className="font-mono tracking-normal">1 ETH = $3,727.27 EUR</p>
+          <p className="font-mono tracking-normal">1 ETH = $3,727.27 EUR</p>
         </div>
         <div className="flex h-[15px] justify-between">
           <p>Network Fee:</p>
-          <p className="font-mono tracking-normal">~ $0.341 EUR</p>
+          <p className="font-mono tracking-normal">~ $0.341 EUR</p>
         </div>
         <div className="flex h-[15px] justify-between">
           <p>Pear Fee:</p>
-          <p className="font-mono tracking-normal">~ $0.076 EUR</p>
+          <p className="font-mono tracking-normal">~ $0.076 EUR</p>
         </div>
         <div className="h-[1px] bg-[#D6D58B]" />
+        */}
         <div className="flex h-[15px] justify-between font-bold">
           <p>You&rsquo;ll pay</p>
-          <p className="font-mono tracking-normal">0.00805 ETH</p>
+          <p className="font-mono tracking-normal">
+            {quote ? `${quote.cryptoAmount} USDC` : "—"}
+          </p>
         </div>
       </div>
       <p className="text-center text-[10px] leading-[11px] tracking-[-0.06em] text-[#0E140E]/68">

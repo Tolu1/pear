@@ -1,0 +1,35 @@
+# Dependencies (reinstalled inside the image)
+**/node_modules
+
+# Build output / caches (rebuilt inside the image)
+**/dist
+**/.next
+**/.turbo
+**/coverage
+**/*.tsbuildinfo
+
+# Logs
+npm-debug.log
+**/*.log
+
+# Version control
+.git
+.gitignore
+
+# Docker
+**/Dockerfile*
+**/docker-compose*
+.dockerignore
+
+# Editor / OS
+.vscode
+.idea
+**/.DS_Store
+
+# Local env files (never bake secrets into an image)
+**/.env
+**/.env.*
+
+
+# sst
+.sst

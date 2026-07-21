@@ -1,17 +1,15 @@
 export const SUPPORTED_CURRENCIES = {
-  ngn: {
-    code: 'ngn',
+  NGN: {
+    code: 'NGN',
     name: 'Nigerian Naira',
     symbol: '₦',
     decimals: 2,
-    displayName: 'NGN',
   },
-  usd: {
-    code: 'usd',
+  USD: {
+    code: 'USD',
     name: 'US Dollar',
     symbol: '$',
     decimals: 2,
-    displayName: 'USD',
   },
 } as const;
 

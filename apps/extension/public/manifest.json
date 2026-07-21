@@ -1,10 +1,20 @@
 {
   "manifest_version": 3,
   "name": "Pear",
-  "version": "0.0.2",
-  "description": "Buy anything online using crypto",
-  "permissions": ["tabs", "activeTab", "sidePanel", "debugger", "scripting"],
-  "host_permissions": ["*://stripe-payments-demo.appspot.com/*", "*://ai.pearextension.com/*"],
+  "version": "0.1.0",
+  "description": "Early access preview of Pear's browser agent",
+  "permissions": ["tabs", "activeTab", "sidePanel", "debugger"],
+  "host_permissions": [
+    "*://stripe-payments-demo.appspot.com/*",
+    "*://ai.pearextension.com/*",
+    "http://localhost/*"
+  ],
+  "icons": {
+    "16": "icon.png",
+    "32": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
   "action": {
     "default_icon": {
       "16": "icon.png"

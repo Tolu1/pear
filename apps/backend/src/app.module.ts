@@ -1,21 +1,49 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { DatabaseModule } from './database/database.module';
-import { PaymentsModule } from './payments/payments.module';
-import { ExchangeRateService } from './exchange-rate/exchange-rate.service';
-import { BlockchainModule } from './blockchain/blockchain.module';
+import { ClsModule } from 'nestjs-cls';
+import { ClsPluginTransactional } from '@nestjs-cls/transactional';
+import { TransactionalAdapterDrizzleOrm } from '@nestjs-cls/transactional-adapter-drizzle-orm';
+import Joi from 'joi';
+import { HealthController } from './health/health.controller';
+import { DrizzleModule, DRIZZLE } from './drizzle/drizzle.module';
 import { TokensModule } from './tokens/tokens.module';
-import { AdaptersModule } from './adapters/adapters.module';
+import { QuotesModule } from './quotes/quotes.module';
+import { PaymentIntentsModule } from './payment-intents/payment-intents.module';
+import { VirtualCardModule } from './virtual-card/virtual-card.module';
+import { BlockchainModule } from './blockchain/blockchain.module';
+import { BetaAccessModule } from './beta-access/beta-access.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    DatabaseModule,
-    PaymentsModule,
-    BlockchainModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validationSchema: Joi.object({
+        DATABASE_URL: Joi.string().required(),
+        COINGECKO_API_KEY: Joi.string().required(),
+        CARD_NUMBER: Joi.string().required(),
+        CARD_EXPIRY: Joi.string().required(),
+        CARD_CVV: Joi.string().required(),
+        CARD_NAME: Joi.string().required(),
+        SERVICE_API_KEY: Joi.string().required(),
+      }),
+    }),
+    ClsModule.forRoot({
+      plugins: [
+        new ClsPluginTransactional({
+          imports: [DrizzleModule],
+          adapter: new TransactionalAdapterDrizzleOrm({
+            drizzleInstanceToken: DRIZZLE,
+          }),
+        }),
+      ],
+    }),
     TokensModule,
-    AdaptersModule,
+    QuotesModule,
+    PaymentIntentsModule,
+    VirtualCardModule,
+    BlockchainModule,
+    BetaAccessModule,
   ],
-  providers: [ExchangeRateService],
+  controllers: [HealthController],
 })
 export class AppModule {}

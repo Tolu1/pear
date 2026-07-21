@@ -1,6 +1,7 @@
 import BalanceDisplay from "./_components/balance-display";
-import { usePayment } from "@/hooks/use-payment";
+import { usePaymentScreenStore } from "@/stores/payment-screen.store";
 import GoToPaymentPage from "./_components/go-to-payment-page";
+import Scanning from "./_components/scanning";
 import YouAreAlmostThere from "./_components/you-are-almost-there";
 import PaymentDetails from "./_components/payment-details";
 import Checking from "./_components/checking";
@@ -13,15 +14,16 @@ import RefreshAndPayButtons from "./_components/refresh-and-pay-buttons";
 import ContactSupportButton from "./_components/contact-support-button";
 import ViewTransactionButton from "./_components/view-transaction-button";
 import TryAgainButton from "./_components/try-again-button";
-import { ImSpinner3 } from "react-icons/im";
 
 function Page() {
-  const { step, isDetecting } = usePayment();
+  const { screen } = usePaymentScreenStore();
 
   function renderMainContent() {
-    switch (step) {
+    switch (screen) {
       case "idle":
         return <GoToPaymentPage />;
+      case "scanning":
+        return <Scanning />;
       case "almost-detected":
         return <YouAreAlmostThere />;
       case "detected":
@@ -34,46 +36,42 @@ function Page() {
         return <ConfirmingWallet />;
       case "processing":
         return <Processing />;
-      case "success":
+      case "succeeded":
         return <PaymentCompleted />;
       case "failed":
+        return <PaymentFailed />;
+      case "expired":
+        return <PaymentFailed />;
+      case "canceled":
         return <PaymentFailed />;
     }
   }
 
   function renderBottomActions() {
-    switch (step) {
+    switch (screen) {
       case "idle":
-        return <RefreshAndPayButtons />;
+      case "scanning":
       case "almost-detected":
-        return <RefreshAndPayButtons />;
       case "detected":
         return <RefreshAndPayButtons />;
       case "warning":
+      case "failed":
+      case "expired":
+      case "canceled":
         return <TryAgainButton />;
+      case "checking":
       case "confirming":
-        return <ContactSupportButton />;
       case "processing":
         return <ContactSupportButton />;
-      case "success":
+      case "succeeded":
         return <ViewTransactionButton />;
-      case "failed":
-        return <TryAgainButton />;
     }
   }
 
   return (
     <div className="flex h-full flex-col p-6">
       <BalanceDisplay />
-      <div className="flex-1">
-        {isDetecting ? (
-          <div className="flex h-[200px] items-center justify-center text-center">
-            <ImSpinner3 className="animate-spin" size={24} />
-          </div>
-        ) : (
-          renderMainContent()
-        )}
-      </div>
+      <div className="flex-1">{renderMainContent()}</div>
       <div>{renderBottomActions()}</div>
     </div>
   );

@@ -1,209 +1,172 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
+import {
+  encodeEventTopics,
+  erc20Abi,
+  parseUnits,
+  type Hash,
+  type Log,
+  type TransactionReceipt,
+} from 'viem';
+import { base, baseSepolia } from 'viem/chains';
 import { BlockchainService } from './blockchain.service';
-import { Payment } from 'src/payments/interfaces/payment.interface';
-import { SUPPORTED_TOKENS } from '../common/constants/supported-tokens.constant';
+import { TransferFailedException } from './exceptions/transfer-failed.exception';
+import { TransferMismatchException } from './exceptions/transfer-mismatch.exception';
+import { UnsupportedChainException } from './exceptions/unsupported-chain.exception';
+import { createMock, DeepMocked } from '../../test/utils/create-mock';
+import { makeAddress, makeTxHash } from '../../test/factories';
 
-jest.mock('viem', () => ({
-  createPublicClient: jest.fn(),
-  http: jest.fn(),
-  parseAbiItem: jest.fn(),
-  decodeFunctionData: jest.fn(),
-  // parseAbiItem: jest.fn(() => ({
-  //   name: 'transfer',
-  //   type: 'function',
-  //   inputs: [
-  //     { name: 'to', type: 'address' },
-  //     { name: 'amount', type: 'uint256' },
-  //   ],
-  // })),
-}));
+const waitForTransactionReceipt = jest.fn();
 
-jest.mock('viem/chains', () => ({
-  lisk: { network: 'lisk' },
-  liskSepolia: { network: 'liskSepolia' },
-}));
+jest.mock('viem', () => {
+  const actual = jest.requireActual<typeof import('viem')>('viem');
+  return {
+    ...actual,
+    createPublicClient: jest.fn(() => ({ waitForTransactionReceipt })),
+  };
+});
 
-jest.mock('viem/op-stack', () => ({
-  publicActionsL2: jest.fn(() => ({})),
-}));
+const buildTransferLog = (args: {
+  tokenAddress: `0x${string}`;
+  from: `0x${string}`;
+  to: `0x${string}`;
+  value: bigint;
+}): Log => {
+  const topics = encodeEventTopics({
+    abi: erc20Abi,
+    eventName: 'Transfer',
+    args: { from: args.from, to: args.to },
+  });
+  const valueHex = `0x${args.value.toString(16).padStart(64, '0')}`;
+  return {
+    address: args.tokenAddress,
+    topics: topics as [`0x${string}`, ...`0x${string}`[]],
+    data: valueHex,
+    blockHash: '0x0',
+    blockNumber: 1n,
+    logIndex: 0,
+    transactionHash: '0x0',
+    transactionIndex: 0,
+    removed: false,
+  } as unknown as Log;
+};
 
 describe('BlockchainService', () => {
   let service: BlockchainService;
-  let mockPublicClient: any;
+  let configService: DeepMocked<ConfigService>;
 
-  const mockConfigService = {
-    get: jest.fn().mockReturnValue('mock-moralis-api-key'),
-  };
-
-  const mockPayment = {
-    id: 'test-payment-id',
-    merchantDomain: 'example.com',
-    paymentUrl: 'https://example.com/checkout',
-    from: '0x1234567890123456789012345678901234567890',
-    fiatAmount: '100.00',
-    fiatCurrencyCode: 'usd',
-    tokenAmount: '100.00',
-    tokenId: 'usd-coin',
-    blockchain: 'lisk',
-    status: 'created',
-  } satisfies Payment;
-
-  const paymentAddress =
-    SUPPORTED_TOKENS[mockPayment.blockchain][mockPayment.tokenId]
-      .paymentAddress;
+  const fromAddress = makeAddress();
+  const toAddress = makeAddress();
+  const tokenAddress = makeAddress();
+  const txHash: Hash = makeTxHash();
 
   beforeEach(async () => {
-    mockPublicClient = {
-      watchBlocks: jest.fn(),
-      getTransaction: jest.fn(),
-      extend: jest.fn().mockReturnThis(),
-    };
+    waitForTransactionReceipt.mockReset();
+    configService = createMock<ConfigService>();
+    configService.get.mockReturnValue(undefined);
 
-    const { createPublicClient } = require('viem');
-    createPublicClient.mockReturnValue(mockPublicClient);
+    const moduleRef = await Test.createTestingModule({
+      providers: [
+        BlockchainService,
+        { provide: ConfigService, useValue: configService },
+      ],
+    }).compile();
 
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [BlockchainService, ConfigService],
-    })
-      .overrideProvider(ConfigService)
-      .useValue(mockConfigService)
-      .compile();
-
-    service = module.get<BlockchainService>(BlockchainService);
-  });
-  afterEach(() => {
-    jest.clearAllMocks();
+    service = moduleRef.get(BlockchainService);
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-
-  it('should resolve when native payment is detected', async () => {
-    const mockTransaction = {
-      hash: '0xabcd',
-      from: '0x1111',
-      to: paymentAddress,
-      value: BigInt('1000000000000000000'),
-    };
-
-    const mockBlock = {
-      number: BigInt('12345'),
-      transactions: ['0xabcd'],
-    };
-
-    mockPublicClient.watchBlocks.mockImplementation(({ onBlock }) => {
-      setTimeout(() => onBlock(mockBlock), 0);
-      return jest.fn();
+  describe('assertTransfer()', () => {
+    const expected = (overrides: Partial<{ value: bigint }> = {}) => ({
+      from: fromAddress,
+      to: toAddress,
+      tokenAddress,
+      value: parseUnits('10', 6),
+      chainId: base.id,
+      ...overrides,
     });
 
-    mockPublicClient.getTransaction.mockResolvedValue(mockTransaction);
-
-    const result = await service.watchForPayment({ payment: mockPayment });
-
-    expect(result).toEqual({
-      hash: '0xabcd',
-      from: '0x1111',
-      to: paymentAddress,
-      amount: '1000000000000000000',
-      tokenType: 'native',
-    });
-  });
-
-  it('should resolve when ERC-20 payment is detected', async () => {
-    const { decodeFunctionData } = require('viem');
-    decodeFunctionData.mockReturnValue({
-      args: [paymentAddress, BigInt('500000000')],
-    });
-
-    const mockTransaction = {
-      hash: '0xefgh',
-      from: '0x2222',
-      to: '0xTokenContract',
-      input: `0xa9059cbb000000000000000000000000${paymentAddress.slice(2)}000000000000000000000000000000000000000000000000000000001dcd6500`,
-      value: BigInt('0'),
-    };
-
-    const mockBlock = {
-      number: BigInt('12346'),
-      transactions: ['0xefgh'],
-    };
-
-    mockPublicClient.watchBlocks.mockImplementation(({ onBlock }) => {
-      setTimeout(() => onBlock(mockBlock), 0);
-      return jest.fn();
-    });
-
-    mockPublicClient.getTransaction.mockResolvedValue(mockTransaction);
-
-    const result = await service.watchForPayment({ payment: mockPayment });
-
-    expect(result).toEqual({
-      hash: '0xefgh',
-      from: '0x2222',
-      to: paymentAddress,
-      amount: '500000000',
-      tokenType: 'erc20',
-      tokenContract: '0xTokenContract',
-    });
-  });
-
-  it('should timeout after 15 minutes if no payment is received', async () => {
-    jest.useFakeTimers();
-
-    mockPublicClient.watchBlocks.mockImplementation(() => {
-      return jest.fn();
-    });
-
-    const promise = service.watchForPayment({ payment: mockPayment });
-    const TIMEOUT = 15 * 60 * 1000; // 15 minutes in milliseconds
-    jest.advanceTimersByTime(TIMEOUT);
-
-    await expect(promise).rejects.toThrow(
-      'Payment timeout: No payment received for test-payment-id after 15 minutes',
-    );
-
-    jest.useRealTimers();
-  });
-
-  it('should handle blockchain errors', async () => {
-    const blockchainError = new Error('Blockchain connection failed');
-
-    mockPublicClient.watchBlocks.mockImplementation(({ onError }) => {
-      setTimeout(() => onError(blockchainError), 0);
-      return jest.fn();
-    });
-
-    await expect(
-      service.watchForPayment({ payment: mockPayment }),
-    ).rejects.toThrow('Blockchain connection failed');
-  });
-
-  it('should handle RPC and network errors gracefully and continue watching', async () => {
-    const mockBlock = {
-      number: BigInt('12347'),
-      transactions: ['0xhash1', '0xhash2', '0xhash3'],
-    };
-
-    mockPublicClient.watchBlocks.mockImplementation(({ onBlock }) => {
-      setTimeout(() => onBlock(mockBlock), 0);
-      return jest.fn();
-    });
-
-    mockPublicClient.getTransaction
-      .mockRejectedValueOnce(new Error('Network timeout'))
-      .mockRejectedValueOnce(new Error('Rate limit exceeded'))
-      .mockResolvedValueOnce({
-        hash: '0xhash3',
-        from: '0x1111',
-        to: paymentAddress,
-        value: BigInt('1000000000000000000'),
+    it('returns the receipt when a matching ERC-20 Transfer log is present', async () => {
+      const log = buildTransferLog({
+        tokenAddress,
+        from: fromAddress,
+        to: toAddress,
+        value: parseUnits('10', 6),
       });
+      const receipt = { status: 'success', logs: [log] } as TransactionReceipt;
+      waitForTransactionReceipt.mockResolvedValue(receipt);
 
-    const result = await service.watchForPayment({ payment: mockPayment });
+      const result = await service.assertTransfer(txHash, expected(), 2);
 
-    expect(result.hash).toBe('0xhash3');
-    expect(mockPublicClient.getTransaction).toHaveBeenCalledTimes(3);
+      expect(result).toBe(receipt);
+      expect(waitForTransactionReceipt).toHaveBeenCalledWith({
+        hash: txHash,
+        confirmations: 2,
+      });
+    });
+
+    it('throws TransferFailedException when the receipt status is not success', async () => {
+      waitForTransactionReceipt.mockResolvedValue({
+        status: 'reverted',
+        logs: [],
+      } as unknown as TransactionReceipt);
+
+      await expect(
+        service.assertTransfer(txHash, expected(), 1),
+      ).rejects.toThrow(TransferFailedException);
+    });
+
+    it('throws TransferMismatchException when no Transfer log matches the expected transfer', async () => {
+      const log = buildTransferLog({
+        tokenAddress,
+        from: fromAddress,
+        to: toAddress,
+        value: parseUnits('1', 6),
+      });
+      waitForTransactionReceipt.mockResolvedValue({
+        status: 'success',
+        logs: [log],
+      } as unknown as TransactionReceipt);
+
+      await expect(
+        service.assertTransfer(
+          txHash,
+          expected({ value: parseUnits('10', 6) }),
+          1,
+        ),
+      ).rejects.toThrow(TransferMismatchException);
+    });
+
+    it('throws UnsupportedChainException for an unsupported chain id', async () => {
+      await expect(
+        service.assertTransfer(txHash, { ...expected(), chainId: 9999 }, 1),
+      ).rejects.toThrow(UnsupportedChainException);
+      expect(waitForTransactionReceipt).not.toHaveBeenCalled();
+    });
+
+    it('caches the public client per chain so repeated calls reuse it', async () => {
+      const log = buildTransferLog({
+        tokenAddress,
+        from: fromAddress,
+        to: toAddress,
+        value: parseUnits('10', 6),
+      });
+      waitForTransactionReceipt.mockResolvedValue({
+        status: 'success',
+        logs: [log],
+      } as unknown as TransactionReceipt);
+
+      await service.assertTransfer(txHash, expected(), 1);
+      await service.assertTransfer(
+        txHash,
+        { ...expected(), chainId: baseSepolia.id },
+        1,
+      );
+      await service.assertTransfer(txHash, expected(), 1);
+
+      const { createPublicClient } =
+        jest.requireMock<typeof import('viem')>('viem');
+      // Two unique chains => two client constructions, even with three calls.
+      expect(createPublicClient).toHaveBeenCalledTimes(2);
+    });
   });
 });

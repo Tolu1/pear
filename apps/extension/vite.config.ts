@@ -2,10 +2,29 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
+import fs from "fs";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 
+function playgroundManifest(isPlayground: boolean) {
+  return {
+    name: "playground-manifest",
+    apply: "build" as const,
+    writeBundle() {
+      if (!isPlayground) return;
+      const manifestPath = path.resolve(__dirname, "dist/manifest.json");
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+      manifest.name = "Pear AI";
+      manifest.host_permissions = ["<all_urls>"];
+      fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
+    },
+  };
+}
+
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  define: {
+    __PLAYGROUND_MODE__: JSON.stringify(mode === "playground"),
+  },
   plugins: [
     react(),
     tailwindcss(),
@@ -17,6 +36,7 @@ export default defineConfig({
         process: true,
       },
     }),
+    playgroundManifest(mode === "playground"),
   ],
   resolve: {
     alias: {
@@ -57,4 +77,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));

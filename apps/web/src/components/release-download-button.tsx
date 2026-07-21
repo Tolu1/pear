@@ -3,7 +3,7 @@ import React from "react";
 import posthog from "posthog-js";
 
 const BETA_VERSION = "0.1.0-beta";
-const BETA_ZIP_PATH = `/downloads/pear-extension-v${BETA_VERSION}.zip`;
+const BETA_ZIP_PATH = "/download/pear/beta";
 
 function ReleaseDownloadButton() {
   function handleClick() {

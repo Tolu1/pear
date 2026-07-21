@@ -1,7 +1,7 @@
-import { usePayment } from "@/hooks/use-payment";
+import { usePaymentScreenStore } from "@/stores/payment-screen.store";
 
 function UserWarning() {
-  const { userWarning } = usePayment();
+  const { warning } = usePaymentScreenStore();
 
   return (
     <div className="flex h-full flex-col justify-center gap-2.5">
@@ -79,7 +79,7 @@ function UserWarning() {
             </h3>
           </div>
           <p className="w-[196px] text-center">
-            {userWarning ||
+            {warning ||
               "Payment attempted too early. Your funds are safe, just finish the required steps"}
           </p>
         </div>
