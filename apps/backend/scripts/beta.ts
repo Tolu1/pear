@@ -117,7 +117,7 @@ async function info(): Promise<void> {
   console.log();
   for (const row of rows) {
     const remaining = row.runsGranted - row.runsUsed;
-    const tone = remaining === 0 ? c.red : remaining <= 5 ? c.yellow : c.green;
+    const tone = remaining === 0 ? c.red : remaining <= 10 ? c.yellow : c.green;
     const status = row.active ? '' : `  ${c.red('[revoked]')}`;
     const granted =
       row.runsGranted === MAX_RUNS

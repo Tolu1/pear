@@ -6,7 +6,7 @@ export function RunMeter() {
   if (!data?.valid) return null;
 
   const { remaining, limit } = data;
-  const low = remaining <= 5;
+  const low = remaining <= 10;
   const fill = low ? "bg-[#B3261E]" : "bg-[#0E140E]/65";
 
   return (
