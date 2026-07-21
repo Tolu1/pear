@@ -15,6 +15,7 @@
     "generate:api-types": "node scripts/generate-types.mjs",
     "release": "pnpm build && mkdir -p releases && cd dist && zip -r ../releases/pear-extension-v$npm_package_version.zip .",
     "release:playground": "pnpm build:playground && mkdir -p releases && cd dist && zip -r ../releases/pear-ai-playground-v$npm_package_version.zip .",
+    "upload:playground": "aws s3 cp releases/pear-ai-playground-v$npm_package_version.zip s3://pear-extension-downloads/pear-ai-playground-v$npm_package_version.zip --cache-control no-cache --content-type application/zip --region eu-central-1",
     "preview": "vite preview"
   },
   "dependencies": {
