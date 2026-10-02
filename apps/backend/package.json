@@ -23,6 +23,7 @@
     "beta:mint": "tsx scripts/beta.ts mint",
     "beta:info": "tsx scripts/beta.ts info",
     "beta:revoke": "tsx scripts/beta.ts revoke",
+    "beta:topup": "tsx scripts/beta.ts topup",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",

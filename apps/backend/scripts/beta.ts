@@ -143,10 +143,32 @@ async function revoke(): Promise<void> {
   console.log(`\n${c.yellow('⊘')} Revoked ${c.bold(c.cyan(code))}\n`);
 }
 
+async function topup(): Promise<void> {
+  const code = requireFlag('code');
+
+  const [row] = await db
+    .update(betaAccess)
+    .set({ runsUsed: 0 })
+    .where(eq(betaAccess.code, code))
+    .returning();
+
+  if (!row) throw new Error(`No such code: ${code}`);
+
+  console.log(
+    `\n${c.green('✓')} Topped up ${c.bold(c.cyan(code))} ${c.dim(`(${row.runsGranted} runs)`)}`,
+  );
+  if (!row.active)
+    console.log(
+      `${c.yellow('!')} ${c.dim('This code is revoked, so the runs stay unusable')}`,
+    );
+  console.log();
+}
+
 const actions: Record<string, () => Promise<void>> = {
   mint,
   info,
   revoke,
+  topup,
 };
 
 async function main(): Promise<void> {
