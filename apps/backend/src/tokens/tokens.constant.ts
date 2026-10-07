@@ -1,4 +1,5 @@
 import { base, baseSepolia, lisk } from 'viem/chains';
+import { arc, arcTestnet } from '../blockchain/arc-chains.constant';
 import { type Token } from './interfaces/token.interface';
 
 export const tokens: Token[] = [
@@ -35,6 +36,24 @@ export const tokens: Token[] = [
         tokenAddress: '0xf242275d3a6527d877f2c927a82d9b057609cc71',
         paymentAddress: '0xcb5C728921d1B03DF761E56F8CBB7fde71460069',
         confirmations: 2,
+      },
+      {
+        id: 'usdc-arc',
+        tokenId: 'usd-coin',
+        chainId: arc.id,
+        network: 'arc',
+        tokenAddress: '0x3600000000000000000000000000000000000000',
+        paymentAddress: '0x7DaB556963888254090B4C50378A6E208986842F',
+        confirmations: 1,
+      },
+      {
+        id: 'usdc-arc-testnet',
+        tokenId: 'usd-coin',
+        chainId: arcTestnet.id,
+        network: 'arcTestnet',
+        tokenAddress: '0x3600000000000000000000000000000000000000',
+        paymentAddress: '0x7DaB556963888254090B4C50378A6E208986842F',
+        confirmations: 1,
       },
     ],
   },
