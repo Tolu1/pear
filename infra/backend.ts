@@ -7,6 +7,7 @@ import {
   cardCvv,
   cardName,
   serviceApiKey,
+  arcRailWalletPrivateKey,
 } from "./secrets";
 
 export const backend = new sst.aws.Service("Backend", {
@@ -22,6 +23,7 @@ export const backend = new sst.aws.Service("Backend", {
     CARD_CVV: cardCvv.value,
     CARD_NAME: cardName.value,
     SERVICE_API_KEY: serviceApiKey.value,
+    ARC_RAIL_WALLET_PRIVATE_KEY: arcRailWalletPrivateKey.value,
   },
   dev: { command: "pnpm --filter backend start:dev" },
 });

@@ -7,3 +7,6 @@ export const cardNumber = new sst.Secret("CardNumber");
 export const cardExpiry = new sst.Secret("CardExpiry");
 export const cardCvv = new sst.Secret("CardCvv");
 export const cardName = new sst.Secret("CardName");
+export const arcRailWalletPrivateKey = new sst.Secret(
+  "ArcRailWalletPrivateKey",
+);
