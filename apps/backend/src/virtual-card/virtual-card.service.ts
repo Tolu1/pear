@@ -20,6 +20,14 @@ export class VirtualCardService {
       expiry: `${card.expMonth.padStart(2, '0')}/${card.expYear.slice(-2)}`,
       cvv: card.cvv,
       name: CARD_NAME,
+      billingAddress: {
+        line1: card.billingAddress.line1,
+        line2: card.billingAddress.line2,
+        city: card.billingAddress.city,
+        state: card.billingAddress.state,
+        zip: card.billingAddress.zip,
+        country: card.billingAddress.country,
+      },
     };
   }
 }

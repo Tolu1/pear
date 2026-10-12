@@ -62,6 +62,14 @@ describe('VirtualCardService', () => {
         expiry: '07/27',
         cvv: '123',
         name: 'Pear',
+        billingAddress: {
+          line1: '440 N Barranca Avenue',
+          line2: '#4496',
+          city: 'Covina',
+          state: 'CA',
+          zip: '91723',
+          country: 'US',
+        },
       });
     });
   });

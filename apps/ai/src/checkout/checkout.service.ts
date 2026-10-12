@@ -5,7 +5,7 @@ import { PaymentIntentsService } from './payment-intents.service';
 import { type VirtualCard } from './interfaces/virtual-card.interface';
 
 const CHECKOUT_GOAL =
-  'Complete the checkout on the current web page. Fill the payment card fields (card number, expiry, CVV, name on card) using the card details in your instructions, then submit the order to pay. Only fill payment fields — leave shipping and personal details as they are.';
+  "Complete the checkout on the current web page. Fill the payment card fields (card number, expiry, CVV, name on card) using the card details in your instructions. If the payment form asks for a billing address, use the card's billing address. Then submit the order to pay. Leave shipping and other personal details as they are.";
 
 @Injectable()
 export class CheckoutService {
@@ -32,12 +32,14 @@ export class CheckoutService {
   }
 
   private buildCardContext(card: VirtualCard): string {
+    const { line1, line2, city, state, zip, country } = card.billingAddress;
     return [
       'Payment card to use for this checkout:',
       `Card number: ${card.number}`,
       `Expiry: ${card.expiry}`,
       `CVV: ${card.cvv}`,
       `Name on card: ${card.name}`,
+      `Billing address: ${[line1, line2, city, state, zip, country].filter(Boolean).join(', ')}`,
     ].join('\n');
   }
 }

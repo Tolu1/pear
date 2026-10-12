@@ -27,6 +27,14 @@ describe('Payment flow (e2e)', () => {
       expiry: '12/27',
       cvv: '123',
       name: 'Pear',
+      billingAddress: {
+        line1: '440 N Barranca Avenue',
+        line2: '#4496',
+        city: 'Covina',
+        state: 'CA',
+        zip: '91723',
+        country: 'US',
+      },
     });
 
     fetchSpy = jest.spyOn(global, 'fetch').mockImplementation(((
@@ -142,6 +150,7 @@ describe('Payment flow (e2e)', () => {
       .expect(200);
     expect(cardRes.body.number).toBeTruthy();
     expect(cardRes.body.cvv).toBeTruthy();
+    expect(cardRes.body.billingAddress.zip).toBe('91723');
 
     await request(app.getHttpServer())
       .post(`/v1/payment-intents/${intentId}/complete`)

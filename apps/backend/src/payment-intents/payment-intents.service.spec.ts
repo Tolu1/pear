@@ -161,6 +161,14 @@ describe('PaymentIntentsService', () => {
         expiry: '12/30',
         cvv: '123',
         name: 'Pear',
+        billingAddress: {
+          line1: '440 N Barranca Avenue',
+          line2: '#4496',
+          city: 'Covina',
+          state: 'CA',
+          zip: '91723',
+          country: 'US',
+        },
       });
 
       const card = await service.getCard(intent.id);
