@@ -8,6 +8,7 @@ const config: Config = {
   testRegex: '\\.int-spec\\.ts$',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^mppx(/.*)?$': '<rootDir>/test/stubs/mppx.ts',
   },
   transform: {
     '^.+\\.(t|j)s$': ['@swc/jest', swcJestConfig],
