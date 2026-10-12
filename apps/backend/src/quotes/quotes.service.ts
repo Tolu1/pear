@@ -4,9 +4,11 @@ import { CreateQuoteDto } from './dto/create-quote.dto';
 import { QuotesRepository } from './quotes.repository';
 import { QuoteMapper } from './quote.mapper';
 import { FiatToCryptoService } from '../rates/fiat-to-crypto.service';
+import { VirtualCardService } from '../virtual-card/virtual-card.service';
 import { Quote } from './interfaces/quote.interface';
 import { QuoteExpiredException } from './exceptions/quote-expired.exception';
 import { QuoteAlreadyConsumedException } from './exceptions/quote-already-consumed.exception';
+import { UnsupportedCardCurrencyException } from './exceptions/unsupported-card-currency.exception';
 
 const QUOTE_TTL_MINUTES = 15;
 
@@ -15,11 +17,17 @@ export class QuotesService {
   constructor(
     private readonly quotesRepository: QuotesRepository,
     private readonly fiatToCryptoService: FiatToCryptoService,
+    private readonly virtualCardService: VirtualCardService,
   ) {}
 
   async create(dto: CreateQuoteDto): Promise<Quote> {
+    if (dto.currencyCode !== 'USD') {
+      throw new UnsupportedCardCurrencyException(dto.currencyCode);
+    }
+
+    const cardCost = await this.virtualCardService.getCost(dto.amount);
     const { cryptoAmount, rate } = await this.fiatToCryptoService.convert(
-      dto.amount,
+      cardCost.total,
       dto.currencyCode,
       dto.tokenId,
     );
@@ -30,6 +38,7 @@ export class QuotesService {
       id: `qt_${uuidv4()}`,
       amount: dto.amount,
       currencyCode: dto.currencyCode,
+      cardFee: cardCost.fee,
       cryptoAmount,
       rate,
       tokenId: dto.tokenId,

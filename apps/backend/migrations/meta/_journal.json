@@ -57,6 +57,20 @@
       "when": 1791813128887,
       "tag": "0007_shocking_vengeance",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791826017525,
+      "tag": "0008_spicy_leo",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791829257491,
+      "tag": "0009_empty_misty_knight",
+      "breakpoints": true
     }
   ]
 }

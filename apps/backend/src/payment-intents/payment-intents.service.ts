@@ -12,7 +12,6 @@ import { BlockchainService } from '../blockchain/blockchain.service';
 import { PaymentIntent } from './interfaces/payment-intent.interface';
 import { PaymentIntentStatus } from './enums/payment-intent-status.enum';
 import { PaymentIntentConflictException } from './exceptions/payment-intent-conflict.exception';
-import { UnsupportedCardCurrencyException } from './exceptions/unsupported-card-currency.exception';
 import { VirtualCard } from '../virtual-card/interfaces/virtual-card.interface';
 import { type DrizzleAdapter } from '../drizzle/drizzle.module';
 
@@ -32,9 +31,6 @@ export class PaymentIntentsService {
   @Transactional()
   async create(dto: CreatePaymentIntentDto): Promise<PaymentIntent> {
     const quote = await this.quotesService.findActive(dto.quoteId);
-    if (quote.currencyCode !== 'USD') {
-      throw new UnsupportedCardCurrencyException(quote.currencyCode);
-    }
     const rail = this.tokensService.findRail(dto.railId);
 
     const expiresAt = new Date(
@@ -99,7 +95,10 @@ export class PaymentIntentsService {
       throw error;
     });
 
-    const cardId = await this.virtualCardService.issue(intent.quote.amount);
+    const cardId = await this.virtualCardService.issue(
+      intent.quote.amount,
+      intent.quote.cardFee,
+    );
     const intentRow = await this.paymentIntentsRepository.update(id, {
       cardId,
       updatedAt: new Date(),

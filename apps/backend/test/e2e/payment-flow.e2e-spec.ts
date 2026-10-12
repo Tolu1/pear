@@ -21,6 +21,7 @@ describe('Payment flow (e2e)', () => {
   beforeAll(async () => {
     blockchainService = createMock<BlockchainService>();
     virtualCardService = createMock<VirtualCardService>();
+    virtualCardService.getCost.mockResolvedValue({ fee: '0', total: '50.00' });
     virtualCardService.issue.mockResolvedValue('card_123');
     virtualCardService.get.mockResolvedValue({
       number: '4111111111111111',

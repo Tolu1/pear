@@ -20,16 +20,33 @@ describe('VirtualCardService', () => {
     service = moduleRef.get(VirtualCardService);
   });
 
+  describe('getCost()', () => {
+    it("returns the fee and total from Laso's price quote", async () => {
+      lasoService.getIssuanceCost.mockResolvedValue({
+        amount: '50',
+        fee: '1.2',
+        total: '51.2',
+      });
+
+      expect(await service.getCost('50')).toEqual({
+        fee: '1.2',
+        total: '51.2',
+      });
+      expect(lasoService.getIssuanceCost).toHaveBeenCalledWith('50');
+    });
+  });
+
   describe('issue()', () => {
-    it('orders a card at the cost Laso quotes and returns its id', async () => {
-      const cost = { amount: '50', fee: '0', total: '50' };
-      lasoService.getIssuanceCost.mockResolvedValue(cost);
+    it('orders a card capped at the amount plus the quoted fee', async () => {
       lasoService.orderCard.mockResolvedValue('card_123');
 
-      const cardId = await service.issue('50');
+      const cardId = await service.issue('50', '1.2');
 
-      expect(lasoService.getIssuanceCost).toHaveBeenCalledWith('50');
-      expect(lasoService.orderCard).toHaveBeenCalledWith(cost);
+      expect(lasoService.orderCard).toHaveBeenCalledWith({
+        amount: '50',
+        fee: '1.2',
+        total: '51.2',
+      });
       expect(cardId).toBe('card_123');
     });
   });

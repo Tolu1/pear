@@ -40,6 +40,7 @@ describe('PaymentIntentsRepository (integration)', () => {
         id,
         amount: '50.00',
         currencyCode: 'USD',
+        cardFee: '0',
         cryptoAmount: '50.000000',
         rate: '1.0',
         tokenId: 'usd-coin',

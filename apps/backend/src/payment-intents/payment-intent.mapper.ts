@@ -43,6 +43,7 @@ export class PaymentIntentMapper {
         id: intent.quote.id,
         amount: intent.quote.amount,
         currencyCode: intent.quote.currencyCode,
+        cardFee: intent.quote.cardFee,
         cryptoAmount: intent.quote.cryptoAmount,
         rate: intent.quote.rate,
         tokenId: intent.quote.tokenId,

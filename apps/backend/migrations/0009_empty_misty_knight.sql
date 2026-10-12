@@ -1,0 +1,1 @@
+ALTER TABLE "quotes" ALTER COLUMN "card_fee" DROP DEFAULT;

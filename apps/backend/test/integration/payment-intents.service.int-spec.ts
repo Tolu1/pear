@@ -96,6 +96,7 @@ describe('PaymentIntentsService (integration)', () => {
           id: quote.id,
           amount: quote.amount,
           currencyCode: quote.currencyCode,
+          cardFee: quote.cardFee,
           cryptoAmount: quote.cryptoAmount,
           rate: quote.rate,
           tokenId: quote.tokenId,

@@ -5,6 +5,7 @@ export class QuoteResponseDto implements Quote {
   id: string;
   amount: string;
   currencyCode: CurrencyCode;
+  cardFee: string;
   cryptoAmount: string;
   rate: string;
   tokenId: string;

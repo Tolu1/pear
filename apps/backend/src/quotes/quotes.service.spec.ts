@@ -2,9 +2,11 @@ import { Test } from '@nestjs/testing';
 import { QuotesService } from './quotes.service';
 import { QuotesRepository } from './quotes.repository';
 import { FiatToCryptoService } from '../rates/fiat-to-crypto.service';
+import { VirtualCardService } from '../virtual-card/virtual-card.service';
 import { QuoteAlreadyConsumedException } from './exceptions/quote-already-consumed.exception';
 import { QuoteExpiredException } from './exceptions/quote-expired.exception';
 import { QuoteNotFoundException } from './exceptions/quote-not-found.exception';
+import { UnsupportedCardCurrencyException } from './exceptions/unsupported-card-currency.exception';
 import { createMock, DeepMocked } from '../../test/utils/create-mock';
 import { makeQuote } from '../../test/factories';
 
@@ -12,16 +14,19 @@ describe('QuotesService', () => {
   let service: QuotesService;
   let repo: DeepMocked<QuotesRepository>;
   let fiatToCrypto: DeepMocked<FiatToCryptoService>;
+  let virtualCardService: DeepMocked<VirtualCardService>;
 
   beforeEach(async () => {
     repo = createMock<QuotesRepository>();
     fiatToCrypto = createMock<FiatToCryptoService>();
+    virtualCardService = createMock<VirtualCardService>();
 
     const moduleRef = await Test.createTestingModule({
       providers: [
         QuotesService,
         { provide: QuotesRepository, useValue: repo },
         { provide: FiatToCryptoService, useValue: fiatToCrypto },
+        { provide: VirtualCardService, useValue: virtualCardService },
       ],
     }).compile();
 
@@ -29,8 +34,12 @@ describe('QuotesService', () => {
   });
 
   describe('create()', () => {
-    it('persists a quote with conversion result and a 15-minute TTL', async () => {
+    it('prices the card fee in, and persists the quote with a 15-minute TTL', async () => {
       jest.useFakeTimers().setSystemTime(new Date('2026-05-11T12:00:00Z'));
+      virtualCardService.getCost.mockResolvedValue({
+        fee: '1.2',
+        total: '101.2',
+      });
       fiatToCrypto.convert.mockResolvedValue({
         cryptoAmount: '100.000000',
         rate: '1.00',
@@ -50,11 +59,13 @@ describe('QuotesService', () => {
         tokenId: 'usd-coin',
       });
 
+      expect(virtualCardService.getCost).toHaveBeenCalledWith('100.00');
       expect(fiatToCrypto.convert).toHaveBeenCalledWith(
-        '100.00',
+        '101.2',
         'USD',
         'usd-coin',
       );
+      expect(quote.cardFee).toBe('1.2');
       expect(quote.id).toMatch(/^qt_/);
       expect(quote.cryptoAmount).toBe('100.000000');
       expect(quote.rate).toBe('1.00');
@@ -64,6 +75,18 @@ describe('QuotesService', () => {
 
       jest.useRealTimers();
     });
+
+    it('rejects a non-USD quote before pricing it', async () => {
+      await expect(
+        service.create({
+          amount: '50000',
+          currencyCode: 'NGN',
+          tokenId: 'usd-coin',
+        }),
+      ).rejects.toThrow(UnsupportedCardCurrencyException);
+      expect(virtualCardService.getCost).not.toHaveBeenCalled();
+      expect(repo.create).not.toHaveBeenCalled();
+    });
   });
 
   describe('findOne()', () => {
@@ -72,6 +95,7 @@ describe('QuotesService', () => {
         id: 'qt_1',
         amount: '100.00',
         currencyCode: 'USD',
+        cardFee: '0',
         cryptoAmount: '100.000000',
         rate: '1.0',
         tokenId: 'usd-coin',

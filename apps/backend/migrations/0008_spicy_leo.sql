@@ -1,0 +1,1 @@
+ALTER TABLE "quotes" ADD COLUMN "card_fee" numeric(18, 4) DEFAULT '0' NOT NULL;

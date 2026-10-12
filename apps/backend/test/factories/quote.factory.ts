@@ -10,6 +10,7 @@ export function makeQuote(overrides: Partial<Quote> = {}): Quote {
     id: faker.string.uuid(),
     amount: '10.00',
     currencyCode: 'USD',
+    cardFee: '0',
     cryptoAmount: '10.000000',
     rate: '1.0',
     tokenId: 'usd-coin',

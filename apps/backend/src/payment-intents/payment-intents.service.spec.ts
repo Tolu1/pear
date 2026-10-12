@@ -14,7 +14,6 @@ import { TokensService } from '../tokens/tokens.service';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import { PaymentIntentStatus } from './enums/payment-intent-status.enum';
 import { PaymentIntentConflictException } from './exceptions/payment-intent-conflict.exception';
-import { UnsupportedCardCurrencyException } from './exceptions/unsupported-card-currency.exception';
 import { createMock, DeepMocked } from '../../test/utils/create-mock';
 import {
   makeAddress,
@@ -86,22 +85,6 @@ describe('PaymentIntentsService', () => {
       expect(intent.rail).toEqual(rail);
       expect(intent.status).toBe(PaymentIntentStatus.REQUIRES_TRANSFER);
       expect(quotesService.markConsumed).toHaveBeenCalledWith(quote.id);
-    });
-
-    it('rejects a quote that is not in USD without writing the intent', async () => {
-      quotesService.findActive.mockResolvedValue(
-        makeQuote({ currencyCode: 'NGN' }),
-      );
-
-      await expect(
-        service.create({
-          quoteId: 'qt_x',
-          railId: 'usdc-base',
-          fromAddress: makeAddress(),
-          merchantDomain: 'temu.com',
-        }),
-      ).rejects.toThrow(UnsupportedCardCurrencyException);
-      expect(repo.create).not.toHaveBeenCalled();
     });
 
     it('propagates exceptions from the quote lookup without writing the intent', async () => {
@@ -265,7 +248,10 @@ describe('PaymentIntentsService', () => {
           txHash,
         }),
       );
-      expect(virtualCardService.issue).toHaveBeenCalledWith(quote.amount);
+      expect(virtualCardService.issue).toHaveBeenCalledWith(
+        quote.amount,
+        quote.cardFee,
+      );
       expect(repo.update).toHaveBeenCalledWith(
         intent.id,
         expect.objectContaining({ cardId: 'card_123' }),

@@ -26,6 +26,7 @@ export class QuoteDto implements Omit<Quote, 'consumedAt' | 'createdAt'> {
   id: string;
   amount: string;
   currencyCode: CurrencyCode;
+  cardFee: string;
   cryptoAmount: string;
   rate: string;
   tokenId: string;

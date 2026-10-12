@@ -33,6 +33,7 @@ describe('QuotesRepository (integration)', () => {
         id: 'qt_test_1',
         amount: '100.00',
         currencyCode: 'USD',
+        cardFee: '0',
         cryptoAmount: '100.000000',
         rate: '1.0',
         tokenId: 'usd-coin',
