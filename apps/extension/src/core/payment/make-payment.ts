@@ -10,7 +10,8 @@ import { assertNoUserActionRequired } from "@/lib/ai/automation/assert-no-user-a
 import { createPaymentIntent } from "@/lib/api/payment-intents/create-payment-intent";
 import { submitPaymentIntent } from "@/lib/api/payment-intents/submit-payment-intent";
 import { getSupportedTokens } from "@/lib/api/tokens/get-supported-tokens";
-import { transferToken } from "@/lib/blockchain/transfer-token";
+import { sendToken } from "@/lib/blockchain/send-token";
+import { waitForConfirmation } from "@/lib/blockchain/wait-for-confirmation";
 import { queryClient } from "@/lib/query-client";
 import { supportedTokenKeys } from "@/lib/query-keys";
 import { startCheckout } from "@/lib/ai/checkout/start-checkout";
@@ -57,20 +58,15 @@ export async function makePayment(): Promise<void> {
   setIntent(intent);
 
   setScreen("confirming");
-  const receipt = await transferToken(
-    {
-      contractAddress: intent.contractAddress,
-      to: intent.paymentAddress,
-      amount: intent.cryptoAmount,
-    },
-    async () => {
-      setScreen("processing");
-    },
-  );
-  await submitPaymentIntent(
-    { id: intent.id },
-    { txHash: receipt.transactionHash },
-  );
+  const txHash = await sendToken({
+    contractAddress: intent.contractAddress,
+    to: intent.paymentAddress,
+    amount: intent.cryptoAmount,
+  });
+
+  setScreen("processing");
+  await waitForConfirmation(txHash);
+  await submitPaymentIntent({ id: intent.id }, { txHash });
 
   // apps/ai sets up the agent session (fetches the card, links the intent) and
   // completes the intent itself when the agent finishes.
