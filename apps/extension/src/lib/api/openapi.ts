@@ -20,7 +20,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/webhooks/moralis": {
+    "/v1/tokens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all supported tokens */
+        get: operations["TokensController_findAll"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/tokens/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a supported token by id */
+        get: operations["TokensController_findOne"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/quotes": {
         parameters: {
             query?: never;
             header?: never;
@@ -29,7 +63,25 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["WebhooksController_handleMoralis"];
+        /** Create a quote for a fiat amount and token pair */
+        post: operations["QuotesController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/quotes/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a quote by id */
+        get: operations["QuotesController_findOne"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -104,6 +156,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/payment-intents/{id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit the on-chain transaction hash for a payment intent */
+        post: operations["PaymentIntentsController_submit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/payment-intents/{id}/complete": {
         parameters: {
             query?: never;
@@ -113,7 +182,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Mark a processing payment intent as completed */
+        /**
+         * Mark a processing payment intent as completed
+         * @description Service-to-service endpoint. Called by the AI service after checkout automation succeeds.
+         */
         post: operations["PaymentIntentsController_complete"];
         delete?: never;
         options?: never;
@@ -121,7 +193,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/quotes": {
+    "/v1/beta-access/validate": {
         parameters: {
             query?: never;
             header?: never;
@@ -130,25 +202,31 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Create a quote for a fiat amount and token pair */
-        post: operations["QuotesController_create"];
+        /**
+         * Check whether an access code is valid and how many runs remain
+         * @description Service-to-service endpoint. Does not consume a run.
+         */
+        post: operations["BetaAccessController_validate"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/v1/quotes/{id}": {
+    "/v1/beta-access/consume": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get a quote by id */
-        get: operations["QuotesController_findOne"];
+        get?: never;
         put?: never;
-        post?: never;
+        /**
+         * Consume one run for an access code
+         * @description Service-to-service endpoint. Called by the AI service on run start; deducts one run.
+         */
+        post: operations["BetaAccessController_consume"];
         delete?: never;
         options?: never;
         head?: never;
@@ -159,31 +237,83 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        TokenRailResponseDto: {
+            id: string;
+            tokenId: string;
+            chainId: number;
+            network: string;
+            tokenAddress: string;
+            paymentAddress: string;
+        };
+        TokenResponseDto: {
+            id: string;
+            name: string;
+            symbol: string;
+            decimals: number;
+            coingeckoId: string;
+            rails: components["schemas"]["TokenRailResponseDto"][];
+        };
+        CreateQuoteDto: {
+            amount: string;
+            /** @enum {string} */
+            currencyCode: "NGN" | "USD";
+            tokenId: string;
+        };
+        QuoteResponseDto: {
+            id: string;
+            amount: string;
+            currencyCode: Record<string, never>;
+            cryptoAmount: string;
+            rate: string;
+            tokenId: string;
+            /** Format: date-time */
+            expiresAt: string;
+            /** Format: date-time */
+            consumedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
         CreatePaymentIntentDto: {
             quoteId: string;
+            railId: string;
             fromAddress: string;
             merchantDomain: string;
             metadata?: Record<string, never>;
         };
+        QuoteDto: {
+            id: string;
+            amount: string;
+            currencyCode: Record<string, never>;
+            cryptoAmount: string;
+            rate: string;
+            tokenId: string;
+            /** Format: date-time */
+            expiresAt: string;
+        };
+        RailDto: {
+            id: string;
+            tokenId: string;
+            chainId: number;
+            network: string;
+            tokenAddress: string;
+            paymentAddress: string;
+        };
         PaymentIntentResponseDto: {
             id: string;
-            quoteId: string;
             /** @enum {string} */
             status: "requires_transfer" | "processing" | "succeeded" | "canceled" | "expired";
-            amount: string;
-            currency: string;
-            cryptoAmount: string;
-            tokenId: string;
-            blockchain: string;
-            contractAddress: string;
-            paymentAddress: string;
             fromAddress: string;
             merchantDomain: string;
             metadata: Record<string, never> | null;
+            txHash: string | null;
             /** Format: date-time */
             expiresAt: string;
             /** Format: date-time */
             createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            quote: components["schemas"]["QuoteDto"];
+            rail: components["schemas"]["RailDto"];
         };
         PaymentIntentStatusResponseDto: {
             id: string;
@@ -196,26 +326,11 @@ export interface components {
             cvv: string;
             name: string;
         };
-        CreateQuoteDto: {
-            amount: string;
-            /** @enum {string} */
-            currency: "NGN" | "USD";
-            /** @enum {string} */
-            tokenId: "usd-coin";
-            /** @enum {string} */
-            blockchain: "lisk" | "base" | "baseSepolia";
+        SubmitPaymentIntentDto: {
+            txHash: string;
         };
-        QuoteResponseDto: {
-            id: string;
-            amount: string;
-            currency: string;
-            cryptoAmount: string;
-            tokenId: string;
-            blockchain: string;
-            /** Format: date-time */
-            expiresAt: string;
-            /** Format: date-time */
-            createdAt: string;
+        BetaAccessCodeDto: {
+            code: string;
         };
     };
     responses: never;
@@ -243,18 +358,97 @@ export interface operations {
             };
         };
     };
-    WebhooksController_handleMoralis: {
+    TokensController_findAll: {
         parameters: {
             query?: never;
-            header: {
-                "x-signature": string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
         requestBody?: never;
         responses: {
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TokenResponseDto"][];
+                };
+            };
+        };
+    };
+    TokensController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TokenResponseDto"];
+                };
+            };
+            /** @description Token not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    QuotesController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateQuoteDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuoteResponseDto"];
+                };
+            };
+        };
+    };
+    QuotesController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuoteResponseDto"];
+                };
+            };
+            /** @description Quote not found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -283,7 +477,7 @@ export interface operations {
                     "application/json": components["schemas"]["PaymentIntentResponseDto"];
                 };
             };
-            /** @description Quote has expired or token is unsupported on the blockchain */
+            /** @description Quote has expired or token is unsupported on the network */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -390,6 +584,59 @@ export interface operations {
             };
         };
     };
+    PaymentIntentsController_submit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitPaymentIntentDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentIntentResponseDto"];
+                };
+            };
+            /** @description Transaction does not match the expected transfer */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Payment intent not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Payment intent is not in requires_transfer state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description On-chain transfer did not succeed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     PaymentIntentsController_complete: {
         parameters: {
             query?: never;
@@ -402,6 +649,13 @@ export interface operations {
         requestBody?: never;
         responses: {
             204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid service API key */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -423,7 +677,7 @@ export interface operations {
             };
         };
     };
-    QuotesController_create: {
+    BetaAccessController_validate: {
         parameters: {
             query?: never;
             header?: never;
@@ -432,7 +686,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateQuoteDto"];
+                "application/json": components["schemas"]["BetaAccessCodeDto"];
             };
         };
         responses: {
@@ -441,32 +695,41 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["QuoteResponseDto"];
+                    "application/json": Record<string, never>;
                 };
+            };
+            /** @description Missing or invalid service API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
-    QuotesController_findOne: {
+    BetaAccessController_consume: {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                id: string;
-            };
+            path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BetaAccessCodeDto"];
+            };
+        };
         responses: {
-            200: {
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["QuoteResponseDto"];
+                    "application/json": Record<string, never>;
                 };
             };
-            /** @description Quote not found */
-            404: {
+            /** @description Missing or invalid service API key */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

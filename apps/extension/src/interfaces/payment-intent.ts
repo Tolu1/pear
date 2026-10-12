@@ -1,27 +1,26 @@
 import type { Address } from "viem";
 
-export type PaymentIntentStatus =
-  | "requires_transfer"
-  | "processing"
-  | "succeeded"
-  | "failed"
-  | "expired"
-  | "canceled";
-
 export interface PaymentIntent {
   id: string;
   quoteId: string;
+  railId: string;
   status: PaymentIntentStatus;
   amount: string;
-  currency: string;
+  currencyCode: string;
   cryptoAmount: bigint;
   tokenId: string;
-  blockchain: string;
   contractAddress: Address;
   paymentAddress: Address;
   fromAddress: Address;
   merchantDomain: string;
-  metadata: unknown;
+  metadata: Record<string, unknown> | null;
   expiresAt: Date;
   createdAt: Date;
 }
+
+export type PaymentIntentStatus =
+  | "requires_transfer"
+  | "processing"
+  | "succeeded"
+  | "canceled"
+  | "expired";

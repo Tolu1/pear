@@ -36,8 +36,7 @@ export async function checkForPaymentPage(): Promise<void> {
 
   const quote = await createQuote({
     amount: detection.paymentData.amount,
-    currency: detection.paymentData.currencyCode as "NGN" | "USD",
-    blockchain: "base",
+    currencyCode: detection.paymentData.currencyCode as "NGN" | "USD",
     tokenId: "usd-coin",
   });
 
