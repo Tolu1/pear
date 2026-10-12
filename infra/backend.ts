@@ -6,10 +6,17 @@ import {
   arcRailWalletPrivateKey,
 } from "./secrets";
 
+const domain = $app.stage === "dev" ? "api.dev.pearextension.com" : undefined;
+
 export const backend = new sst.aws.Service("Backend", {
   cluster,
   image: { context: ".", dockerfile: "apps/backend/Dockerfile" },
   serviceRegistry: { port: 3001 },
+  loadBalancer: {
+    rules: [{ listen: "443/https", forward: "3001/http" }],
+    domain: domain ? { name: domain } : undefined,
+    health: { "3001/http": { path: "/health" } },
+  },
   environment: {
     PORT: "3001",
     DATABASE_URL: databaseUrl.value,

@@ -8,6 +8,9 @@ import type { Request, Response } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { rawBody: true });
+  app.enableCors({
+    origin: [/^chrome-extension:\/\//, /^http:\/\/localhost:\d+$/],
+  });
   app.setGlobalPrefix('v1', { exclude: ['health'] });
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
