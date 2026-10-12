@@ -10,6 +10,7 @@ export interface PaymentIntent {
   merchantDomain: string;
   metadata: Record<string, unknown> | null;
   txHash: string | null;
+  cardId: string | null;
   expiresAt: Date;
   createdAt: Date;
   updatedAt: Date;

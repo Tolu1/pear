@@ -14,6 +14,7 @@ import { TokensService } from '../tokens/tokens.service';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import { PaymentIntentStatus } from './enums/payment-intent-status.enum';
 import { PaymentIntentConflictException } from './exceptions/payment-intent-conflict.exception';
+import { UnsupportedCardCurrencyException } from './exceptions/unsupported-card-currency.exception';
 import { createMock, DeepMocked } from '../../test/utils/create-mock';
 import {
   makeAddress,
@@ -66,6 +67,7 @@ describe('PaymentIntentsService', () => {
           ...data,
           metadata: data.metadata ?? null,
           txHash: null,
+          cardId: null,
           status: PaymentIntentStatus.REQUIRES_TRANSFER,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -84,6 +86,22 @@ describe('PaymentIntentsService', () => {
       expect(intent.rail).toEqual(rail);
       expect(intent.status).toBe(PaymentIntentStatus.REQUIRES_TRANSFER);
       expect(quotesService.markConsumed).toHaveBeenCalledWith(quote.id);
+    });
+
+    it('rejects a quote that is not in USD without writing the intent', async () => {
+      quotesService.findActive.mockResolvedValue(
+        makeQuote({ currencyCode: 'NGN' }),
+      );
+
+      await expect(
+        service.create({
+          quoteId: 'qt_x',
+          railId: 'usdc-base',
+          fromAddress: makeAddress(),
+          merchantDomain: 'temu.com',
+        }),
+      ).rejects.toThrow(UnsupportedCardCurrencyException);
+      expect(repo.create).not.toHaveBeenCalled();
     });
 
     it('propagates exceptions from the quote lookup without writing the intent', async () => {
@@ -115,6 +133,7 @@ describe('PaymentIntentsService', () => {
         merchantDomain: 'temu.com',
         metadata: null,
         txHash: null,
+        cardId: null,
         expiresAt: new Date(),
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -131,20 +150,22 @@ describe('PaymentIntentsService', () => {
   });
 
   describe('getCard()', () => {
-    it('returns the virtual card when the intent is processing', async () => {
+    it("returns the intent's card when the intent is processing", async () => {
       const intent = makePaymentIntent({
         status: PaymentIntentStatus.PROCESSING,
+        cardId: 'card_123',
       });
       jest.spyOn(service, 'findOne').mockResolvedValue(intent);
-      virtualCardService.issueCard.mockReturnValue({
+      virtualCardService.get.mockResolvedValue({
         number: '4242424242424242',
         expiry: '12/30',
         cvv: '123',
-        name: 'Test',
+        name: 'Pear',
       });
 
       const card = await service.getCard(intent.id);
 
+      expect(virtualCardService.get).toHaveBeenCalledWith('card_123');
       expect(card.number).toBe('4242424242424242');
     });
 
@@ -157,12 +178,25 @@ describe('PaymentIntentsService', () => {
       await expect(service.getCard(intent.id)).rejects.toThrow(
         ForbiddenException,
       );
-      expect(virtualCardService.issueCard).not.toHaveBeenCalled();
+      expect(virtualCardService.get).not.toHaveBeenCalled();
+    });
+
+    it('throws ForbiddenException when the intent has no card yet', async () => {
+      const intent = makePaymentIntent({
+        status: PaymentIntentStatus.PROCESSING,
+        cardId: null,
+      });
+      jest.spyOn(service, 'findOne').mockResolvedValue(intent);
+
+      await expect(service.getCard(intent.id)).rejects.toThrow(
+        ForbiddenException,
+      );
+      expect(virtualCardService.get).not.toHaveBeenCalled();
     });
   });
 
   describe('submit()', () => {
-    it('asserts the transfer with parsed value, then transitions to processing', async () => {
+    it('asserts the transfer, claims the intent, then issues and saves one card', async () => {
       const token = makeToken({ decimals: 6 });
       const rail = makeTokenRail({ confirmations: 3 });
       const fromAddress = makeAddress();
@@ -175,21 +209,33 @@ describe('PaymentIntentsService', () => {
       });
       const txHash = makeTxHash();
 
-      jest.spyOn(service, 'findOne').mockResolvedValue(intent);
-      tokensService.findOne.mockReturnValue(token);
-      repo.update.mockResolvedValue({
+      const intentRow = {
         id: intent.id,
         quoteId: quote.id,
         railId: rail.id,
-        status: PaymentIntentStatus.PROCESSING,
+        status: PaymentIntentStatus.REQUIRES_TRANSFER,
         fromAddress,
         merchantDomain: intent.merchantDomain,
         metadata: null,
-        txHash,
+        txHash: null,
+        cardId: null,
         expiresAt: intent.expiresAt,
         createdAt: intent.createdAt,
         updatedAt: new Date(),
-      });
+      };
+      const processingRow = {
+        ...intentRow,
+        status: PaymentIntentStatus.PROCESSING,
+        txHash,
+      };
+
+      jest.spyOn(service, 'findOne').mockResolvedValue(intent);
+      tokensService.findOne.mockReturnValue(token);
+      repo.findOne.mockResolvedValue(intentRow);
+      repo.update
+        .mockResolvedValueOnce(processingRow)
+        .mockResolvedValueOnce({ ...processingRow, cardId: 'card_123' });
+      virtualCardService.issue.mockResolvedValue('card_123');
 
       const result = await service.submit(intent.id, txHash);
 
@@ -211,7 +257,49 @@ describe('PaymentIntentsService', () => {
           txHash,
         }),
       );
+      expect(virtualCardService.issue).toHaveBeenCalledWith(quote.amount);
+      expect(repo.update).toHaveBeenCalledWith(
+        intent.id,
+        expect.objectContaining({ cardId: 'card_123' }),
+      );
       expect(result.status).toBe(PaymentIntentStatus.PROCESSING);
+      expect(result.cardId).toBe('card_123');
+    });
+
+    it('does not issue a card when another submit claimed the intent first', async () => {
+      const intent = makePaymentIntent({
+        status: PaymentIntentStatus.REQUIRES_TRANSFER,
+      });
+      jest.spyOn(service, 'findOne').mockResolvedValue(intent);
+      tokensService.findOne.mockReturnValue(makeToken());
+      repo.findOne.mockResolvedValue({
+        status: PaymentIntentStatus.PROCESSING,
+      } as Awaited<ReturnType<PaymentIntentsRepository['findOne']>>);
+
+      await expect(service.submit(intent.id, makeTxHash())).rejects.toThrow(
+        PaymentIntentConflictException,
+      );
+      expect(repo.update).not.toHaveBeenCalled();
+      expect(virtualCardService.issue).not.toHaveBeenCalled();
+    });
+
+    it('does not issue a card when the database rejects a racing submit', async () => {
+      const intent = makePaymentIntent({
+        status: PaymentIntentStatus.REQUIRES_TRANSFER,
+      });
+      jest.spyOn(service, 'findOne').mockResolvedValue(intent);
+      tokensService.findOne.mockReturnValue(makeToken());
+      repo.findOne.mockResolvedValue({
+        status: PaymentIntentStatus.REQUIRES_TRANSFER,
+      } as Awaited<ReturnType<PaymentIntentsRepository['findOne']>>);
+      repo.update.mockRejectedValue(
+        Object.assign(new Error(), { code: '40001' }),
+      );
+
+      await expect(service.submit(intent.id, makeTxHash())).rejects.toThrow(
+        PaymentIntentConflictException,
+      );
+      expect(virtualCardService.issue).not.toHaveBeenCalled();
     });
 
     it('throws PaymentIntentConflictException when the intent is not awaiting transfer', async () => {
@@ -241,6 +329,7 @@ describe('PaymentIntentsService', () => {
         'transfer mismatch',
       );
       expect(repo.update).not.toHaveBeenCalled();
+      expect(virtualCardService.issue).not.toHaveBeenCalled();
     });
   });
 

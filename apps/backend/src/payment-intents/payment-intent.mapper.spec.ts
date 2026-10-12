@@ -21,6 +21,7 @@ describe('PaymentIntentMapper', () => {
         merchantDomain: 'temu.com',
         metadata: { ref: 'abc' },
         txHash,
+        cardId: 'card_123',
         expiresAt: new Date('2026-05-11T12:00:00Z'),
         createdAt: new Date('2026-05-11T11:00:00Z'),
         updatedAt: new Date('2026-05-11T11:30:00Z'),
@@ -35,6 +36,7 @@ describe('PaymentIntentMapper', () => {
         merchantDomain: 'temu.com',
         metadata: { ref: 'abc' },
         txHash,
+        cardId: 'card_123',
         quote,
         rail,
       });
@@ -51,6 +53,14 @@ describe('PaymentIntentMapper', () => {
       expect(response.status).toBe(intent.status);
       expect(response.quote.id).toBe(intent.quote.id);
       expect(response.rail.id).toBe(intent.rail.id);
+    });
+
+    it('omits the card id', () => {
+      const intent = makePaymentIntent({ cardId: 'card_123' });
+
+      const response = PaymentIntentMapper.toResponse(intent);
+
+      expect(response).not.toHaveProperty('cardId');
     });
 
     it('omits internal rail fields like confirmations', () => {

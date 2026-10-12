@@ -19,6 +19,7 @@ export class PaymentIntentMapper {
       merchantDomain: intentRow.merchantDomain,
       metadata: intentRow.metadata as Record<string, unknown> | null,
       txHash: intentRow.txHash,
+      cardId: intentRow.cardId,
       expiresAt: intentRow.expiresAt,
       createdAt: intentRow.createdAt,
       updatedAt: intentRow.updatedAt,

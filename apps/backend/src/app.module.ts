@@ -20,11 +20,8 @@ import { BetaAccessModule } from './beta-access/beta-access.module';
       validationSchema: Joi.object({
         DATABASE_URL: Joi.string().required(),
         COINGECKO_API_KEY: Joi.string().required(),
-        CARD_NUMBER: Joi.string().required(),
-        CARD_EXPIRY: Joi.string().required(),
-        CARD_CVV: Joi.string().required(),
-        CARD_NAME: Joi.string().required(),
         SERVICE_API_KEY: Joi.string().required(),
+        ARC_RAIL_WALLET_PRIVATE_KEY: Joi.string().required(),
       }),
     }),
     ClsModule.forRoot({

@@ -19,6 +19,7 @@ export function makePaymentIntent(
     merchantDomain: 'temu.com',
     metadata: null,
     txHash: null,
+    cardId: null,
     expiresAt,
     createdAt,
     updatedAt: createdAt,

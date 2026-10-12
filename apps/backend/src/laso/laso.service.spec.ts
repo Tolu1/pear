@@ -43,7 +43,6 @@ describe('LasoService', () => {
 
   beforeEach(async () => {
     configService = createMock<ConfigService>();
-    configService.get.mockReturnValue(undefined);
     configService.getOrThrow.mockReturnValue(generatePrivateKey());
 
     const moduleRef = await Test.createTestingModule({

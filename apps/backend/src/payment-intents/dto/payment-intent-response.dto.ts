@@ -7,7 +7,7 @@ import { type CurrencyCode } from '../../common/constants/supported-currencies.c
 
 export class PaymentIntentResponseDto implements Omit<
   PaymentIntent,
-  'quote' | 'rail'
+  'quote' | 'rail' | 'cardId'
 > {
   id: string;
   status: PaymentIntentStatus;

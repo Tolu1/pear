@@ -2,10 +2,6 @@ import { cluster } from "./cluster";
 import {
   databaseUrl,
   coingeckoApiKey,
-  cardNumber,
-  cardExpiry,
-  cardCvv,
-  cardName,
   serviceApiKey,
   arcRailWalletPrivateKey,
 } from "./secrets";
@@ -18,10 +14,6 @@ export const backend = new sst.aws.Service("Backend", {
     PORT: "3001",
     DATABASE_URL: databaseUrl.value,
     COINGECKO_API_KEY: coingeckoApiKey.value,
-    CARD_NUMBER: cardNumber.value,
-    CARD_EXPIRY: cardExpiry.value,
-    CARD_CVV: cardCvv.value,
-    CARD_NAME: cardName.value,
     SERVICE_API_KEY: serviceApiKey.value,
     ARC_RAIL_WALLET_PRIVATE_KEY: arcRailWalletPrivateKey.value,
   },

@@ -23,6 +23,7 @@ export const paymentIntents = pgTable('payment_intents', {
   merchantDomain: varchar({ length: 255 }).notNull(),
   metadata: jsonb(),
   txHash: varchar({ length: 66 }).unique(),
+  cardId: varchar({ length: 100 }).unique(),
   expiresAt: timestamp().notNull(),
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp().defaultNow().notNull(),

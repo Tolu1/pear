@@ -5,6 +5,7 @@ import { createTestApp } from '../utils/create-test-app';
 import { truncateAll } from '../utils/truncate';
 import type { TestDatabase } from '../utils/postgres-container';
 import { BlockchainService } from '../../src/blockchain/blockchain.service';
+import { VirtualCardService } from '../../src/virtual-card/virtual-card.service';
 import { createMock, DeepMocked } from '../utils/create-mock';
 import { makeTxHash } from '../factories';
 
@@ -14,12 +15,23 @@ const testDb = (): TestDatabase =>
 describe('Payment flow (e2e)', () => {
   let app: INestApplication;
   let blockchainService: DeepMocked<BlockchainService>;
+  let virtualCardService: DeepMocked<VirtualCardService>;
   let fetchSpy: jest.SpyInstance;
 
   beforeAll(async () => {
     blockchainService = createMock<BlockchainService>();
+    virtualCardService = createMock<VirtualCardService>();
+    virtualCardService.issue.mockResolvedValue('card_123');
+    virtualCardService.get.mockResolvedValue({
+      number: '4111111111111111',
+      expiry: '12/27',
+      cvv: '123',
+      name: 'Pear',
+    });
 
-    fetchSpy = jest.spyOn(global, 'fetch').mockImplementation(((url: string) => {
+    fetchSpy = jest.spyOn(global, 'fetch').mockImplementation(((
+      url: string,
+    ) => {
       if (typeof url === 'string' && url.includes('/coins/usd-coin')) {
         return Promise.resolve(
           new Response(
@@ -37,7 +49,11 @@ describe('Payment flow (e2e)', () => {
       db: testDb().db,
       databaseUrl: testDb().url,
       customise: (builder) =>
-        builder.overrideProvider(BlockchainService).useValue(blockchainService),
+        builder
+          .overrideProvider(BlockchainService)
+          .useValue(blockchainService)
+          .overrideProvider(VirtualCardService)
+          .useValue(virtualCardService),
     });
   });
 
@@ -119,6 +135,7 @@ describe('Payment flow (e2e)', () => {
     expect(submitRes.body.status).toBe('processing');
     expect(submitRes.body.txHash).toBe(txHash);
     expect(blockchainService.assertTransfer).toHaveBeenCalledTimes(1);
+    expect(virtualCardService.issue).toHaveBeenCalledTimes(1);
 
     const cardRes = await request(app.getHttpServer())
       .get(`/v1/payment-intents/${intentId}/card`)

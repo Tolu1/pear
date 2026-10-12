@@ -11,19 +11,17 @@ import { type LasoCard } from './interfaces/laso-card.interface';
 import { LasoRequestFailedException } from './exceptions/laso-request-failed.exception';
 import { LasoCardNotReadyException } from './exceptions/laso-card-not-ready.exception';
 
+const LASO_API_URL = 'https://laso.finance';
 const CARD_POLL_INTERVAL_MS = 2500;
 const CARD_POLL_TIMEOUT_MS = 60_000;
 const TOKEN_REFRESH_MARGIN_MS = 60_000;
 
 @Injectable()
 export class LasoService {
-  private readonly baseUrl: string;
   private readonly account: PrivateKeyAccount;
   private idToken: { value: string; expiresAt: number } | null = null;
 
   constructor(configService: ConfigService) {
-    this.baseUrl =
-      configService.get<string>('LASO_API_URL') ?? 'https://laso.finance';
     this.account = privateKeyToAccount(
       configService.getOrThrow<`0x${string}`>('ARC_RAIL_WALLET_PRIVATE_KEY'),
     );
@@ -77,7 +75,7 @@ export class LasoService {
 
     while (Date.now() < deadline) {
       const response = await fetch(
-        `${this.baseUrl}/get-card-data?card_id=${encodeURIComponent(cardId)}`,
+        `${LASO_API_URL}/get-card-data?card_id=${encodeURIComponent(cardId)}`,
         { headers: { Authorization: `Bearer ${await this.getIdToken()}` } },
       );
       if (!response.ok) {
@@ -98,7 +96,7 @@ export class LasoService {
   }
 
   private cardUrl(amount: string): string {
-    return `${this.baseUrl}/get-card?amount=${encodeURIComponent(amount)}`;
+    return `${LASO_API_URL}/get-card?amount=${encodeURIComponent(amount)}`;
   }
 
   // Signs in with the wallet and reuses the token until it is about to expire.
@@ -111,7 +109,7 @@ export class LasoService {
     }
 
     const fetchWithSIWx = wrapFetchWithSIWx(fetch, this.account);
-    const response = await fetchWithSIWx(`${this.baseUrl}/auth`);
+    const response = await fetchWithSIWx(`${LASO_API_URL}/auth`);
     if (!response.ok) {
       throw new LasoRequestFailedException('auth', response.status);
     }

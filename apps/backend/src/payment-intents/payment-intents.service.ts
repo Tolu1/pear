@@ -12,9 +12,12 @@ import { BlockchainService } from '../blockchain/blockchain.service';
 import { PaymentIntent } from './interfaces/payment-intent.interface';
 import { PaymentIntentStatus } from './enums/payment-intent-status.enum';
 import { PaymentIntentConflictException } from './exceptions/payment-intent-conflict.exception';
+import { UnsupportedCardCurrencyException } from './exceptions/unsupported-card-currency.exception';
 import { VirtualCard } from '../virtual-card/interfaces/virtual-card.interface';
+import { type DrizzleAdapter } from '../drizzle/drizzle.module';
 
 const PAYMENT_INTENT_TTL_MINUTES = 30;
+const SERIALIZATION_FAILURE = '40001';
 
 @Injectable()
 export class PaymentIntentsService {
@@ -29,6 +32,9 @@ export class PaymentIntentsService {
   @Transactional()
   async create(dto: CreatePaymentIntentDto): Promise<PaymentIntent> {
     const quote = await this.quotesService.findActive(dto.quoteId);
+    if (quote.currencyCode !== 'USD') {
+      throw new UnsupportedCardCurrencyException(quote.currencyCode);
+    }
     const rail = this.tokensService.findRail(dto.railId);
 
     const expiresAt = new Date(
@@ -60,10 +66,10 @@ export class PaymentIntentsService {
 
   async getCard(id: string): Promise<VirtualCard> {
     const intent = await this.findOne(id);
-    if (intent.status !== PaymentIntentStatus.PROCESSING) {
+    if (intent.status !== PaymentIntentStatus.PROCESSING || !intent.cardId) {
       throw new ForbiddenException('Card details not available');
     }
-    return this.virtualCardService.issueCard();
+    return this.virtualCardService.get(intent.cardId);
   }
 
   async submit(id: string, txHash: Hash): Promise<PaymentIntent> {
@@ -86,13 +92,34 @@ export class PaymentIntentsService {
       intent.rail.confirmations,
     );
 
+    await this.markProcessing(id, txHash).catch((error: unknown) => {
+      if ((error as { code?: string }).code === SERIALIZATION_FAILURE) {
+        throw new PaymentIntentConflictException();
+      }
+      throw error;
+    });
+
+    const cardId = await this.virtualCardService.issue(intent.quote.amount);
     const intentRow = await this.paymentIntentsRepository.update(id, {
-      status: PaymentIntentStatus.PROCESSING,
-      txHash,
+      cardId,
       updatedAt: new Date(),
     });
 
     return PaymentIntentMapper.toDomain(intentRow, intent.quote, intent.rail);
+  }
+
+  @Transactional<DrizzleAdapter>({ isolationLevel: 'serializable' })
+  private async markProcessing(id: string, txHash: Hash): Promise<void> {
+    const intentRow = await this.paymentIntentsRepository.findOne(id);
+    const status = intentRow.status as PaymentIntentStatus;
+    if (status !== PaymentIntentStatus.REQUIRES_TRANSFER) {
+      throw new PaymentIntentConflictException();
+    }
+    await this.paymentIntentsRepository.update(id, {
+      status: PaymentIntentStatus.PROCESSING,
+      txHash,
+      updatedAt: new Date(),
+    });
   }
 
   async complete(id: string): Promise<void> {
