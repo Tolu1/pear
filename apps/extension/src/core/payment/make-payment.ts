@@ -11,7 +11,6 @@ import { createPaymentIntent } from "@/lib/api/payment-intents/create-payment-in
 import { submitPaymentIntent } from "@/lib/api/payment-intents/submit-payment-intent";
 import { getSupportedTokens } from "@/lib/api/tokens/get-supported-tokens";
 import { sendToken } from "@/lib/blockchain/send-token";
-import { waitForConfirmation } from "@/lib/blockchain/wait-for-confirmation";
 import { queryClient } from "@/lib/query-client";
 import { supportedTokenKeys } from "@/lib/query-keys";
 import { startCheckout } from "@/lib/ai/checkout/start-checkout";
@@ -65,8 +64,16 @@ export async function makePayment(): Promise<void> {
   });
 
   setScreen("processing");
-  await waitForConfirmation(txHash);
-  await submitPaymentIntent({ id: intent.id }, { txHash });
+  try {
+    await submitPaymentIntent({ id: intent.id }, { txHash });
+  } catch (error) {
+    console.warn("[payment] the backend couldn't verify the transfer:", error);
+    setError(
+      "Your payment was sent but couldn't be verified. Please contact support.",
+    );
+    setScreen("failed");
+    return;
+  }
 
   // apps/ai sets up the agent session (fetches the card, links the intent) and
   // completes the intent itself when the agent finishes.
