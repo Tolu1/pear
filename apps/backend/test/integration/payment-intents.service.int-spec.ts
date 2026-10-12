@@ -15,6 +15,7 @@ import { TokensService } from '../../src/tokens/tokens.service';
 import { TokensRepository } from '../../src/tokens/tokens.repository';
 import { BlockchainService } from '../../src/blockchain/blockchain.service';
 import { VirtualCardService } from '../../src/virtual-card/virtual-card.service';
+import { CctpService } from '../../src/cctp/cctp.service';
 import { createMock, DeepMocked } from '../utils/create-mock';
 import type { TestDatabase } from '../utils/postgres-container';
 import { truncateAll } from '../utils/truncate';
@@ -58,6 +59,7 @@ describe('PaymentIntentsService (integration)', () => {
         TokensRepository,
         { provide: QuotesService, useValue: quotesService },
         { provide: VirtualCardService, useValue: virtualCardService },
+        { provide: CctpService, useValue: createMock<CctpService>() },
         {
           provide: BlockchainService,
           useValue: createMock<BlockchainService>(),

@@ -6,9 +6,16 @@ import { QuotesModule } from '../quotes/quotes.module';
 import { VirtualCardModule } from '../virtual-card/virtual-card.module';
 import { TokensModule } from '../tokens/tokens.module';
 import { BlockchainModule } from '../blockchain/blockchain.module';
+import { CctpModule } from '../cctp/cctp.module';
 
 @Module({
-  imports: [QuotesModule, VirtualCardModule, TokensModule, BlockchainModule],
+  imports: [
+    QuotesModule,
+    VirtualCardModule,
+    TokensModule,
+    BlockchainModule,
+    CctpModule,
+  ],
   controllers: [PaymentIntentsController],
   providers: [PaymentIntentsService, PaymentIntentsRepository],
   exports: [PaymentIntentsService],

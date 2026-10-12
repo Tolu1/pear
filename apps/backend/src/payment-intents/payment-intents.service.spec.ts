@@ -12,6 +12,8 @@ import { QuotesService } from '../quotes/quotes.service';
 import { VirtualCardService } from '../virtual-card/virtual-card.service';
 import { TokensService } from '../tokens/tokens.service';
 import { BlockchainService } from '../blockchain/blockchain.service';
+import { CctpService } from '../cctp/cctp.service';
+import { arc } from '../blockchain/arc-chains.constant';
 import { PaymentIntentStatus } from './enums/payment-intent-status.enum';
 import { PaymentIntentConflictException } from './exceptions/payment-intent-conflict.exception';
 import { createMock, DeepMocked } from '../../test/utils/create-mock';
@@ -31,6 +33,7 @@ describe('PaymentIntentsService', () => {
   let virtualCardService: DeepMocked<VirtualCardService>;
   let tokensService: DeepMocked<TokensService>;
   let blockchainService: DeepMocked<BlockchainService>;
+  let cctpService: DeepMocked<CctpService>;
 
   beforeEach(async () => {
     repo = createMock<PaymentIntentsRepository>();
@@ -38,6 +41,7 @@ describe('PaymentIntentsService', () => {
     virtualCardService = createMock<VirtualCardService>();
     tokensService = createMock<TokensService>();
     blockchainService = createMock<BlockchainService>();
+    cctpService = createMock<CctpService>();
 
     const moduleRef = await Test.createTestingModule({
       providers: [
@@ -47,6 +51,7 @@ describe('PaymentIntentsService', () => {
         { provide: VirtualCardService, useValue: virtualCardService },
         { provide: TokensService, useValue: tokensService },
         { provide: BlockchainService, useValue: blockchainService },
+        { provide: CctpService, useValue: cctpService },
       ],
     }).compile();
 
@@ -258,6 +263,31 @@ describe('PaymentIntentsService', () => {
       );
       expect(result.status).toBe(PaymentIntentStatus.PROCESSING);
       expect(result.cardId).toBe('card_123');
+      expect(cctpService.bridgeToBase).not.toHaveBeenCalled();
+    });
+
+    it('bridges the payment to Base before buying the card when it was paid on Arc', async () => {
+      const quote = makeQuote({ cryptoAmount: '50.000000' });
+      const rail = makeTokenRail({ chainId: arc.id });
+      const intent = makePaymentIntent({
+        status: PaymentIntentStatus.REQUIRES_TRANSFER,
+        quote,
+        rail,
+      });
+
+      jest.spyOn(service, 'findOne').mockResolvedValue(intent);
+      tokensService.findOne.mockReturnValue(makeToken());
+      repo.findOne.mockResolvedValue({
+        status: PaymentIntentStatus.REQUIRES_TRANSFER,
+      } as Awaited<ReturnType<PaymentIntentsRepository['findOne']>>);
+      virtualCardService.issue.mockResolvedValue('card_123');
+
+      await service.submit(intent.id, makeTxHash());
+
+      expect(cctpService.bridgeToBase).toHaveBeenCalledWith('50.000000');
+      expect(cctpService.bridgeToBase.mock.invocationCallOrder[0]).toBeLessThan(
+        virtualCardService.issue.mock.invocationCallOrder[0],
+      );
     });
 
     it('does not issue a card when another submit claimed the intent first', async () => {

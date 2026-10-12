@@ -9,6 +9,8 @@ import { QuotesService } from '../quotes/quotes.service';
 import { VirtualCardService } from '../virtual-card/virtual-card.service';
 import { TokensService } from '../tokens/tokens.service';
 import { BlockchainService } from '../blockchain/blockchain.service';
+import { arc } from '../blockchain/arc-chains.constant';
+import { CctpService } from '../cctp/cctp.service';
 import { PaymentIntent } from './interfaces/payment-intent.interface';
 import { PaymentIntentStatus } from './enums/payment-intent-status.enum';
 import { PaymentIntentConflictException } from './exceptions/payment-intent-conflict.exception';
@@ -26,6 +28,7 @@ export class PaymentIntentsService {
     private readonly virtualCardService: VirtualCardService,
     private readonly tokensService: TokensService,
     private readonly blockchainService: BlockchainService,
+    private readonly cctpService: CctpService,
   ) {}
 
   @Transactional()
@@ -94,6 +97,10 @@ export class PaymentIntentsService {
       }
       throw error;
     });
+
+    if (intent.rail.chainId === arc.id) {
+      await this.cctpService.bridgeToBase(intent.quote.cryptoAmount);
+    }
 
     const cardId = await this.virtualCardService.issue(
       intent.quote.amount,
