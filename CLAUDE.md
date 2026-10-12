@@ -200,6 +200,20 @@ UI logic is allowed in `components/`. Business logic is never allowed there.
 
 ---
 
+## External APIs
+
+A response from a third-party API is their shape, not ours. Keep the two apart, the same way a database row is kept apart from a domain type.
+
+| Piece | Convention | Example |
+| --- | --- | --- |
+| Raw response | `interfaces/<provider>-<thing>-api-response.interface.ts`, named `<Provider><Thing>ApiResponse`. Mirror the API exactly as sent, snake_case included, with only the fields we read. | `CoinGeckoApiResponse`, `LasoCardApiResponse` |
+| Domain type | `interfaces/<thing>.interface.ts`, our own camelCase shape. | `LasoCard` |
+| Translation | `<module>.mapper.ts` with `toDomain`, when a whole object is translated. Reading a single value can stay inline. | `LasoMapper.toDomain` |
+
+Nothing outside the module that calls the API ever sees the raw response type.
+
+---
+
 ## Axioms (Short Form)
 
 1. Every layer owns private state. No direct access from outside.
