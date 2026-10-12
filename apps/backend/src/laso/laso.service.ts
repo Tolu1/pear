@@ -8,6 +8,10 @@ import { assets } from 'mppx/evm';
 import { wrapFetchWithSIWx } from '@x402/extensions/sign-in-with-x';
 import { type IssuanceCost } from './interfaces/issuance-cost.interface';
 import { type LasoCard } from './interfaces/laso-card.interface';
+import { type LasoCardApiResponse } from './interfaces/laso-card-api-response.interface';
+import { type LasoOrderCardApiResponse } from './interfaces/laso-order-card-api-response.interface';
+import { type LasoAuthApiResponse } from './interfaces/laso-auth-api-response.interface';
+import { LasoMapper } from './laso.mapper';
 import { LasoRequestFailedException } from './exceptions/laso-request-failed.exception';
 import { LasoCardNotReadyException } from './exceptions/laso-card-not-ready.exception';
 
@@ -66,7 +70,7 @@ export class LasoService {
       throw new LasoRequestFailedException('get-card', response.status);
     }
 
-    const body = (await response.json()) as { card: { card_id: string } };
+    const body = (await response.json()) as LasoOrderCardApiResponse;
     return body.card.card_id;
   }
 
@@ -82,9 +86,9 @@ export class LasoService {
         throw new LasoRequestFailedException('get-card-data', response.status);
       }
 
-      const data = (await response.json()) as LasoCardData;
+      const data = (await response.json()) as LasoCardApiResponse;
       if (data.status === 'ready' && data.card_details) {
-        return toLasoCard(data, data.card_details);
+        return LasoMapper.toDomain(data, data.card_details);
       }
 
       await new Promise((resolve) =>
@@ -114,57 +118,11 @@ export class LasoService {
       throw new LasoRequestFailedException('auth', response.status);
     }
 
-    const { auth } = (await response.json()) as {
-      auth: { id_token: string; expires_in: string };
-    };
+    const { auth } = (await response.json()) as LasoAuthApiResponse;
     this.idToken = {
       value: auth.id_token,
       expiresAt: Date.now() + Number(auth.expires_in) * 1000,
     };
     return this.idToken.value;
   }
-}
-
-interface LasoCardData {
-  card_id: string;
-  status: string;
-  usd_amount: number;
-  card_details?: LasoCardDetails;
-}
-
-interface LasoCardDetails {
-  card_number: string;
-  exp_month: string;
-  exp_year: string;
-  cvv: string;
-  billing_address: {
-    name: string;
-    line_1: string;
-    line_2: string | null;
-    city: string;
-    state: string;
-    zip: string;
-    country: string;
-  };
-}
-
-function toLasoCard(data: LasoCardData, details: LasoCardDetails): LasoCard {
-  const address = details.billing_address;
-  return {
-    cardId: data.card_id,
-    usdAmount: data.usd_amount,
-    cardNumber: details.card_number,
-    expMonth: details.exp_month,
-    expYear: details.exp_year,
-    cvv: details.cvv,
-    billingAddress: {
-      name: address.name,
-      line1: address.line_1,
-      line2: address.line_2,
-      city: address.city,
-      state: address.state,
-      zip: address.zip,
-      country: address.country,
-    },
-  };
 }
