@@ -8,3 +8,4 @@
 
 ### Changed
 - The agent fills billing details as the cardholder, and leaves your own details alone.
+- A redesigned welcome screen, with a link for Arc reviewers to request $1 of USDC.

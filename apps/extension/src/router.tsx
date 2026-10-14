@@ -5,7 +5,6 @@ import {
 } from "@tanstack/react-router";
 import Index from "@/app/page";
 import RootLayout from "@/app/layout";
-import ConnectWallet from "@/app/connect-wallet/page";
 import AppLayout from "@/app/(app)/layout";
 import Home from "@/app/(app)/home/page";
 import PlaygroundLayout from "@/app/playground/layout";
@@ -38,12 +37,6 @@ const RootIndexRoute = createRoute({
   component: () => <Index />,
 });
 
-const ConnectWalletRoute = createRoute({
-  getParentRoute: () => rootLayoutRoute,
-  path: "/connect-wallet",
-  component: () => <ConnectWallet />,
-});
-
 const appLayoutRoute = createRoute({
   getParentRoute: () => rootLayoutRoute,
   id: "app-layout",
@@ -59,7 +52,6 @@ const HomeRoute = createRoute({
 const rootLayoutSubtree = rootLayoutRoute.addChildren([
   IndexHtmlRoute,
   RootIndexRoute,
-  ConnectWalletRoute,
   appLayoutRoute.addChildren([HomeRoute]),
 ]);
 
