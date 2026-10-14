@@ -1,10 +1,12 @@
+import { useAccount } from "wagmi";
 import { useDetectedPaymentStore } from "@/stores/detected-payment.store";
 import { useQuoteStore } from "@/stores/quote.store";
-import { getCurrencySymbol } from "@/lib/utils";
+import { formatTokenAmount, getCurrencySymbol } from "@/lib/utils";
 
 function PaymentDetails() {
   const { payment } = useDetectedPaymentStore();
   const { quote } = useQuoteStore();
+  const { chain } = useAccount();
 
   if (!payment) return null;
 
@@ -117,7 +119,9 @@ function PaymentDetails() {
         <div className="flex h-[15px] justify-between font-bold">
           <p>You&rsquo;ll pay</p>
           <p className="font-mono tracking-normal">
-            {quote ? `${quote.cryptoAmount} USDC` : "—"}
+            {quote
+              ? `${formatTokenAmount(quote.cryptoAmount)} USDC on ${chain?.name}`
+              : "—"}
           </p>
         </div>
       </div>

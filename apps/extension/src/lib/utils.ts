@@ -16,3 +16,9 @@ export function getCurrencySymbol(currencyCode: string) {
       .find((p) => p.type === "currency")?.value ?? currencyCode
   );
 }
+
+export function formatTokenAmount(amount: string, maxDecimals = 4) {
+  return Number(amount).toLocaleString("en", {
+    maximumFractionDigits: maxDecimals,
+  });
+}

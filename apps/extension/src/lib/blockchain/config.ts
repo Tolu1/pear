@@ -20,3 +20,5 @@ export const config = createConfig({
     [arcTestnet.id]: http(),
   },
 });
+
+export const paymentChains = [arc, base];
