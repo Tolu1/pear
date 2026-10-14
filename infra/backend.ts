@@ -4,6 +4,7 @@ import {
   coingeckoApiKey,
   serviceApiKey,
   arcRailWalletPrivateKey,
+  demoCardId,
 } from "./secrets";
 
 const domain = $app.stage === "dev" ? "api.dev.pearextension.com" : undefined;
@@ -23,6 +24,7 @@ export const backend = new sst.aws.Service("Backend", {
     COINGECKO_API_KEY: coingeckoApiKey.value,
     SERVICE_API_KEY: serviceApiKey.value,
     ARC_RAIL_WALLET_PRIVATE_KEY: arcRailWalletPrivateKey.value,
+    DEMO_CARD_ID: demoCardId.value,
   },
   dev: { command: "pnpm --filter backend start:dev" },
 });

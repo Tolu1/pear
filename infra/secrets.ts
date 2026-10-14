@@ -6,3 +6,4 @@ export const coingeckoApiKey = new sst.Secret("CoingeckoApiKey");
 export const arcRailWalletPrivateKey = new sst.Secret(
   "ArcRailWalletPrivateKey",
 );
+export const demoCardId = new sst.Secret("DemoCardId", "");
