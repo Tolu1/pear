@@ -1,4 +1,5 @@
 import { Test } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
 import { VirtualCardService } from './virtual-card.service';
 import { LasoService } from '../laso/laso.service';
 import { createMock, DeepMocked } from '../../test/utils/create-mock';
@@ -7,17 +8,40 @@ describe('VirtualCardService', () => {
   let service: VirtualCardService;
   let lasoService: DeepMocked<LasoService>;
 
-  beforeEach(async () => {
-    lasoService = createMock<LasoService>();
+  async function createService(demoCardId?: string) {
+    const configService = createMock<ConfigService>();
+    configService.get.mockReturnValue(demoCardId);
 
     const moduleRef = await Test.createTestingModule({
       providers: [
         VirtualCardService,
         { provide: LasoService, useValue: lasoService },
+        { provide: ConfigService, useValue: configService },
       ],
     }).compile();
 
-    service = moduleRef.get(VirtualCardService);
+    return moduleRef.get(VirtualCardService);
+  }
+
+  beforeEach(async () => {
+    lasoService = createMock<LasoService>();
+    service = await createService();
+  });
+
+  describe('demo mode', () => {
+    it('prices the card at the amount with no fee, without calling Laso', async () => {
+      service = await createService('card_demo');
+
+      expect(await service.getCost('1')).toEqual({ fee: '0', total: '1' });
+      expect(lasoService.getIssuanceCost).not.toHaveBeenCalled();
+    });
+
+    it('reuses the demo card instead of buying one', async () => {
+      service = await createService('card_demo');
+
+      expect(await service.issue('1', '0')).toBe('card_demo');
+      expect(lasoService.orderCard).not.toHaveBeenCalled();
+    });
   });
 
   describe('getCost()', () => {

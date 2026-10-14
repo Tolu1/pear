@@ -22,6 +22,7 @@ import { BetaAccessModule } from './beta-access/beta-access.module';
         COINGECKO_API_KEY: Joi.string().required(),
         SERVICE_API_KEY: Joi.string().required(),
         ARC_RAIL_WALLET_PRIVATE_KEY: Joi.string().required(),
+        DEMO_CARD_ID: Joi.string().optional(),
       }),
     }),
     ClsModule.forRoot({
