@@ -4,6 +4,7 @@ import Decimal from 'decimal.js';
 import { type VirtualCard } from './interfaces/virtual-card.interface';
 import { type CardCost } from './interfaces/card-cost.interface';
 import { VirtualCardMapper } from './virtual-card.mapper';
+import { CARDHOLDER } from './virtual-card.constant';
 import { LasoService } from '../laso/laso.service';
 
 @Injectable()
@@ -33,6 +34,6 @@ export class VirtualCardService {
 
   async get(cardId: string): Promise<VirtualCard> {
     const card = await this.lasoService.getCard(cardId);
-    return VirtualCardMapper.toDomain(card);
+    return VirtualCardMapper.toDomain(card, CARDHOLDER);
   }
 }

@@ -28,6 +28,7 @@ describe('Payment flow (e2e)', () => {
       expiry: '12/27',
       cvv: '123',
       name: 'Pear',
+      billingEmail: 'admin@pearextension.com',
       billingAddress: {
         line1: '440 N Barranca Avenue',
         line2: '#4496',

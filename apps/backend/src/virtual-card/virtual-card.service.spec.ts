@@ -102,7 +102,8 @@ describe('VirtualCardService', () => {
         number: '4111111111111111',
         expiry: '07/27',
         cvv: '123',
-        name: 'Pear',
+        name: 'Pear Card',
+        billingEmail: 'admin@pearextension.com',
         billingAddress: {
           line1: '440 N Barranca Avenue',
           line2: '#4496',

@@ -3,6 +3,7 @@ export interface VirtualCard {
   expiry: string;
   cvv: string;
   name: string;
+  billingEmail: string;
   billingAddress: BillingAddress;
 }
 

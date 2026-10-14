@@ -153,6 +153,7 @@ describe('PaymentIntentsController (HTTP)', () => {
         expiry: '12/30',
         cvv: '123',
         name: 'Test',
+        billingEmail: 'admin@pearextension.com',
         billingAddress: {
           line1: '440 N Barranca Avenue',
           line2: '#4496',

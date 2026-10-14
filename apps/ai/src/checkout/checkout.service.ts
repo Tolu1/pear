@@ -5,7 +5,7 @@ import { PaymentIntentsService } from './payment-intents.service';
 import { type VirtualCard } from './interfaces/virtual-card.interface';
 
 const CHECKOUT_GOAL =
-  "Complete the checkout on the current web page. Fill the payment card fields (card number, expiry, CVV, name on card) using the card details in your instructions. If the payment form asks for a billing address, use the card's billing address. Then submit the order to pay. Leave shipping and other personal details as they are.";
+  "Complete the checkout on the current web page. Fill the payment card fields using the card details in your instructions. Billing details belong to the card owner, so if the payment form asks for a billing name, email or address, use the ones in your instructions, with the country set to the billing address's country. Leave the shopper's own details, like their name, email or shipping address in other sections, as they are. Then submit the order to pay.";
 
 @Injectable()
 export class CheckoutService {
@@ -39,6 +39,7 @@ export class CheckoutService {
       `Expiry: ${card.expiry}`,
       `CVV: ${card.cvv}`,
       `Name on card: ${card.name}`,
+      `Billing email: ${card.billingEmail}`,
       `Billing address: ${[line1, line2, city, state, zip, country].filter(Boolean).join(', ')}`,
     ].join('\n');
   }

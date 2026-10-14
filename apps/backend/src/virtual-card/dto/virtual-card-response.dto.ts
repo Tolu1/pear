@@ -8,6 +8,7 @@ export class VirtualCardResponseDto implements VirtualCard {
   expiry: string;
   cvv: string;
   name: string;
+  billingEmail: string;
   billingAddress: BillingAddressDto;
 }
 

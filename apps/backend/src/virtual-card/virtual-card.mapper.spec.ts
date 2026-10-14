@@ -1,7 +1,7 @@
 import { VirtualCardMapper } from './virtual-card.mapper';
 
 describe('VirtualCardMapper.toDomain()', () => {
-  it("maps a Laso card to Pear's card", () => {
+  it("maps a Laso card and its cardholder to Pear's card", () => {
     const card = {
       cardId: 'card_123',
       usdAmount: 50,
@@ -20,11 +20,14 @@ describe('VirtualCardMapper.toDomain()', () => {
       },
     };
 
-    expect(VirtualCardMapper.toDomain(card)).toEqual({
+    const cardholder = { name: 'Pear Card', email: 'admin@pearextension.com' };
+
+    expect(VirtualCardMapper.toDomain(card, cardholder)).toEqual({
       number: '4111111111111111',
       expiry: '07/27',
       cvv: '123',
-      name: 'Pear',
+      name: 'Pear Card',
+      billingEmail: 'admin@pearextension.com',
       billingAddress: {
         line1: '440 N Barranca Avenue',
         line2: null,
