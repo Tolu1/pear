@@ -4,11 +4,7 @@
   "version": "0.2.0",
   "description": "Early access preview of Pear's browser agent",
   "permissions": ["tabs", "activeTab", "sidePanel", "debugger"],
-  "host_permissions": [
-    "*://stripe-payments-demo.appspot.com/*",
-    "*://ai.pearextension.com/*",
-    "http://localhost/*"
-  ],
+  "host_permissions": ["<all_urls>"],
   "icons": {
     "16": "icon.png",
     "32": "icon.png",
