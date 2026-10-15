@@ -11,6 +11,7 @@ import { createPaymentIntent } from "@/lib/api/payment-intents/create-payment-in
 import { submitPaymentIntent } from "@/lib/api/payment-intents/submit-payment-intent";
 import { getSupportedTokens } from "@/lib/api/tokens/get-supported-tokens";
 import { sendToken } from "@/lib/blockchain/send-token";
+import { getTransactionUrl } from "@/lib/blockchain/get-transaction-url";
 import { queryClient } from "@/lib/query-client";
 import { supportedTokenKeys } from "@/lib/query-keys";
 import { startCheckout } from "@/lib/ai/checkout/start-checkout";
@@ -19,7 +20,7 @@ import { createAgent } from "@/lib/agent/create-agent";
 export async function makePayment(): Promise<void> {
   const { payment } = useDetectedPaymentStore.getState();
   const { quote } = useQuoteStore.getState();
-  const { setIntent } = usePaymentIntentStore.getState();
+  const { setIntent, setTransactionUrl } = usePaymentIntentStore.getState();
   const { setScreen, setError } = usePaymentScreenStore.getState();
   const { address, chainId } = getAccount(config);
 
@@ -62,6 +63,7 @@ export async function makePayment(): Promise<void> {
     to: intent.paymentAddress,
     amount: intent.cryptoAmount,
   });
+  setTransactionUrl(getTransactionUrl(rail.chainId, txHash));
 
   setScreen("processing");
   try {

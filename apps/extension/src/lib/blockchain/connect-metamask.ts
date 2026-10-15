@@ -1,5 +1,6 @@
 import { connect, getConnectors } from "wagmi/actions";
 import { config } from "./config";
+import { arc } from "./arc-chains";
 
 export async function connectMetaMask(): Promise<boolean> {
   const metaMask = getConnectors(config).find((c) =>
@@ -7,6 +8,6 @@ export async function connectMetaMask(): Promise<boolean> {
   );
   if (!metaMask) return false;
 
-  await connect(config, { connector: metaMask });
+  await connect(config, { connector: metaMask, chainId: arc.id });
   return true;
 }

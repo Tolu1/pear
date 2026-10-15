@@ -7,7 +7,7 @@ const USDC_DECIMALS = 6;
 
 function PaymentCompleted() {
   const { payment } = useDetectedPaymentStore();
-  const { intent } = usePaymentIntentStore();
+  const { intent, transactionUrl } = usePaymentIntentStore();
 
   if (!payment || !intent) return null;
 
@@ -86,6 +86,22 @@ function PaymentCompleted() {
             {payment.amount}
           </p>
         </div>
+        {transactionUrl && (
+          <>
+            <div className="h-[1px] bg-[#D6D58B]" />
+            <div className="flex h-[15px] justify-between">
+              <p>Transaction</p>
+              <a
+                href={transactionUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="font-mono tracking-normal underline"
+              >
+                View on explorer ↗
+              </a>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
