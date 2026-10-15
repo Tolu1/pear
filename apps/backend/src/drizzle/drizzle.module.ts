@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TransactionalAdapterDrizzleOrm } from '@nestjs-cls/transactional-adapter-drizzle-orm';
-import { neon, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-serverless';
 import ws from 'ws';
 import * as schema from './schema';
 
@@ -21,8 +21,8 @@ export type DrizzleAdapter = TransactionalAdapterDrizzleOrm<DrizzleClient>;
       inject: [ConfigService],
       useFactory: (configService: ConfigService): DrizzleClient => {
         const databaseUrl = configService.getOrThrow<string>('DATABASE_URL');
-        const sql = neon(databaseUrl);
-        return drizzle({ client: sql, schema, casing: 'snake_case' });
+        const pool = new Pool({ connectionString: databaseUrl });
+        return drizzle({ client: pool, schema, casing: 'snake_case' });
       },
     },
   ],
