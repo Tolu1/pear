@@ -1,84 +1,40 @@
-# Turborepo starter
+# Every checkout on the internet now accepts stablecoins.
 
-This Turborepo starter is maintained by the Turborepo core team.
+Pear turns any checkout, in every nook and cranny of the internet, into one that takes USDC. You pay from your wallet, and Pear's agent completes the purchase. The merchant never has to integrate anything.
 
-## Using this example
+Backed by [Forbes Family Group](https://forbesfamilygroup.com) and [Cornerstone VC](https://www.cornerstonevc.co).
 
-Run the following command:
+**[Watch the demo](https://youtu.be/sAAxdKbe9n8)** · [pearextension.com](https://pearextension.com)
 
-```sh
-npx create-turbo@latest
-```
+## How it works
 
-## What's inside?
+1. You land on a checkout or payment page, and open Pear.
+2. Pear quotes the total in USDC and you approve one transfer from your wallet.
+3. Pear verifies the transfer on chain and funds a one-time card for exactly that purchase.
+4. Pear's agent fills in the card and billing details and places the order.
 
-This Turborepo includes the following packages/apps:
+## Pear on Arc
 
-### Apps and Packages
+**USDC on Arc can now be spent anywhere on the internet.**
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+Every website that takes cards, from a donation page to an online store, becomes a place to spend Arc USDC, and the merchant never has to know Arc exists. Each purchase is a real USDC payment on Arc mainnet, [like this one](https://explorer.arc.io/tx/0x0bf649cf82cbc3c29ebc1a673c1d3f9261da7003baa359d129007c25da188170) from the demo.
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+## Try it
 
-### Utilities
+You need Chrome and $1 of USDC on Arc. Don't have it? [Request $1 here](https://forms.gle/4YmdCJ5kjQWbDb7Q9).
 
-This Turborepo has some additional tools already setup for you:
+1. [Download Pear](https://pear-extension-downloads.s3.eu-central-1.amazonaws.com/pear-extension-v0.2.0-beta.zip) and unzip it.
+2. Open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and pick the folder.
+3. Open the [Mozilla Foundation donate page](https://www.mozillafoundation.org/en/donate/), enter $1 and continue to the card details.
+4. Open Pear, connect your wallet, click **Refresh**, then **Pay**.
+5. Approve the transfer in your wallet. Pear's agent fills in the card and completes the donation.
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+## Architecture
 
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm build
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm dev
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-npx turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-npx turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+| Path | What it does |
+| --- | --- |
+| `apps/extension` | Chrome extension, wallet and payment |
+| `apps/backend` | Payments, verification and cards |
+| `apps/ai` | Agent server that completes checkout |
+| `packages/agent-core` | Shared browser agent library |
+| `apps/web` | pearextension.com |
